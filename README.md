@@ -1,26 +1,68 @@
-# Orbit — roadmap de Engenharia de Software com IA
+# Orbit: roadmap de Engenharia de Software com IA
 
-Aplicação em React, TypeScript e Vite. O mapa mantém 60 áreas, 557 tópicos, materiais de estudo, busca, filtros, progresso, XP e conquistas.
+Orbit é um roadmap interativo para quem quer construir sistemas com IA de verdade, e não só chamar uma API. Ele organiza **60 áreas e 557 tópicos**, dos fundamentos de engenharia de software até sistemas multiagente, numa trilha em 6 fases, e mostra sempre **qual é o seu próximo passo**.
 
-## Rodar
+## O problema
 
-```powershell
+Roadmaps de estudo costumam ser listas gigantes. Diante de centenas de itens, a pessoa não sabe por onde começar, perde a noção do quanto já avançou e desiste. Estudar sem construir nada também faz o conhecimento evaporar rápido.
+
+O Orbit ataca isso de três formas:
+
+- **Um passo de cada vez.** A tela inicial responde uma pergunta só: "o que eu estudo agora?". Você marca o tópico ali mesmo e o próximo aparece. O resto do mapa fica recolhido até você pedir.
+- **Essencial primeiro.** Cada área separa os tópicos **essenciais** (a base para construir e operar uma aplicação) dos **extras** (alternativas e aprofundamento, para depois). O progresso principal conta só os essenciais.
+- **Aprender construindo.** Cada área pode ter um **desafio prático** ("Construa isto"), com critérios objetivos de pronto. Estudar é o caminho; construir é a prova.
+
+Para a jornada não virar obrigação, o progresso é visual e recompensado: o mapa é uma carta celeste em que cada área concluída vira uma estrela acesa, com XP, níveis, sequência de dias de estudo e conquistas.
+
+## Funcionalidades
+
+- **Card "Seu próximo passo":** mostra o próximo tópico essencial (ou o desafio pendente da área) e permite marcar como feito sem abrir nada.
+- **Mapa por fases:** só a fase atual fica aberta, como uma trilha. As outras mostram uma estrela por área.
+- **Painel da área:** mostra os essenciais como uma sequência de passos, os extras recolhidos, o desafio prático e os materiais de estudo, com um deles em destaque.
+- **Busca e filtros** por área ou tópico.
+- **Recompensas:** XP, níveis (Explorador, Construtor, Especialista, Arquiteto orbital), conquistas, sequência de dias e a meta mais próxima ("Falta 1 tópico para…").
+- **Backup:** baixe e restaure o seu progresso em JSON.
+- **Responsivo**, com menu hambúrguer no celular. As animações respeitam a preferência do sistema por menos movimento.
+
+## Privacidade
+
+Não há conta, servidor nem rastreamento. O progresso fica **só no seu navegador** (`localStorage`). Para levar o progresso para outro navegador ou aparelho, use **Baixar backup** e **Restaurar backup**.
+
+## Instalação
+
+Requisitos: **Node.js 22 ou mais recente** e **pnpm** (o projeto usa o `pnpm-lock.yaml`).
+
+```bash
+# se o pnpm não estiver instalado
+corepack enable
+
 pnpm install
 pnpm dev
 ```
 
-Para conferir a versão de produção: `pnpm build` e `pnpm preview`. Execute `pnpm lint` e `pnpm test` para verificar código e migração de progresso.
+O Vite mostra o endereço local no terminal (por padrão, http://localhost:5173).
 
-## Organização
+### Scripts
 
-- `src/data/areas.ts` e `src/types/content.ts`: conteúdo tipado do roadmap (áreas, tópicos com IDs estáveis e materiais). Tipo de material, fase e URL `https://` inválidos quebram o `tsc`. Nunca renomeie IDs de tópicos: o progresso salvo depende deles.
-- `src/data/roadmap.ts`: fases e índices derivados (`orderedAreas`, `areasByPhase`, `stepLabel`).
-- `src/domain/`: regras puras, sem dependência do React ou do navegador — `progress.ts` (percentuais, XP, sequência de estudo, próximo passo, estados de fase e área, metas, conquistas e feedback das ações), `filter.ts` (busca e filtros do mapa) e `backup.ts` (validação e migração de progresso importado/legado).
-- `src/store/progress.ts` e `src/types/progress.ts`: marcações e dias de estudo no Zustand, persistidos em `localStorage`.
-- `src/components/`: seções da interface — `Hero` (só na primeira visita), `NextStep` (card "Seu próximo passo"), `Journey`, `MapToolbar`, `RoadmapMap` (fases e trilha), `AreaDialog`, `Achievements`, `SectionHeading`, `Sidebar` (menu hambúrguer no mobile), `BackupControls` e `Toast`.
-- `src/styles/`: estilos globais e por área da interface (`index.css` importa os demais arquivos).
-- `src/App.tsx`: composição da aplicação.
+| Comando | O que faz |
+|---|---|
+| `pnpm dev` | Servidor de desenvolvimento com recarga automática |
+| `pnpm build` | Checagem de tipos (`tsc -b`) e build de produção em `dist/` |
+| `pnpm preview` | Serve o build de produção localmente |
+| `pnpm lint` | ESLint, incluindo a formatação (`pnpm lint --fix` corrige) |
+| `pnpm test` | Testes das regras de progresso, da integridade do conteúdo e das migrações |
 
-O armazenamento usa a chave `orbit-roadmap-react-v1` com esquema versão 2. O progresso já salvo nessa chave é migrado automaticamente para IDs estáveis dos tópicos. Se a versão HTML anterior tiver sido aberta **na mesma origem**, o estado de `orbit-roadmap-v1` é lido na primeira execução. Como `file://` e `http://localhost` usam armazenamentos separados, para migrar o progresso da versão HTML aberta como arquivo local, exporte `orbit-progresso.json` nela e use **Restaurar backup** na versão React. Backups antigos (v1) continuam aceitos; novas exportações são v2.
+O resultado de `pnpm build` é um site estático (HTML, CSS e JS). Pode ser publicado em qualquer hospedagem estática (GitHub Pages, Netlify, Vercel, Cloudflare Pages).
 
-Ideias avaliadas para o futuro ficam em [BACKLOG.md](BACKLOG.md).
+## Tecnologias
+
+React 19, TypeScript, Vite e Zustand (estado com persistência em `localStorage`). O CSS é escrito à mão, sem framework de UI.
+
+## Para quem vai contribuir
+
+- [AGENTS.md](AGENTS.md): arquitetura, regras de negócio e convenções do código (também usado por agentes de IA).
+- [BACKLOG.md](BACKLOG.md): ideias avaliadas para o futuro.
+
+### Vindo da versão HTML antiga
+
+Se a versão HTML anterior tiver sido aberta **no mesmo endereço**, o progresso dela é lido automaticamente na primeira execução. Endereços diferentes (por exemplo, `file://` e `http://localhost`) guardam dados separados. Nesse caso, exporte `orbit-progresso.json` na versão HTML e use **Restaurar backup** aqui.
