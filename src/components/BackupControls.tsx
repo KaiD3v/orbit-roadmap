@@ -1,8 +1,9 @@
 import type { ChangeEvent } from 'react'
 import { createBackup } from '../domain/backup'
+import type { Feedback } from '../domain/progress'
 import { useProgress } from '../store/progress'
 
-export function BackupControls({ notify }: { notify: (message: string) => void }) {
+export function BackupControls({ notify }: { notify: (feedback: Feedback) => void }) {
   function exportBackup() {
     const backup = createBackup(useProgress.getState())
     const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' })
@@ -11,7 +12,7 @@ export function BackupControls({ notify }: { notify: (message: string) => void }
     link.download = 'orbit-progresso.json'
     link.click()
     window.setTimeout(() => URL.revokeObjectURL(link.href), 1000)
-    notify('Backup baixado')
+    notify({ message: 'Backup baixado', kind: 'info' })
   }
 
   async function loadBackup(event: ChangeEvent<HTMLInputElement>) {
@@ -23,9 +24,9 @@ export function BackupControls({ notify }: { notify: (message: string) => void }
       const { done, days } = useProgress.getState()
       if ((Object.keys(done).length || days.length) && !window.confirm('Isso troca seu progresso atual pelo do arquivo. Continuar?')) return
       useProgress.getState().importBackup(imported)
-      notify('Progresso restaurado')
+      notify({ message: 'Progresso restaurado', kind: 'info' })
     } catch {
-      notify('Não reconhecemos esse arquivo. Use um backup baixado do Orbit.')
+      notify({ message: 'Não reconhecemos esse arquivo. Use um backup baixado do Orbit.', kind: 'info' })
     } finally {
       input.value = ''
     }

@@ -7,6 +7,7 @@ export function MapToolbar({ search, onSearch, filter, onFilter, matches }: {
   onFilter: (value: Filter) => void
   matches: number
 }) {
+  const searching = search.trim().length > 0 || filter !== 'all'
   return (
     <>
       <div className="toolbar">
@@ -34,12 +35,9 @@ export function MapToolbar({ search, onSearch, filter, onFilter, matches }: {
           ))}
         </div>
       </div>
-      <p className="map-legend">
-        <span><i className="legend-dot" /> Próximo passo</span>
-        <span><i className="legend-dot finished" /> Área concluída</span>
-        <span><i className="legend-dot extension" /> Só extras</span>
-        <span>{matches} {matches === 1 ? 'área' : 'áreas'}</span>
-      </p>
+      {searching && (
+        <p className="toolbar-count">{matches} {matches === 1 ? 'área encontrada' : 'áreas encontradas'}</p>
+      )}
     </>
   )
 }

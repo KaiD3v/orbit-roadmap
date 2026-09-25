@@ -1,5 +1,5 @@
 import { areas, areasByPhase, orderedAreas, phases } from '../data/roadmap'
-import type { Area } from '../types/content'
+import type { Area, Topic } from '../types/content'
 import type { Done } from '../types/progress'
 
 export const TOPIC_XP = 10
@@ -38,6 +38,31 @@ export function nextArea(done: Done) {
     const [completed, total] = priorityProgress(area, done, true)
     return completed < total
   }) || orderedAreas.find(area => countDone(area, done) < area.topics.length) || first
+}
+
+export function nextTopic(done: Done): { area: Area, topic: Topic } | null {
+  const area = nextArea(done)
+  const topic = area.topics.find(t => t.required && !done[t.id]) ?? area.topics.find(t => !done[t.id])
+  return topic ? { area, topic } : null
+}
+
+export type PhaseState = 'done' | 'current' | 'future'
+
+export function phaseState(phase: number, done: Done): PhaseState {
+  if (nextTopic(done) === null) return 'done'
+  const current = nextArea(done).phase
+  if (phase === current) return 'current'
+  return phase < current ? 'done' : 'future'
+}
+
+export type AreaState = 'done' | 'next' | 'progress' | 'todo'
+
+export function areaState(area: Area, done: Done, nextId: number): AreaState {
+  const [requiredDone, requiredTotal] = priorityProgress(area, done, true)
+  const finished = requiredTotal ? requiredDone === requiredTotal : isAreaDone(area, done)
+  if (finished) return 'done'
+  if (area.id === nextId) return 'next'
+  return countDone(area, done) > 0 ? 'progress' : 'todo'
 }
 
 export function streak(days: string[]) {
@@ -83,14 +108,6 @@ export function metrics(done: Done, days: string[]) {
 
 export type Metrics = ReturnType<typeof metrics>
 
-export function toggleMessage(done: Done, key: string) {
-  if (done[key]) return 'Tópico desmarcado'
-  const after = { ...done, [key]: true as const }
-  return countFinishedPhases(after) > countFinishedPhases(done)
-    ? `Fase concluída! +${PHASE_XP} XP ✦`
-    : `+${TOPIC_XP} XP · Tópico concluído!`
-}
-
 export function levelFor(percent: number) {
   if (percent === 100) return 'Arquiteto orbital'
   if (percent >= 60) return 'Especialista'
@@ -98,16 +115,112 @@ export function levelFor(percent: number) {
   return 'Explorador'
 }
 
-type Badge = { icon: string, title: string, description: string, earned: (progress: Metrics) => boolean }
+function justCompletedArea(area: Area, before: Done, after: Done) {
+  const [beforeDone, beforeTotal] = priorityProgress(area, before, true)
+  const [afterDone, afterTotal] = priorityProgress(area, after, true)
+  if (afterTotal) return afterDone === afterTotal && beforeDone < beforeTotal
+  return isAreaDone(area, after) && !isAreaDone(area, before)
+}
+
+export type Feedback = { message: string, kind: 'undo' | 'topic' | 'area' | 'level' | 'phase' | 'info' }
+
+// Prioridade da maior para a menor conquista: fase > nível > área > tópico > desmarcar.
+export function toggleFeedback(done: Done, key: string): Feedback {
+  if (done[key]) return { message: 'Tópico desmarcado', kind: 'undo' }
+  const after = { ...done, [key]: true as const }
+
+  if (countFinishedPhases(after) > countFinishedPhases(done)) {
+    return { message: `Fase concluída! +${PHASE_XP} XP ✦`, kind: 'phase' }
+  }
+
+  const levelBefore = levelFor(metrics(done, []).percent)
+  const levelAfter = levelFor(metrics(after, []).percent)
+  if (levelAfter !== levelBefore) {
+    return { message: `Novo nível: ${levelAfter}!`, kind: 'level' }
+  }
+
+  const area = areas.find(candidate => candidate.topics.some(topic => topic.id === key))
+  if (area && justCompletedArea(area, done, after)) {
+    return { message: `Área concluída! Próxima: ${nextArea(after).title}`, kind: 'area' }
+  }
+
+  return { message: `+${TOPIC_XP} XP · Tópico concluído!`, kind: 'topic' }
+}
+
+type Badge = {
+  icon: string
+  title: string
+  description: string
+  target?: number
+  earned: (progress: Metrics) => boolean
+}
+
+const countBadge = (icon: string, title: string, target: number): Badge => ({
+  icon,
+  title,
+  description: `Conclua ${target === 1 ? 'seu primeiro tópico' : `${target} tópicos`}`,
+  target,
+  earned: progress => progress.completed >= target,
+})
 
 const BADGES: Badge[] = [
-  { icon: '✦', title: 'Primeiro passo', description: 'Conclua seu primeiro tópico', earned: progress => progress.completed >= 1 },
-  { icon: '⚡', title: 'Em movimento', description: 'Conclua 10 tópicos', earned: progress => progress.completed >= 10 },
-  { icon: '◈', title: 'Consistência', description: 'Conclua 50 tópicos', earned: progress => progress.completed >= 50 },
+  countBadge('✦', 'Primeiro passo', 1),
+  countBadge('⚡', 'Em movimento', 10),
+  countBadge('◈', 'Consistência', 50),
   { icon: '⌁', title: 'Mestre de fase', description: 'Complete uma fase', earned: progress => progress.finishedPhases >= 1 },
   { icon: '✳', title: 'Órbita completa', description: 'Conclua todo o roadmap', earned: progress => progress.completed === progress.total },
 ]
 
 export function badges(progress: Metrics) {
   return BADGES.map(({ earned, ...badge }) => ({ ...badge, unlocked: earned(progress) }))
+}
+
+const LEVEL_THRESHOLDS = [
+  { percent: 25, name: 'Construtor' },
+  { percent: 60, name: 'Especialista' },
+  { percent: 100, name: 'Arquiteto orbital' },
+] as const
+
+// Menor n tal que percent(n, total) >= target, coerente com o arredondamento de levelFor.
+function minDoneForPercent(total: number, target: number) {
+  return total ? Math.max(0, Math.ceil((target - 0.5) * total / 100)) : 0
+}
+
+export function nextGoals(progress: Metrics): {
+  level?: { name: string, remaining: number }
+  badge?: { title: string, icon: string, remaining?: number }
+} {
+  const threshold = LEVEL_THRESHOLDS.find(t => progress.percent < t.percent)
+  const level = !threshold
+    ? undefined
+    : {
+        name: threshold.name,
+        remaining: minDoneForPercent(progress.requiredTotal, threshold.percent) - progress.requiredDone,
+      }
+
+  const nextBadge = badges(progress).find(badge => !badge.unlocked)
+  const badgeRemaining = nextBadge?.target === undefined ? undefined : nextBadge.target - progress.completed
+  const badge = nextBadge ? { title: nextBadge.title, icon: nextBadge.icon, remaining: badgeRemaining } : undefined
+
+  return { level, badge }
+}
+
+// Frase única usada no card "próximo passo" e como título da seção de conquistas.
+export function goalsLine(progress: Metrics): string | null {
+  const goals = nextGoals(progress)
+  const parts: string[] = []
+  if (goals.badge) {
+    if (goals.badge.remaining === undefined) {
+      const description = badges(progress).find(badge => badge.title === goals.badge?.title)?.description
+      if (description) parts.push(description)
+    } else {
+      const n = goals.badge.remaining
+      parts.push(`${n === 1 ? 'Falta' : 'Faltam'} ${n} tópico${n === 1 ? '' : 's'} para ${goals.badge.title}`)
+    }
+  }
+  if (goals.level) {
+    const n = goals.level.remaining
+    parts.push(`${n} ${n === 1 ? 'essencial' : 'essenciais'} para o nível ${goals.level.name}`)
+  }
+  return parts.length ? parts.join(' · ') : null
 }

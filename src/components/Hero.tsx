@@ -1,12 +1,14 @@
 import type { CSSProperties } from 'react'
 import { useMetrics } from '../store/progress'
 
-export function Hero({ onContinue }: { onContinue: () => void }) {
+export function Hero() {
   const progress = useMetrics()
+  if (progress.completed > 0) {
+    return <h1 id="hero-title" className="sr-only">Construa sistemas inteligentes de verdade.</h1>
+  }
   return (
     <section className="hero" aria-labelledby="hero-title">
       <div className="hero-copy">
-        <div className="hero-kicker"><span className="live-dot" /> Seu mapa de evolução</div>
         <h1 id="hero-title">
           Construa sistemas
           <br />
@@ -16,14 +18,6 @@ export function Hero({ onContinue }: { onContinue: () => void }) {
           Da arquitetura ao deploy. Avance um conceito por vez, aplique em projetos reais
           e veja sua evolução tomar forma.
         </p>
-        <div className="hero-actions">
-          <button className="primary-button" type="button" onClick={onContinue}>
-            {progress.completed === 0 ? 'Começar jornada' : 'Continuar jornada'} <span aria-hidden="true">↗</span>
-          </button>
-          <span className="hero-hint">
-            {progress.requiredDone} de {progress.requiredTotal} essenciais concluídos
-          </span>
-        </div>
       </div>
       <div className="orbit-wrap" aria-label={`Trilha essencial: ${progress.percent}% concluída`}>
         <div className="orbit orbit-one" />

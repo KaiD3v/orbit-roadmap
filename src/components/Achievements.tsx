@@ -1,18 +1,27 @@
-import { badges } from '../domain/progress'
+import { badges, goalsLine } from '../domain/progress'
 import { useMetrics } from '../store/progress'
 import { SectionHeading } from './SectionHeading'
 
 export function Achievements() {
-  const achievements = badges(useMetrics())
+  const progress = useMetrics()
+  const achievements = badges(progress)
+  const goal = goalsLine(progress)
   return (
     <section className="achievements" aria-labelledby="achievements-title">
-      <SectionHeading id="achievements-title" label="Conquistas" title="Pequenas vitórias, grande jornada" />
+      <SectionHeading id="achievements-title" title="Conquistas">
+        {goal ?? 'Você desbloqueou todas. Pequenas vitórias, grande jornada.'}
+      </SectionHeading>
       <div className="badge-grid">
         {achievements.map(({ icon, title, description, unlocked }) => (
-          <div className={`badge ${unlocked ? '' : 'locked'}`} aria-label={`${title}: ${unlocked ? 'desbloqueada' : 'bloqueada'}`} key={title}>
-            <div className="badge-icon">{icon}</div>
+          <div
+            className={`badge ${unlocked ? 'is-unlocked' : 'locked'}`}
+            title={description}
+            aria-label={`${title}: ${description}, ${unlocked ? 'desbloqueada' : 'bloqueada'}`}
+            key={title}
+          >
+            <span className="badge-icon" aria-hidden="true">{icon}</span>
             <strong>{title}</strong>
-            <p>{description}</p>
+            <small>{description}</small>
           </div>
         ))}
       </div>

@@ -3,7 +3,7 @@ import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { validTopicKeys } from '../data/roadmap'
 import { cleanProgress, parseBackup, safeProgress } from '../domain/backup'
-import { localDay, metrics } from '../domain/progress'
+import { localDay, metrics, toggleFeedback, type Feedback } from '../domain/progress'
 import type { ProgressData } from '../types/progress'
 
 type ProgressStore = ProgressData & {
@@ -54,4 +54,13 @@ export function useMetrics() {
   const done = useProgress(state => state.done)
   const days = useProgress(state => state.days)
   return useMemo(() => metrics(done, days), [done, days])
+}
+
+export function useToggleTopic(notify: (feedback: Feedback) => void) {
+  const done = useProgress(state => state.done)
+  const toggleTopic = useProgress(state => state.toggleTopic)
+  return (key: string) => {
+    notify(toggleFeedback(done, key))
+    toggleTopic(key)
+  }
 }

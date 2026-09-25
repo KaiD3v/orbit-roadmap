@@ -19,7 +19,7 @@ export function Journey({ search, onSearch, filter, onFilter, open }: {
   const matches = areas.filter(area => matchesArea(area, done, query, filter)).length
   return (
     <section className="journey" aria-labelledby="journey-title">
-      <SectionHeading id="journey-title" label="Mapa de aprendizagem" title="Trace seu caminho">
+      <SectionHeading id="journey-title" title="Trace seu caminho">
         São {orderedAreas.length} etapas. Comece pelos tópicos essenciais para já construir algo real; os extras
         ficam para quando quiser ir mais fundo.
       </SectionHeading>
