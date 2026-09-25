@@ -1,0 +1,2731 @@
+[
+  {
+    "id": 1,
+    "title": "Fundamentos de engenharia de software",
+    "phase": 1,
+    "description": "Isso é obrigatório. IA não corrige arquitetura ruim.",
+    "topics": [
+      "modular monolith",
+      "layered architecture",
+      "clean architecture",
+      "hexagonal architecture",
+      "ports & adapters",
+      "DDD",
+      "entities",
+      "value objects",
+      "aggregates",
+      "bounded contexts",
+      "domain services",
+      "CQRS",
+      "event-driven architecture",
+      "microservices",
+      "serverless",
+      "state machines",
+      "workflow engines",
+      "SOLID",
+      "composição > herança",
+      "dependency inversion",
+      "dependency injection",
+      "interfaces e contratos",
+      "imutabilidade",
+      "idempotência",
+      "retry safety",
+      "deterministic behavior",
+      "separation of concerns",
+      "Strategy",
+      "Factory",
+      "Adapter",
+      "Repository",
+      "Observer",
+      "Command",
+      "Decorator",
+      "Proxy",
+      "Saga",
+      "Outbox",
+      "Circuit Breaker",
+      "Bulkhead",
+      "diagrama de arquitetura",
+      "ADRs",
+      "separação por módulos",
+      "contratos entre serviços",
+      "políticas explícitas de erro",
+      "observabilidade",
+      "testes por camada"
+    ],
+    "required": [
+      0,
+      6,
+      9,
+      15,
+      17,
+      18,
+      19,
+      21,
+      23,
+      24,
+      25,
+      26,
+      39,
+      41,
+      43,
+      44,
+      45
+    ],
+    "resources": [
+      {
+        "type": "Material",
+        "title": "Documentação e referência",
+        "url": "https://martinfowler.com/architecture/"
+      },
+      {
+        "type": "Curso",
+        "title": "System Design Primer",
+        "url": "https://github.com/donnemartin/system-design-primer"
+      },
+      {
+        "type": "Vídeo",
+        "title": "MIT 6.006 · aulas",
+        "url": "https://ocw.mit.edu/courses/6-006-introduction-to-algorithms-spring-2020/video_galleries/lecture-videos/"
+      },
+      {
+        "type": "Livro",
+        "title": "Designing Data-Intensive Applications",
+        "url": "https://dataintensive.net/"
+      }
+    ]
+  },
+  {
+    "id": 2,
+    "title": "Estruturas de dados e algoritmos",
+    "phase": 1,
+    "description": "Não precisa virar competidor de LeetCode, mas precisa compreender performance.",
+    "topics": [
+      "Big O",
+      "arrays",
+      "linked lists",
+      "stacks",
+      "queues",
+      "heaps",
+      "hash maps",
+      "trees",
+      "graphs",
+      "tries",
+      "BFS",
+      "DFS",
+      "binary search",
+      "sorting",
+      "greedy algorithms",
+      "dynamic programming básica",
+      "grafos",
+      "busca",
+      "ranking",
+      "similaridade",
+      "indexação",
+      "estruturas probabilísticas",
+      "autocomplete",
+      "scheduler",
+      "rate limiter",
+      "LRU cache",
+      "job queue",
+      "graph traversal"
+    ],
+    "required": [
+      0,
+      1,
+      6,
+      8,
+      10,
+      16,
+      17,
+      18,
+      19,
+      20,
+      24,
+      26
+    ],
+    "resources": [
+      {
+        "type": "Material",
+        "title": "Documentação e referência",
+        "url": "https://ocw.mit.edu/courses/6-006-introduction-to-algorithms-spring-2020/"
+      },
+      {
+        "type": "Curso",
+        "title": "System Design Primer",
+        "url": "https://github.com/donnemartin/system-design-primer"
+      },
+      {
+        "type": "Vídeo",
+        "title": "MIT 6.006 · aulas",
+        "url": "https://ocw.mit.edu/courses/6-006-introduction-to-algorithms-spring-2020/video_galleries/lecture-videos/"
+      },
+      {
+        "type": "Livro",
+        "title": "Designing Data-Intensive Applications",
+        "url": "https://dataintensive.net/"
+      }
+    ]
+  },
+  {
+    "id": 3,
+    "title": "Sistemas operacionais",
+    "phase": 1,
+    "description": "Você não precisa virar kernel engineer, mas precisa entender o que seu software está fazendo.",
+    "topics": [
+      "processos",
+      "threads",
+      "context switching",
+      "memória virtual",
+      "heap / stack",
+      "file descriptors",
+      "sockets",
+      "signals",
+      "processos filhos",
+      "IPC",
+      "concorrência",
+      "deadlocks",
+      "race conditions",
+      "systemd",
+      "journalctl",
+      "ps",
+      "top/htop",
+      "lsof",
+      "netstat/ss",
+      "strace",
+      "curl",
+      "dig",
+      "grep",
+      "sed",
+      "awk"
+    ],
+    "required": [
+      0,
+      1,
+      3,
+      6,
+      10,
+      12,
+      15,
+      20,
+      21
+    ],
+    "resources": [
+      {
+        "type": "Material",
+        "title": "Documentação e referência",
+        "url": "https://pages.cs.wisc.edu/~remzi/OSTEP/"
+      },
+      {
+        "type": "Curso",
+        "title": "System Design Primer",
+        "url": "https://github.com/donnemartin/system-design-primer"
+      },
+      {
+        "type": "Vídeo",
+        "title": "MIT 6.006 · aulas",
+        "url": "https://ocw.mit.edu/courses/6-006-introduction-to-algorithms-spring-2020/video_galleries/lecture-videos/"
+      },
+      {
+        "type": "Livro",
+        "title": "Designing Data-Intensive Applications",
+        "url": "https://dataintensive.net/"
+      }
+    ]
+  },
+  {
+    "id": 4,
+    "title": "Redes",
+    "phase": 1,
+    "description": "Essencial.",
+    "topics": [
+      "TCP/IP",
+      "UDP",
+      "DNS",
+      "HTTP/1.1",
+      "HTTP/2",
+      "HTTP/3",
+      "TLS",
+      "WebSocket",
+      "SSE",
+      "proxies",
+      "reverse proxies",
+      "load balancers",
+      "CDN",
+      "NAT",
+      "firewalls"
+    ],
+    "required": [
+      0,
+      2,
+      3,
+      6,
+      8,
+      10,
+      11,
+      14
+    ],
+    "resources": [
+      {
+        "type": "Material",
+        "title": "Documentação e referência",
+        "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Overview"
+      },
+      {
+        "type": "Curso",
+        "title": "System Design Primer",
+        "url": "https://github.com/donnemartin/system-design-primer"
+      },
+      {
+        "type": "Vídeo",
+        "title": "MIT 6.006 · aulas",
+        "url": "https://ocw.mit.edu/courses/6-006-introduction-to-algorithms-spring-2020/video_galleries/lecture-videos/"
+      },
+      {
+        "type": "Livro",
+        "title": "Designing Data-Intensive Applications",
+        "url": "https://dataintensive.net/"
+      }
+    ]
+  },
+  {
+    "id": 5,
+    "title": "Backend avançado",
+    "phase": 1,
+    "description": "Como seu foco é backend, este é um dos pontos de maior ROI para você.",
+    "topics": [
+      "REST",
+      "RPC",
+      "GraphQL",
+      "gRPC",
+      "versionamento",
+      "pagination",
+      "filtering",
+      "sorting",
+      "rate limiting",
+      "idempotency keys",
+      "async/await",
+      "promises",
+      "workers",
+      "event loop",
+      "worker threads",
+      "backpressure",
+      "streaming",
+      "Redis",
+      "BullMQ",
+      "RabbitMQ",
+      "Kafka",
+      "retry",
+      "exponential backoff",
+      "dead-letter queue",
+      "deduplicação",
+      "exactly-once vs at-least-once",
+      "poison messages",
+      "replay",
+      "job recovery"
+    ],
+    "required": [
+      0,
+      4,
+      5,
+      8,
+      9,
+      10,
+      13,
+      15,
+      16,
+      17,
+      18,
+      21,
+      22,
+      23,
+      24
+    ],
+    "resources": [
+      {
+        "type": "Material",
+        "title": "Documentação e referência",
+        "url": "https://nodejs.org/en/learn"
+      },
+      {
+        "type": "Curso",
+        "title": "System Design Primer",
+        "url": "https://github.com/donnemartin/system-design-primer"
+      },
+      {
+        "type": "Vídeo",
+        "title": "MIT 6.006 · aulas",
+        "url": "https://ocw.mit.edu/courses/6-006-introduction-to-algorithms-spring-2020/video_galleries/lecture-videos/"
+      },
+      {
+        "type": "Livro",
+        "title": "Designing Data-Intensive Applications",
+        "url": "https://dataintensive.net/"
+      }
+    ]
+  },
+  {
+    "id": 6,
+    "title": "Banco de dados",
+    "phase": 1,
+    "description": "Domine:",
+    "topics": [
+      "PostgreSQL",
+      "índices",
+      "B-tree",
+      "hash indexes",
+      "composite indexes",
+      "partial indexes",
+      "query planner",
+      "EXPLAIN",
+      "EXPLAIN ANALYZE",
+      "transactions",
+      "isolation levels",
+      "locks",
+      "MVCC",
+      "deadlocks",
+      "normalização",
+      "denormalização",
+      "relacionamentos",
+      "schemas multi-tenant"
+    ],
+    "required": [
+      0,
+      1,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      14,
+      16
+    ],
+    "resources": [
+      {
+        "type": "Material",
+        "title": "Documentação e referência",
+        "url": "https://www.postgresql.org/docs/current/"
+      },
+      {
+        "type": "Curso",
+        "title": "System Design Primer",
+        "url": "https://github.com/donnemartin/system-design-primer"
+      },
+      {
+        "type": "Vídeo",
+        "title": "MIT 6.006 · aulas",
+        "url": "https://ocw.mit.edu/courses/6-006-introduction-to-algorithms-spring-2020/video_galleries/lecture-videos/"
+      },
+      {
+        "type": "Livro",
+        "title": "Designing Data-Intensive Applications",
+        "url": "https://dataintensive.net/"
+      }
+    ]
+  },
+  {
+    "id": 7,
+    "title": "NoSQL",
+    "phase": 1,
+    "description": "Aprenda quando usar:",
+    "topics": [
+      "cache",
+      "queue",
+      "pub/sub",
+      "streams",
+      "distributed locks",
+      "rate limiting",
+      "Elasticsearch",
+      "OpenSearch"
+    ],
+    "required": [
+      0,
+      1,
+      5
+    ],
+    "resources": [
+      {
+        "type": "Material",
+        "title": "Documentação e referência",
+        "url": "https://redis.io/docs/latest/"
+      },
+      {
+        "type": "Curso",
+        "title": "System Design Primer",
+        "url": "https://github.com/donnemartin/system-design-primer"
+      },
+      {
+        "type": "Vídeo",
+        "title": "MIT 6.006 · aulas",
+        "url": "https://ocw.mit.edu/courses/6-006-introduction-to-algorithms-spring-2020/video_galleries/lecture-videos/"
+      },
+      {
+        "type": "Livro",
+        "title": "Designing Data-Intensive Applications",
+        "url": "https://dataintensive.net/"
+      }
+    ]
+  },
+  {
+    "id": 8,
+    "title": "Sistemas distribuídos",
+    "phase": 1,
+    "description": "Este é um dos assuntos que mais diferencia engenheiro pleno/sênior de dev CRUD.",
+    "topics": [
+      "CAP theorem",
+      "consistency",
+      "availability",
+      "partition tolerance",
+      "eventual consistency",
+      "distributed locks",
+      "leader election",
+      "replication",
+      "sharding",
+      "consensus",
+      "quorum",
+      "clock drift",
+      "retries",
+      "idempotência"
+    ],
+    "required": [
+      0,
+      1,
+      4,
+      11,
+      12,
+      13
+    ],
+    "resources": [
+      {
+        "type": "Material",
+        "title": "Documentação e referência",
+        "url": "https://aws.amazon.com/builders-library/"
+      },
+      {
+        "type": "Curso",
+        "title": "System Design Primer",
+        "url": "https://github.com/donnemartin/system-design-primer"
+      },
+      {
+        "type": "Vídeo",
+        "title": "MIT 6.006 · aulas",
+        "url": "https://ocw.mit.edu/courses/6-006-introduction-to-algorithms-spring-2020/video_galleries/lecture-videos/"
+      },
+      {
+        "type": "Livro",
+        "title": "Designing Data-Intensive Applications",
+        "url": "https://dataintensive.net/"
+      }
+    ]
+  },
+  {
+    "id": 9,
+    "title": "Matemática para IA",
+    "phase": 2,
+    "description": "Você não precisa estudar matemática acadêmica até o infinito.",
+    "topics": [
+      "vetores",
+      "matrizes",
+      "dot product",
+      "matrix multiplication",
+      "cosine similarity",
+      "eigenvalues — conceito",
+      "embeddings",
+      "média",
+      "mediana",
+      "variância",
+      "distribuição normal",
+      "probabilidade condicional",
+      "Bayes",
+      "correlação",
+      "regressão",
+      "confidence intervals",
+      "derivadas",
+      "gradiente",
+      "gradient descent",
+      "chain rule"
+    ],
+    "required": [
+      0,
+      2,
+      3,
+      4,
+      6,
+      7,
+      8,
+      11,
+      17
+    ],
+    "resources": [
+      {
+        "type": "Material",
+        "title": "Documentação e referência",
+        "url": "https://www.3blue1brown.com/topics/linear-algebra"
+      },
+      {
+        "type": "Curso",
+        "title": "Google Machine Learning Crash Course",
+        "url": "https://developers.google.com/machine-learning/crash-course"
+      },
+      {
+        "type": "Vídeo",
+        "title": "3Blue1Brown · Neural Networks",
+        "url": "https://www.3blue1brown.com/topics/neural-networks"
+      },
+      {
+        "type": "Livro",
+        "title": "Dive into Deep Learning",
+        "url": "https://d2l.ai/"
+      }
+    ]
+  },
+  {
+    "id": 10,
+    "title": "Python",
+    "phase": 2,
+    "description": "Mesmo se continuar trabalhando principalmente com TypeScript, Python é praticamente obrigatório em AI engineering.",
+    "topics": [
+      "Python",
+      "FastAPI",
+      "Pydantic",
+      "asyncio",
+      "NumPy",
+      "Pandas",
+      "Jupyter",
+      "PyTorch",
+      "Transformers",
+      "scikit-learn",
+      "frontend",
+      "Node/TypeScript",
+      "serviços de negócio",
+      "Python AI service"
+    ],
+    "required": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      7
+    ],
+    "resources": [
+      {
+        "type": "Material",
+        "title": "Documentação e referência",
+        "url": "https://docs.python.org/3/tutorial/"
+      },
+      {
+        "type": "Curso",
+        "title": "Google Machine Learning Crash Course",
+        "url": "https://developers.google.com/machine-learning/crash-course"
+      },
+      {
+        "type": "Vídeo",
+        "title": "3Blue1Brown · Neural Networks",
+        "url": "https://www.3blue1brown.com/topics/neural-networks"
+      },
+      {
+        "type": "Livro",
+        "title": "Dive into Deep Learning",
+        "url": "https://d2l.ai/"
+      }
+    ]
+  },
+  {
+    "id": 11,
+    "title": "Machine Learning clássico",
+    "phase": 2,
+    "description": "Antes de LLMs, entenda ML tradicional.",
+    "topics": [
+      "linear regression",
+      "logistic regression",
+      "decision trees",
+      "random forests",
+      "gradient boosting",
+      "XGBoost",
+      "clustering",
+      "k-means",
+      "PCA",
+      "anomaly detection",
+      "training",
+      "validation",
+      "test set",
+      "overfitting",
+      "underfitting",
+      "bias/variance",
+      "feature engineering",
+      "regularization"
+    ],
+    "required": [
+      0,
+      1,
+      10,
+      11,
+      12,
+      13,
+      16
+    ],
+    "resources": [
+      {
+        "type": "Material",
+        "title": "Documentação e referência",
+        "url": "https://developers.google.com/machine-learning/crash-course"
+      },
+      {
+        "type": "Curso",
+        "title": "Google Machine Learning Crash Course",
+        "url": "https://developers.google.com/machine-learning/crash-course"
+      },
+      {
+        "type": "Vídeo",
+        "title": "3Blue1Brown · Neural Networks",
+        "url": "https://www.3blue1brown.com/topics/neural-networks"
+      },
+      {
+        "type": "Livro",
+        "title": "Dive into Deep Learning",
+        "url": "https://d2l.ai/"
+      }
+    ]
+  },
+  {
+    "id": 12,
+    "title": "Deep Learning",
+    "phase": 2,
+    "description": "Entenda:",
+    "topics": [
+      "neural networks",
+      "layers",
+      "activation functions",
+      "loss functions",
+      "backpropagation",
+      "optimizers",
+      "SGD",
+      "Adam",
+      "dropout",
+      "normalization"
+    ],
+    "required": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ],
+    "resources": [
+      {
+        "type": "Material",
+        "title": "Documentação e referência",
+        "url": "https://pytorch.org/tutorials/"
+      },
+      {
+        "type": "Curso",
+        "title": "Google Machine Learning Crash Course",
+        "url": "https://developers.google.com/machine-learning/crash-course"
+      },
+      {
+        "type": "Vídeo",
+        "title": "3Blue1Brown · Neural Networks",
+        "url": "https://www.3blue1brown.com/topics/neural-networks"
+      },
+      {
+        "type": "Livro",
+        "title": "Dive into Deep Learning",
+        "url": "https://d2l.ai/"
+      }
+    ]
+  },
+  {
+    "id": 13,
+    "title": "Transformers",
+    "phase": 2,
+    "description": "Aqui começa a base real de LLM engineering.",
+    "topics": [
+      "tokenizer",
+      "tokens",
+      "embeddings",
+      "positional encoding",
+      "attention",
+      "self-attention",
+      "multi-head attention",
+      "transformer blocks",
+      "feed-forward networks",
+      "logits",
+      "softmax",
+      "context window"
+    ],
+    "required": [
+      0,
+      1,
+      2,
+      4,
+      5,
+      10,
+      11
+    ],
+    "resources": [
+      {
+        "type": "Material",
+        "title": "Documentação e referência",
+        "url": "https://huggingface.co/learn/llm-course/chapter1/1"
+      },
+      {
+        "type": "Curso",
+        "title": "Google Machine Learning Crash Course",
+        "url": "https://developers.google.com/machine-learning/crash-course"
+      },
+      {
+        "type": "Vídeo",
+        "title": "3Blue1Brown · Neural Networks",
+        "url": "https://www.3blue1brown.com/topics/neural-networks"
+      },
+      {
+        "type": "Livro",
+        "title": "Dive into Deep Learning",
+        "url": "https://d2l.ai/"
+      }
+    ]
+  },
+  {
+    "id": 14,
+    "title": "Inferência de LLMs",
+    "phase": 3,
+    "description": "Estude:",
+    "topics": [
+      "temperature",
+      "top-k",
+      "top-p",
+      "max tokens",
+      "stop sequences",
+      "context window",
+      "KV cache",
+      "batch inference",
+      "streaming",
+      "speculative decoding",
+      "quantization",
+      "FP16",
+      "BF16",
+      "INT8",
+      "INT4"
+    ],
+    "required": [
+      0,
+      2,
+      3,
+      5,
+      8
+    ],
+    "resources": [
+      {
+        "type": "Material",
+        "title": "Documentação e referência",
+        "url": "https://huggingface.co/docs/transformers/main/en/llm_tutorial"
+      },
+      {
+        "type": "Curso",
+        "title": "Hugging Face LLM Course",
+        "url": "https://huggingface.co/learn/llm-course/chapter1/1"
+      },
+      {
+        "type": "Vídeo",
+        "title": "DeepLearning.AI · short courses",
+        "url": "https://www.deeplearning.ai/short-courses/"
+      },
+      {
+        "type": "Livro",
+        "title": "Hands-On Large Language Models",
+        "url": "https://www.oreilly.com/library/view/hands-on-large-language/9781098150952/"
+      }
+    ]
+  },
+  {
+    "id": 15,
+    "title": "Prompt engineering",
+    "phase": 3,
+    "description": "Prompt engineering útil não é escrever frases mágicas.",
+    "topics": [
+      "system prompts",
+      "user prompts",
+      "few-shot prompting",
+      "structured prompting",
+      "XML delimiters",
+      "JSON schema",
+      "chain decomposition",
+      "tool instructions",
+      "constrained generation",
+      "prompt injection defense"
+    ],
+    "required": [
+      0,
+      1,
+      2,
+      3,
+      5,
+      9
+    ],
+    "resources": [
+      {
+        "type": "Material",
+        "title": "Documentação e referência",
+        "url": "https://platform.openai.com/docs/guides/prompt-engineering"
+      },
+      {
+        "type": "Curso",
+        "title": "Hugging Face LLM Course",
+        "url": "https://huggingface.co/learn/llm-course/chapter1/1"
+      },
+      {
+        "type": "Vídeo",
+        "title": "DeepLearning.AI · short courses",
+        "url": "https://www.deeplearning.ai/short-courses/"
+      },
+      {
+        "type": "Livro",
+        "title": "Hands-On Large Language Models",
+        "url": "https://www.oreilly.com/library/view/hands-on-large-language/9781098150952/"
+      }
+    ]
+  },
+  {
+    "id": 16,
+    "title": "Structured Outputs",
+    "phase": 3,
+    "description": "Fundamental para sistemas reais.",
+    "topics": [
+      "JSON Schema",
+      "Pydantic",
+      "Zod",
+      "function calling",
+      "validation",
+      "schema retries"
+    ],
+    "required": [
+      0,
+      2,
+      4,
+      5
+    ],
+    "resources": [
+      {
+        "type": "Material",
+        "title": "Documentação e referência",
+        "url": "https://platform.openai.com/docs/guides/structured-outputs"
+      },
+      {
+        "type": "Curso",
+        "title": "Hugging Face LLM Course",
+        "url": "https://huggingface.co/learn/llm-course/chapter1/1"
+      },
+      {
+        "type": "Vídeo",
+        "title": "DeepLearning.AI · short courses",
+        "url": "https://www.deeplearning.ai/short-courses/"
+      },
+      {
+        "type": "Livro",
+        "title": "Hands-On Large Language Models",
+        "url": "https://www.oreilly.com/library/view/hands-on-large-language/9781098150952/"
+      }
+    ]
+  },
+  {
+    "id": 17,
+    "title": "Tool Calling",
+    "phase": 3,
+    "description": "Você precisa dominar isto profundamente.",
+    "topics": [
+      "decisão de ferramenta",
+      "execução de função/API",
+      "tratamento do resultado",
+      "searchCustomer()",
+      "createInvoice()",
+      "queryDatabase()",
+      "sendEmail()",
+      "scheduleMeeting()",
+      "searchWeb()"
+    ],
+    "required": [
+      0,
+      1,
+      2,
+      5
+    ],
+    "resources": [
+      {
+        "type": "Material",
+        "title": "Documentação e referência",
+        "url": "https://platform.openai.com/docs/guides/function-calling"
+      },
+      {
+        "type": "Curso",
+        "title": "Hugging Face LLM Course",
+        "url": "https://huggingface.co/learn/llm-course/chapter1/1"
+      },
+      {
+        "type": "Vídeo",
+        "title": "DeepLearning.AI · short courses",
+        "url": "https://www.deeplearning.ai/short-courses/"
+      },
+      {
+        "type": "Livro",
+        "title": "Hands-On Large Language Models",
+        "url": "https://www.oreilly.com/library/view/hands-on-large-language/9781098150952/"
+      }
+    ]
+  },
+  {
+    "id": 18,
+    "title": "RAG",
+    "phase": 3,
+    "description": "Retrieval-Augmented Generation é obrigatório.",
+    "topics": [
+      "fixed-size",
+      "semantic",
+      "recursive",
+      "document-aware",
+      "dense",
+      "sparse",
+      "hybrid",
+      "cosine similarity",
+      "BM25",
+      "cross-encoder",
+      "reranking"
+    ],
+    "required": [
+      0,
+      2,
+      4,
+      7,
+      8,
+      10
+    ],
+    "resources": [
+      {
+        "type": "Material",
+        "title": "Documentação e referência",
+        "url": "https://platform.openai.com/docs/guides/retrieval"
+      },
+      {
+        "type": "Curso",
+        "title": "Hugging Face LLM Course",
+        "url": "https://huggingface.co/learn/llm-course/chapter1/1"
+      },
+      {
+        "type": "Vídeo",
+        "title": "DeepLearning.AI · short courses",
+        "url": "https://www.deeplearning.ai/short-courses/"
+      },
+      {
+        "type": "Livro",
+        "title": "Hands-On Large Language Models",
+        "url": "https://www.oreilly.com/library/view/hands-on-large-language/9781098150952/"
+      }
+    ]
+  },
+  {
+    "id": 19,
+    "title": "Embeddings",
+    "phase": 3,
+    "description": "Entenda:",
+    "topics": [
+      "dimensionalidade",
+      "cosine similarity",
+      "dot product",
+      "normalization",
+      "semantic search"
+    ],
+    "required": [
+      1,
+      2,
+      4
+    ],
+    "resources": [
+      {
+        "type": "Material",
+        "title": "Documentação e referência",
+        "url": "https://platform.openai.com/docs/guides/embeddings"
+      },
+      {
+        "type": "Curso",
+        "title": "Hugging Face LLM Course",
+        "url": "https://huggingface.co/learn/llm-course/chapter1/1"
+      },
+      {
+        "type": "Vídeo",
+        "title": "DeepLearning.AI · short courses",
+        "url": "https://www.deeplearning.ai/short-courses/"
+      },
+      {
+        "type": "Livro",
+        "title": "Hands-On Large Language Models",
+        "url": "https://www.oreilly.com/library/view/hands-on-large-language/9781098150952/"
+      }
+    ]
+  },
+  {
+    "id": 20,
+    "title": "Vector databases",
+    "phase": 3,
+    "description": "Conheça:",
+    "topics": [
+      "pgvector",
+      "Qdrant",
+      "Pinecone",
+      "Weaviate",
+      "Milvus"
+    ],
+    "required": [
+      0
+    ],
+    "resources": [
+      {
+        "type": "Material",
+        "title": "Documentação e referência",
+        "url": "https://github.com/pgvector/pgvector"
+      },
+      {
+        "type": "Curso",
+        "title": "Hugging Face LLM Course",
+        "url": "https://huggingface.co/learn/llm-course/chapter1/1"
+      },
+      {
+        "type": "Vídeo",
+        "title": "DeepLearning.AI · short courses",
+        "url": "https://www.deeplearning.ai/short-courses/"
+      },
+      {
+        "type": "Livro",
+        "title": "Hands-On Large Language Models",
+        "url": "https://www.oreilly.com/library/view/hands-on-large-language/9781098150952/"
+      }
+    ]
+  },
+  {
+    "id": 21,
+    "title": "Hybrid Search",
+    "phase": 3,
+    "description": "Em produção, frequentemente é melhor:",
+    "topics": [
+      "BM25",
+      "vector search",
+      "metadata filters",
+      "reranking"
+    ],
+    "required": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "resources": [
+      {
+        "type": "Material",
+        "title": "Documentação e referência",
+        "url": "https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl.html"
+      },
+      {
+        "type": "Curso",
+        "title": "Hugging Face LLM Course",
+        "url": "https://huggingface.co/learn/llm-course/chapter1/1"
+      },
+      {
+        "type": "Vídeo",
+        "title": "DeepLearning.AI · short courses",
+        "url": "https://www.deeplearning.ai/short-courses/"
+      },
+      {
+        "type": "Livro",
+        "title": "Hands-On Large Language Models",
+        "url": "https://www.oreilly.com/library/view/hands-on-large-language/9781098150952/"
+      }
+    ]
+  },
+  {
+    "id": 22,
+    "title": "Reranking",
+    "phase": 3,
+    "description": "Pipeline mais robusto:",
+    "topics": [
+      "cross encoders",
+      "semantic ranking",
+      "relevance scoring"
+    ],
+    "required": [
+      1,
+      2
+    ],
+    "resources": [
+      {
+        "type": "Material",
+        "title": "Documentação e referência",
+        "url": "https://www.sbert.net/examples/sentence_transformer/applications/retrieve_rerank/README.html"
+      },
+      {
+        "type": "Curso",
+        "title": "Hugging Face LLM Course",
+        "url": "https://huggingface.co/learn/llm-course/chapter1/1"
+      },
+      {
+        "type": "Vídeo",
+        "title": "DeepLearning.AI · short courses",
+        "url": "https://www.deeplearning.ai/short-courses/"
+      },
+      {
+        "type": "Livro",
+        "title": "Hands-On Large Language Models",
+        "url": "https://www.oreilly.com/library/view/hands-on-large-language/9781098150952/"
+      }
+    ]
+  },
+  {
+    "id": 23,
+    "title": "Context engineering",
+    "phase": 4,
+    "description": "Hoje isso é mais importante que prompt engineering.",
+    "topics": [
+      "memória",
+      "documentos",
+      "ferramentas",
+      "histórico",
+      "estado da aplicação",
+      "permissões",
+      "metadata"
+    ],
+    "required": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "resources": [
+      {
+        "type": "Material",
+        "title": "Documentação e referência",
+        "url": "https://platform.openai.com/docs/guides/conversation-state"
+      },
+      {
+        "type": "Curso",
+        "title": "LangGraph Academy",
+        "url": "https://academy.langchain.com/"
+      },
+      {
+        "type": "Vídeo",
+        "title": "DeepLearning.AI · AI Agents in LangGraph",
+        "url": "https://www.deeplearning.ai/short-courses/ai-agents-in-langgraph/"
+      },
+      {
+        "type": "Livro",
+        "title": "AI Engineering",
+        "url": "https://www.oreilly.com/library/view/ai-engineering/9781098166298/"
+      }
+    ]
+  },
+  {
+    "id": 24,
+    "title": "Memory",
+    "phase": 4,
+    "description": "Aprenda:",
+    "topics": [
+      "short-term memory",
+      "long-term memory",
+      "semantic memory",
+      "episodic memory",
+      "procedural memory"
+    ],
+    "required": [
+      0
+    ],
+    "resources": [
+      {
+        "type": "Material",
+        "title": "Documentação e referência",
+        "url": "https://docs.langchain.com/oss/javascript/langgraph/memory"
+      },
+      {
+        "type": "Curso",
+        "title": "LangGraph Academy",
+        "url": "https://academy.langchain.com/"
+      },
+      {
+        "type": "Vídeo",
+        "title": "DeepLearning.AI · AI Agents in LangGraph",
+        "url": "https://www.deeplearning.ai/short-courses/ai-agents-in-langgraph/"
+      },
+      {
+        "type": "Livro",
+        "title": "AI Engineering",
+        "url": "https://www.oreilly.com/library/view/ai-engineering/9781098166298/"
+      }
+    ]
+  },
+  {
+    "id": 25,
+    "title": "Agentes de IA",
+    "phase": 4,
+    "description": "Depois de dominar tool calling.",
+    "topics": [
+      "agent loop",
+      "planning",
+      "tool selection",
+      "execution",
+      "reflection",
+      "memory",
+      "retries",
+      "termination conditions"
+    ],
+    "required": [
+      0,
+      2,
+      3,
+      6,
+      7
+    ],
+    "resources": [
+      {
+        "type": "Material",
+        "title": "Documentação e referência",
+        "url": "https://platform.openai.com/docs/guides/agents"
+      },
+      {
+        "type": "Curso",
+        "title": "LangGraph Academy",
+        "url": "https://academy.langchain.com/"
+      },
+      {
+        "type": "Vídeo",
+        "title": "DeepLearning.AI · AI Agents in LangGraph",
+        "url": "https://www.deeplearning.ai/short-courses/ai-agents-in-langgraph/"
+      },
+      {
+        "type": "Livro",
+        "title": "AI Engineering",
+        "url": "https://www.oreilly.com/library/view/ai-engineering/9781098166298/"
+      }
+    ]
+  },
+  {
+    "id": 26,
+    "title": "Multi-agent systems",
+    "phase": 5,
+    "description": "Só depois de entender agentes simples.",
+    "topics": [
+      "Supervisor",
+      "Pipeline",
+      "Debate / critique"
+    ],
+    "required": [],
+    "resources": [
+      {
+        "type": "Material",
+        "title": "Documentação e referência",
+        "url": "https://microsoft.github.io/autogen/stable/"
+      },
+      {
+        "type": "Curso",
+        "title": "Evaluating AI Agents",
+        "url": "https://www.deeplearning.ai/courses/evaluating-ai-agents"
+      },
+      {
+        "type": "Vídeo",
+        "title": "OpenTelemetry · demonstrações",
+        "url": "https://www.youtube.com/@OpenTelemetry"
+      },
+      {
+        "type": "Livro",
+        "title": "Building Secure and Reliable Systems",
+        "url": "https://sre.google/books/"
+      }
+    ]
+  },
+  {
+    "id": 27,
+    "title": "Orquestração de agentes",
+    "phase": 4,
+    "description": "Estude:",
+    "topics": [
+      "LangGraph",
+      "OpenAI Agents SDK",
+      "AutoGen",
+      "CrewAI"
+    ],
+    "required": [],
+    "resources": [
+      {
+        "type": "Material",
+        "title": "Documentação e referência",
+        "url": "https://openai.github.io/openai-agents-python/"
+      },
+      {
+        "type": "Curso",
+        "title": "LangGraph Academy",
+        "url": "https://academy.langchain.com/"
+      },
+      {
+        "type": "Vídeo",
+        "title": "DeepLearning.AI · AI Agents in LangGraph",
+        "url": "https://www.deeplearning.ai/short-courses/ai-agents-in-langgraph/"
+      },
+      {
+        "type": "Livro",
+        "title": "AI Engineering",
+        "url": "https://www.oreilly.com/library/view/ai-engineering/9781098166298/"
+      }
+    ]
+  },
+  {
+    "id": 28,
+    "title": "State machines para IA",
+    "phase": 4,
+    "description": "Muito importante.",
+    "topics": [
+      "CLASSIFY",
+      "RETRIEVE",
+      "GENERATE",
+      "VALIDATE"
+    ],
+    "required": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "resources": [
+      {
+        "type": "Material",
+        "title": "Documentação e referência",
+        "url": "https://docs.langchain.com/oss/javascript/langgraph/workflows-agents"
+      },
+      {
+        "type": "Curso",
+        "title": "LangGraph Academy",
+        "url": "https://academy.langchain.com/"
+      },
+      {
+        "type": "Vídeo",
+        "title": "DeepLearning.AI · AI Agents in LangGraph",
+        "url": "https://www.deeplearning.ai/short-courses/ai-agents-in-langgraph/"
+      },
+      {
+        "type": "Livro",
+        "title": "AI Engineering",
+        "url": "https://www.oreilly.com/library/view/ai-engineering/9781098166298/"
+      }
+    ]
+  },
+  {
+    "id": 29,
+    "title": "Workflows",
+    "phase": 4,
+    "description": "Aprenda a separar:",
+    "topics": [
+      "sequência controlada pelo software",
+      "sequência escolhida pelo modelo"
+    ],
+    "required": [
+      0,
+      1
+    ],
+    "resources": [
+      {
+        "type": "Material",
+        "title": "Documentação e referência",
+        "url": "https://docs.langchain.com/oss/javascript/langgraph/workflows-agents"
+      },
+      {
+        "type": "Curso",
+        "title": "LangGraph Academy",
+        "url": "https://academy.langchain.com/"
+      },
+      {
+        "type": "Vídeo",
+        "title": "DeepLearning.AI · AI Agents in LangGraph",
+        "url": "https://www.deeplearning.ai/short-courses/ai-agents-in-langgraph/"
+      },
+      {
+        "type": "Livro",
+        "title": "AI Engineering",
+        "url": "https://www.oreilly.com/library/view/ai-engineering/9781098166298/"
+      }
+    ]
+  },
+  {
+    "id": 30,
+    "title": "MCP",
+    "phase": 4,
+    "description": "Aprenda Model Context Protocol.",
+    "topics": [
+      "MCP server",
+      "MCP client",
+      "resources",
+      "tools",
+      "prompts"
+    ],
+    "required": [
+      0,
+      1,
+      3
+    ],
+    "resources": [
+      {
+        "type": "Material",
+        "title": "Documentação e referência",
+        "url": "https://modelcontextprotocol.io/docs/getting-started/intro"
+      },
+      {
+        "type": "Curso",
+        "title": "LangGraph Academy",
+        "url": "https://academy.langchain.com/"
+      },
+      {
+        "type": "Vídeo",
+        "title": "DeepLearning.AI · AI Agents in LangGraph",
+        "url": "https://www.deeplearning.ai/short-courses/ai-agents-in-langgraph/"
+      },
+      {
+        "type": "Livro",
+        "title": "AI Engineering",
+        "url": "https://www.oreilly.com/library/view/ai-engineering/9781098166298/"
+      }
+    ]
+  },
+  {
+    "id": 31,
+    "title": "Avaliação de LLMs",
+    "phase": 5,
+    "description": "Este tópico separa demos de produtos reais.",
+    "topics": [
+      "eval datasets",
+      "golden datasets",
+      "regression testing",
+      "LLM-as-judge",
+      "human evaluation",
+      "semantic similarity",
+      "task success rate"
+    ],
+    "required": [
+      0,
+      1,
+      2,
+      6
+    ],
+    "resources": [
+      {
+        "type": "Material",
+        "title": "Documentação e referência",
+        "url": "https://platform.openai.com/docs/guides/evals"
+      },
+      {
+        "type": "Curso",
+        "title": "Evaluating AI Agents",
+        "url": "https://www.deeplearning.ai/courses/evaluating-ai-agents"
+      },
+      {
+        "type": "Vídeo",
+        "title": "OpenTelemetry · demonstrações",
+        "url": "https://www.youtube.com/@OpenTelemetry"
+      },
+      {
+        "type": "Livro",
+        "title": "Building Secure and Reliable Systems",
+        "url": "https://sre.google/books/"
+      }
+    ]
+  },
+  {
+    "id": 32,
+    "title": "Métricas de IA",
+    "phase": 5,
+    "description": "Exemplos:",
+    "topics": [
+      "task_success_rate",
+      "hallucination_rate",
+      "tool_success_rate",
+      "retrieval_precision",
+      "retrieval_recall",
+      "latency",
+      "cost_per_request",
+      "tokens_per_request"
+    ],
+    "required": [
+      0,
+      2,
+      5,
+      6,
+      7
+    ],
+    "resources": [
+      {
+        "type": "Material",
+        "title": "Documentação e referência",
+        "url": "https://platform.openai.com/docs/guides/evals"
+      },
+      {
+        "type": "Curso",
+        "title": "Evaluating AI Agents",
+        "url": "https://www.deeplearning.ai/courses/evaluating-ai-agents"
+      },
+      {
+        "type": "Vídeo",
+        "title": "OpenTelemetry · demonstrações",
+        "url": "https://www.youtube.com/@OpenTelemetry"
+      },
+      {
+        "type": "Livro",
+        "title": "Building Secure and Reliable Systems",
+        "url": "https://sre.google/books/"
+      }
+    ]
+  },
+  {
+    "id": 33,
+    "title": "Observabilidade de LLM",
+    "phase": 5,
+    "description": "Você precisa registrar:",
+    "topics": [
+      "Langfuse",
+      "LangSmith",
+      "OpenTelemetry",
+      "Phoenix"
+    ],
+    "required": [
+      2
+    ],
+    "resources": [
+      {
+        "type": "Material",
+        "title": "Documentação e referência",
+        "url": "https://opentelemetry.io/docs/"
+      },
+      {
+        "type": "Curso",
+        "title": "Evaluating AI Agents",
+        "url": "https://www.deeplearning.ai/courses/evaluating-ai-agents"
+      },
+      {
+        "type": "Vídeo",
+        "title": "OpenTelemetry · demonstrações",
+        "url": "https://www.youtube.com/@OpenTelemetry"
+      },
+      {
+        "type": "Livro",
+        "title": "Building Secure and Reliable Systems",
+        "url": "https://sre.google/books/"
+      }
+    ]
+  },
+  {
+    "id": 34,
+    "title": "Guardrails",
+    "phase": 5,
+    "description": "Nunca confie no LLM.",
+    "topics": [
+      "saída do LLM como entrada não confiável",
+      "schema validation",
+      "business validation",
+      "permission validation",
+      "execution",
+      "bloqueio de ações destrutivas"
+    ],
+    "required": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "resources": [
+      {
+        "type": "Material",
+        "title": "Documentação e referência",
+        "url": "https://platform.openai.com/docs/guides/safety-best-practices"
+      },
+      {
+        "type": "Curso",
+        "title": "Evaluating AI Agents",
+        "url": "https://www.deeplearning.ai/courses/evaluating-ai-agents"
+      },
+      {
+        "type": "Vídeo",
+        "title": "OpenTelemetry · demonstrações",
+        "url": "https://www.youtube.com/@OpenTelemetry"
+      },
+      {
+        "type": "Livro",
+        "title": "Building Secure and Reliable Systems",
+        "url": "https://sre.google/books/"
+      }
+    ]
+  },
+  {
+    "id": 35,
+    "title": "Segurança de sistemas de IA",
+    "phase": 5,
+    "description": "Estude:",
+    "topics": [
+      "prompt injection",
+      "indirect prompt injection",
+      "jailbreak",
+      "data exfiltration",
+      "tool abuse",
+      "privilege escalation",
+      "insecure output handling",
+      "poisoned RAG",
+      "malicious documents"
+    ],
+    "required": [
+      0,
+      1,
+      3,
+      4,
+      7
+    ],
+    "resources": [
+      {
+        "type": "Material",
+        "title": "Documentação e referência",
+        "url": "https://genai.owasp.org/llm-top-10/"
+      },
+      {
+        "type": "Curso",
+        "title": "Evaluating AI Agents",
+        "url": "https://www.deeplearning.ai/courses/evaluating-ai-agents"
+      },
+      {
+        "type": "Vídeo",
+        "title": "OpenTelemetry · demonstrações",
+        "url": "https://www.youtube.com/@OpenTelemetry"
+      },
+      {
+        "type": "Livro",
+        "title": "Building Secure and Reliable Systems",
+        "url": "https://sre.google/books/"
+      }
+    ]
+  },
+  {
+    "id": 36,
+    "title": "Authentication e Authorization",
+    "phase": 5,
+    "description": "Domine:",
+    "topics": [
+      "JWT",
+      "OAuth2",
+      "OIDC",
+      "RBAC",
+      "ABAC",
+      "API keys",
+      "secrets",
+      "scopes"
+    ],
+    "required": [
+      0,
+      1,
+      2,
+      3,
+      5,
+      6,
+      7
+    ],
+    "resources": [
+      {
+        "type": "Material",
+        "title": "Documentação e referência",
+        "url": "https://cheatsheetseries.owasp.org/cheatsheets/Authorization_Cheat_Sheet.html"
+      },
+      {
+        "type": "Curso",
+        "title": "Evaluating AI Agents",
+        "url": "https://www.deeplearning.ai/courses/evaluating-ai-agents"
+      },
+      {
+        "type": "Vídeo",
+        "title": "OpenTelemetry · demonstrações",
+        "url": "https://www.youtube.com/@OpenTelemetry"
+      },
+      {
+        "type": "Livro",
+        "title": "Building Secure and Reliable Systems",
+        "url": "https://sre.google/books/"
+      }
+    ]
+  },
+  {
+    "id": 37,
+    "title": "Sandboxing",
+    "phase": 5,
+    "description": "Ao executar código gerado por IA:",
+    "topics": [
+      "containers",
+      "VMs",
+      "isolated workers",
+      "seccomp",
+      "resource limits",
+      "network isolation"
+    ],
+    "required": [
+      0,
+      4,
+      5
+    ],
+    "resources": [
+      {
+        "type": "Material",
+        "title": "Documentação e referência",
+        "url": "https://docs.docker.com/engine/security/"
+      },
+      {
+        "type": "Curso",
+        "title": "Evaluating AI Agents",
+        "url": "https://www.deeplearning.ai/courses/evaluating-ai-agents"
+      },
+      {
+        "type": "Vídeo",
+        "title": "OpenTelemetry · demonstrações",
+        "url": "https://www.youtube.com/@OpenTelemetry"
+      },
+      {
+        "type": "Livro",
+        "title": "Building Secure and Reliable Systems",
+        "url": "https://sre.google/books/"
+      }
+    ]
+  },
+  {
+    "id": 38,
+    "title": "Fine-tuning",
+    "phase": 6,
+    "description": "Aprenda depois de RAG.",
+    "topics": [
+      "SFT",
+      "instruction tuning",
+      "LoRA",
+      "QLoRA",
+      "PEFT"
+    ],
+    "required": [],
+    "resources": [
+      {
+        "type": "Material",
+        "title": "Documentação e referência",
+        "url": "https://huggingface.co/docs/peft/index"
+      },
+      {
+        "type": "Curso",
+        "title": "Hugging Face Agents Course",
+        "url": "https://huggingface.co/learn/agents-course/unit0/introduction"
+      },
+      {
+        "type": "Vídeo",
+        "title": "Full Stack Deep Learning · lectures",
+        "url": "https://fullstackdeeplearning.com/llm-bootcamp/"
+      },
+      {
+        "type": "Livro",
+        "title": "AI Engineering",
+        "url": "https://www.oreilly.com/library/view/ai-engineering/9781098166298/"
+      }
+    ]
+  },
+  {
+    "id": 39,
+    "title": "Distillation",
+    "phase": 6,
+    "description": "Aprenda:",
+    "topics": [
+      "modelo grande",
+      "gera dataset",
+      "modelo menor aprende"
+    ],
+    "required": [],
+    "resources": [
+      {
+        "type": "Material",
+        "title": "Documentação e referência",
+        "url": "https://huggingface.co/docs/transformers/main/en/tasks/knowledge_distillation_for_image_classification"
+      },
+      {
+        "type": "Curso",
+        "title": "Hugging Face Agents Course",
+        "url": "https://huggingface.co/learn/agents-course/unit0/introduction"
+      },
+      {
+        "type": "Vídeo",
+        "title": "Full Stack Deep Learning · lectures",
+        "url": "https://fullstackdeeplearning.com/llm-bootcamp/"
+      },
+      {
+        "type": "Livro",
+        "title": "AI Engineering",
+        "url": "https://www.oreilly.com/library/view/ai-engineering/9781098166298/"
+      }
+    ]
+  },
+  {
+    "id": 40,
+    "title": "Model routing",
+    "phase": 6,
+    "description": "Arquitetura eficiente:",
+    "topics": [
+      "classificação da requisição",
+      "roteamento entre modelos",
+      "custo e qualidade por tarefa"
+    ],
+    "required": [],
+    "resources": [
+      {
+        "type": "Material",
+        "title": "Documentação e referência",
+        "url": "https://platform.openai.com/docs/guides/production-best-practices"
+      },
+      {
+        "type": "Curso",
+        "title": "Hugging Face Agents Course",
+        "url": "https://huggingface.co/learn/agents-course/unit0/introduction"
+      },
+      {
+        "type": "Vídeo",
+        "title": "Full Stack Deep Learning · lectures",
+        "url": "https://fullstackdeeplearning.com/llm-bootcamp/"
+      },
+      {
+        "type": "Livro",
+        "title": "AI Engineering",
+        "url": "https://www.oreilly.com/library/view/ai-engineering/9781098166298/"
+      }
+    ]
+  },
+  {
+    "id": 41,
+    "title": "Caching para IA",
+    "phase": 5,
+    "description": "Estude:",
+    "topics": [
+      "response cache",
+      "prompt cache",
+      "semantic cache",
+      "embedding cache"
+    ],
+    "required": [
+      0
+    ],
+    "resources": [
+      {
+        "type": "Material",
+        "title": "Documentação e referência",
+        "url": "https://platform.openai.com/docs/guides/prompt-caching"
+      },
+      {
+        "type": "Curso",
+        "title": "Evaluating AI Agents",
+        "url": "https://www.deeplearning.ai/courses/evaluating-ai-agents"
+      },
+      {
+        "type": "Vídeo",
+        "title": "OpenTelemetry · demonstrações",
+        "url": "https://www.youtube.com/@OpenTelemetry"
+      },
+      {
+        "type": "Livro",
+        "title": "Building Secure and Reliable Systems",
+        "url": "https://sre.google/books/"
+      }
+    ]
+  },
+  {
+    "id": 42,
+    "title": "Otimização de custo",
+    "phase": 5,
+    "description": "Métrica importante:",
+    "topics": [
+      "input tokens",
+      "output tokens",
+      "embedding cost",
+      "tool cost",
+      "inference latency"
+    ],
+    "required": [
+      0,
+      1,
+      2,
+      4
+    ],
+    "resources": [
+      {
+        "type": "Material",
+        "title": "Documentação e referência",
+        "url": "https://platform.openai.com/docs/guides/production-best-practices"
+      },
+      {
+        "type": "Curso",
+        "title": "Evaluating AI Agents",
+        "url": "https://www.deeplearning.ai/courses/evaluating-ai-agents"
+      },
+      {
+        "type": "Vídeo",
+        "title": "OpenTelemetry · demonstrações",
+        "url": "https://www.youtube.com/@OpenTelemetry"
+      },
+      {
+        "type": "Livro",
+        "title": "Building Secure and Reliable Systems",
+        "url": "https://sre.google/books/"
+      }
+    ]
+  },
+  {
+    "id": 43,
+    "title": "Streaming",
+    "phase": 3,
+    "description": "Domine:",
+    "topics": [
+      "SSE",
+      "WebSocket",
+      "token streaming",
+      "partial responses"
+    ],
+    "required": [
+      0,
+      2,
+      3
+    ],
+    "resources": [
+      {
+        "type": "Material",
+        "title": "Documentação e referência",
+        "url": "https://platform.openai.com/docs/guides/streaming-responses"
+      },
+      {
+        "type": "Curso",
+        "title": "Hugging Face LLM Course",
+        "url": "https://huggingface.co/learn/llm-course/chapter1/1"
+      },
+      {
+        "type": "Vídeo",
+        "title": "DeepLearning.AI · short courses",
+        "url": "https://www.deeplearning.ai/short-courses/"
+      },
+      {
+        "type": "Livro",
+        "title": "Hands-On Large Language Models",
+        "url": "https://www.oreilly.com/library/view/hands-on-large-language/9781098150952/"
+      }
+    ]
+  },
+  {
+    "id": 44,
+    "title": "MLOps",
+    "phase": 5,
+    "description": "Aprenda:",
+    "topics": [
+      "experiment tracking",
+      "model registry",
+      "data versioning",
+      "inference pipelines",
+      "drift detection",
+      "MLflow",
+      "Weights & Biases",
+      "DVC"
+    ],
+    "required": [
+      0,
+      2
+    ],
+    "resources": [
+      {
+        "type": "Material",
+        "title": "Documentação e referência",
+        "url": "https://mlflow.org/docs/latest/ml/"
+      },
+      {
+        "type": "Curso",
+        "title": "Evaluating AI Agents",
+        "url": "https://www.deeplearning.ai/courses/evaluating-ai-agents"
+      },
+      {
+        "type": "Vídeo",
+        "title": "OpenTelemetry · demonstrações",
+        "url": "https://www.youtube.com/@OpenTelemetry"
+      },
+      {
+        "type": "Livro",
+        "title": "Building Secure and Reliable Systems",
+        "url": "https://sre.google/books/"
+      }
+    ]
+  },
+  {
+    "id": 45,
+    "title": "LLMOps",
+    "phase": 5,
+    "description": "Mais importante para seu objetivo.",
+    "topics": [
+      "prompt",
+      "model",
+      "retriever",
+      "tools",
+      "evals",
+      "observability",
+      "deploy"
+    ],
+    "required": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "resources": [
+      {
+        "type": "Material",
+        "title": "Documentação e referência",
+        "url": "https://mlflow.org/docs/latest/genai/"
+      },
+      {
+        "type": "Curso",
+        "title": "Evaluating AI Agents",
+        "url": "https://www.deeplearning.ai/courses/evaluating-ai-agents"
+      },
+      {
+        "type": "Vídeo",
+        "title": "OpenTelemetry · demonstrações",
+        "url": "https://www.youtube.com/@OpenTelemetry"
+      },
+      {
+        "type": "Livro",
+        "title": "Building Secure and Reliable Systems",
+        "url": "https://sre.google/books/"
+      }
+    ]
+  },
+  {
+    "id": 46,
+    "title": "Docker",
+    "phase": 1,
+    "description": "Você já trabalha com Docker, então leve isso além do básico.",
+    "topics": [
+      "multi-stage builds",
+      "health checks",
+      "volumes",
+      "networks",
+      "resource limits",
+      "build caching",
+      "Docker Compose"
+    ],
+    "required": [
+      0,
+      1,
+      4,
+      6
+    ],
+    "resources": [
+      {
+        "type": "Material",
+        "title": "Documentação e referência",
+        "url": "https://docs.docker.com/build/building/multi-stage/"
+      },
+      {
+        "type": "Curso",
+        "title": "System Design Primer",
+        "url": "https://github.com/donnemartin/system-design-primer"
+      },
+      {
+        "type": "Vídeo",
+        "title": "MIT 6.006 · aulas",
+        "url": "https://ocw.mit.edu/courses/6-006-introduction-to-algorithms-spring-2020/video_galleries/lecture-videos/"
+      },
+      {
+        "type": "Livro",
+        "title": "Designing Data-Intensive Applications",
+        "url": "https://dataintensive.net/"
+      }
+    ]
+  },
+  {
+    "id": 47,
+    "title": "Kubernetes",
+    "phase": 5,
+    "description": "Não precisa começar cedo.",
+    "topics": [
+      "Pod",
+      "Deployment",
+      "Service",
+      "Ingress",
+      "ConfigMap",
+      "Secret",
+      "HPA",
+      "Jobs"
+    ],
+    "required": [],
+    "resources": [
+      {
+        "type": "Material",
+        "title": "Documentação e referência",
+        "url": "https://kubernetes.io/docs/concepts/"
+      },
+      {
+        "type": "Curso",
+        "title": "Evaluating AI Agents",
+        "url": "https://www.deeplearning.ai/courses/evaluating-ai-agents"
+      },
+      {
+        "type": "Vídeo",
+        "title": "OpenTelemetry · demonstrações",
+        "url": "https://www.youtube.com/@OpenTelemetry"
+      },
+      {
+        "type": "Livro",
+        "title": "Building Secure and Reliable Systems",
+        "url": "https://sre.google/books/"
+      }
+    ]
+  },
+  {
+    "id": 48,
+    "title": "Cloud",
+    "phase": 5,
+    "description": "Escolha UMA cloud inicialmente.",
+    "topics": [
+      "IAM",
+      "EC2",
+      "S3",
+      "RDS",
+      "Lambda",
+      "ECS",
+      "EKS",
+      "SQS",
+      "SNS",
+      "CloudWatch",
+      "API Gateway",
+      "Bedrock",
+      "SageMaker"
+    ],
+    "required": [
+      0,
+      2,
+      3,
+      9
+    ],
+    "resources": [
+      {
+        "type": "Material",
+        "title": "Documentação e referência",
+        "url": "https://docs.aws.amazon.com/"
+      },
+      {
+        "type": "Curso",
+        "title": "Evaluating AI Agents",
+        "url": "https://www.deeplearning.ai/courses/evaluating-ai-agents"
+      },
+      {
+        "type": "Vídeo",
+        "title": "OpenTelemetry · demonstrações",
+        "url": "https://www.youtube.com/@OpenTelemetry"
+      },
+      {
+        "type": "Livro",
+        "title": "Building Secure and Reliable Systems",
+        "url": "https://sre.google/books/"
+      }
+    ]
+  },
+  {
+    "id": 49,
+    "title": "CI/CD",
+    "phase": 1,
+    "description": "Pipeline:",
+    "topics": [
+      "commit",
+      "lint",
+      "typecheck",
+      "unit tests",
+      "integration tests",
+      "AI evals",
+      "build",
+      "deploy"
+    ],
+    "required": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "resources": [
+      {
+        "type": "Material",
+        "title": "Documentação e referência",
+        "url": "https://docs.github.com/en/actions"
+      },
+      {
+        "type": "Curso",
+        "title": "System Design Primer",
+        "url": "https://github.com/donnemartin/system-design-primer"
+      },
+      {
+        "type": "Vídeo",
+        "title": "MIT 6.006 · aulas",
+        "url": "https://ocw.mit.edu/courses/6-006-introduction-to-algorithms-spring-2020/video_galleries/lecture-videos/"
+      },
+      {
+        "type": "Livro",
+        "title": "Designing Data-Intensive Applications",
+        "url": "https://dataintensive.net/"
+      }
+    ]
+  },
+  {
+    "id": 50,
+    "title": "Testing",
+    "phase": 1,
+    "description": "Domine:",
+    "topics": [
+      "unit",
+      "integration",
+      "E2E",
+      "contract testing",
+      "load testing",
+      "mutation testing",
+      "deterministic tests",
+      "probabilistic evals"
+    ],
+    "required": [
+      0,
+      1,
+      2,
+      6,
+      7
+    ],
+    "resources": [
+      {
+        "type": "Material",
+        "title": "Documentação e referência",
+        "url": "https://martinfowler.com/testing/"
+      },
+      {
+        "type": "Curso",
+        "title": "System Design Primer",
+        "url": "https://github.com/donnemartin/system-design-primer"
+      },
+      {
+        "type": "Vídeo",
+        "title": "MIT 6.006 · aulas",
+        "url": "https://ocw.mit.edu/courses/6-006-introduction-to-algorithms-spring-2020/video_galleries/lecture-videos/"
+      },
+      {
+        "type": "Livro",
+        "title": "Designing Data-Intensive Applications",
+        "url": "https://dataintensive.net/"
+      }
+    ]
+  },
+  {
+    "id": 51,
+    "title": "Observabilidade",
+    "phase": 1,
+    "description": "Domine os três pilares:",
+    "topics": [
+      "OpenTelemetry",
+      "Prometheus",
+      "Grafana",
+      "Loki",
+      "Jaeger"
+    ],
+    "required": [
+      0
+    ],
+    "resources": [
+      {
+        "type": "Material",
+        "title": "Documentação e referência",
+        "url": "https://opentelemetry.io/docs/"
+      },
+      {
+        "type": "Curso",
+        "title": "System Design Primer",
+        "url": "https://github.com/donnemartin/system-design-primer"
+      },
+      {
+        "type": "Vídeo",
+        "title": "MIT 6.006 · aulas",
+        "url": "https://ocw.mit.edu/courses/6-006-introduction-to-algorithms-spring-2020/video_galleries/lecture-videos/"
+      },
+      {
+        "type": "Livro",
+        "title": "Designing Data-Intensive Applications",
+        "url": "https://dataintensive.net/"
+      }
+    ]
+  },
+  {
+    "id": 52,
+    "title": "System Design",
+    "phase": 1,
+    "description": "Você deveria conseguir projetar no papel:",
+    "topics": [
+      "ChatGPT-like system",
+      "Slack",
+      "Uber",
+      "Dropbox",
+      "recommendation engine",
+      "semantic search engine",
+      "AI coding assistant",
+      "customer-support agent"
+    ],
+    "required": [
+      5,
+      7
+    ],
+    "resources": [
+      {
+        "type": "Material",
+        "title": "Documentação e referência",
+        "url": "https://github.com/donnemartin/system-design-primer"
+      },
+      {
+        "type": "Curso",
+        "title": "System Design Primer",
+        "url": "https://github.com/donnemartin/system-design-primer"
+      },
+      {
+        "type": "Vídeo",
+        "title": "MIT 6.006 · aulas",
+        "url": "https://ocw.mit.edu/courses/6-006-introduction-to-algorithms-spring-2020/video_galleries/lecture-videos/"
+      },
+      {
+        "type": "Livro",
+        "title": "Designing Data-Intensive Applications",
+        "url": "https://dataintensive.net/"
+      }
+    ]
+  },
+  {
+    "id": 53,
+    "title": "Data Engineering",
+    "phase": 1,
+    "description": "Muitos sistemas de IA morrem porque os dados são ruins.",
+    "topics": [
+      "ETL",
+      "ELT",
+      "batch",
+      "streaming",
+      "data pipelines",
+      "data quality",
+      "schema evolution",
+      "Kafka",
+      "Airflow",
+      "dbt"
+    ],
+    "required": [
+      0,
+      2,
+      4,
+      5
+    ],
+    "resources": [
+      {
+        "type": "Material",
+        "title": "Documentação e referência",
+        "url": "https://airflow.apache.org/docs/"
+      },
+      {
+        "type": "Curso",
+        "title": "System Design Primer",
+        "url": "https://github.com/donnemartin/system-design-primer"
+      },
+      {
+        "type": "Vídeo",
+        "title": "MIT 6.006 · aulas",
+        "url": "https://ocw.mit.edu/courses/6-006-introduction-to-algorithms-spring-2020/video_galleries/lecture-videos/"
+      },
+      {
+        "type": "Livro",
+        "title": "Designing Data-Intensive Applications",
+        "url": "https://dataintensive.net/"
+      }
+    ]
+  },
+  {
+    "id": 54,
+    "title": "Event-driven AI",
+    "phase": 5,
+    "description": "Exemplo:",
+    "topics": [
+      "CustomerCreated",
+      "Kafka",
+      "AI classifier",
+      "LeadScoreGenerated",
+      "CRM"
+    ],
+    "required": [
+      0,
+      2,
+      3
+    ],
+    "resources": [
+      {
+        "type": "Material",
+        "title": "Documentação e referência",
+        "url": "https://kafka.apache.org/documentation/"
+      },
+      {
+        "type": "Curso",
+        "title": "Evaluating AI Agents",
+        "url": "https://www.deeplearning.ai/courses/evaluating-ai-agents"
+      },
+      {
+        "type": "Vídeo",
+        "title": "OpenTelemetry · demonstrações",
+        "url": "https://www.youtube.com/@OpenTelemetry"
+      },
+      {
+        "type": "Livro",
+        "title": "Building Secure and Reliable Systems",
+        "url": "https://sre.google/books/"
+      }
+    ]
+  },
+  {
+    "id": 55,
+    "title": "Human-in-the-loop",
+    "phase": 5,
+    "description": "Não automatize decisões irreversíveis sem necessidade.",
+    "topics": [
+      "AI decision",
+      "confidence",
+      "human review"
+    ],
+    "required": [
+      0,
+      1,
+      2
+    ],
+    "resources": [
+      {
+        "type": "Material",
+        "title": "Documentação e referência",
+        "url": "https://platform.openai.com/docs/guides/safety-best-practices"
+      },
+      {
+        "type": "Curso",
+        "title": "Evaluating AI Agents",
+        "url": "https://www.deeplearning.ai/courses/evaluating-ai-agents"
+      },
+      {
+        "type": "Vídeo",
+        "title": "OpenTelemetry · demonstrações",
+        "url": "https://www.youtube.com/@OpenTelemetry"
+      },
+      {
+        "type": "Livro",
+        "title": "Building Secure and Reliable Systems",
+        "url": "https://sre.google/books/"
+      }
+    ]
+  },
+  {
+    "id": 56,
+    "title": "Product Engineering",
+    "phase": 5,
+    "description": "Você também precisa saber responder:",
+    "topics": [
+      "avaliar alternativas mais baratas",
+      "previsibilidade do produto",
+      "latência percebida",
+      "testabilidade"
+    ],
+    "required": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "resources": [
+      {
+        "type": "Material",
+        "title": "Documentação e referência",
+        "url": "https://www.intercom.com/blog/ai-product-design/"
+      },
+      {
+        "type": "Curso",
+        "title": "Evaluating AI Agents",
+        "url": "https://www.deeplearning.ai/courses/evaluating-ai-agents"
+      },
+      {
+        "type": "Vídeo",
+        "title": "OpenTelemetry · demonstrações",
+        "url": "https://www.youtube.com/@OpenTelemetry"
+      },
+      {
+        "type": "Livro",
+        "title": "Building Secure and Reliable Systems",
+        "url": "https://sre.google/books/"
+      }
+    ]
+  },
+  {
+    "id": 57,
+    "title": "UX para IA",
+    "phase": 5,
+    "description": "Estude:",
+    "topics": [
+      "streaming UX",
+      "uncertainty",
+      "undo",
+      "confirmation",
+      "citations",
+      "tool status",
+      "progressive disclosure",
+      "error recovery"
+    ],
+    "required": [
+      0,
+      1,
+      3,
+      4,
+      5,
+      7
+    ],
+    "resources": [
+      {
+        "type": "Material",
+        "title": "Documentação e referência",
+        "url": "https://www.nngroup.com/articles/ai-ux/"
+      },
+      {
+        "type": "Curso",
+        "title": "Evaluating AI Agents",
+        "url": "https://www.deeplearning.ai/courses/evaluating-ai-agents"
+      },
+      {
+        "type": "Vídeo",
+        "title": "OpenTelemetry · demonstrações",
+        "url": "https://www.youtube.com/@OpenTelemetry"
+      },
+      {
+        "type": "Livro",
+        "title": "Building Secure and Reliable Systems",
+        "url": "https://sre.google/books/"
+      }
+    ]
+  },
+  {
+    "id": 58,
+    "title": "Coding Agents",
+    "phase": 6,
+    "description": "Para sua área isso tem ROI gigantesco.",
+    "topics": [
+      "Cursor",
+      "Claude Code",
+      "Codex"
+    ],
+    "required": [],
+    "resources": [
+      {
+        "type": "Material",
+        "title": "Documentação e referência",
+        "url": "https://platform.openai.com/docs/guides/tools"
+      },
+      {
+        "type": "Curso",
+        "title": "Hugging Face Agents Course",
+        "url": "https://huggingface.co/learn/agents-course/unit0/introduction"
+      },
+      {
+        "type": "Vídeo",
+        "title": "Full Stack Deep Learning · lectures",
+        "url": "https://fullstackdeeplearning.com/llm-bootcamp/"
+      },
+      {
+        "type": "Livro",
+        "title": "AI Engineering",
+        "url": "https://www.oreilly.com/library/view/ai-engineering/9781098166298/"
+      }
+    ]
+  },
+  {
+    "id": 59,
+    "title": "AI-assisted Software Engineering",
+    "phase": 6,
+    "description": "Aprenda a usar IA para:",
+    "topics": [
+      "análise de requirements",
+      "arquitetura",
+      "geração de código",
+      "code review",
+      "debugging",
+      "testes",
+      "documentação",
+      "migrations",
+      "refactoring",
+      "incident analysis"
+    ],
+    "required": [],
+    "resources": [
+      {
+        "type": "Material",
+        "title": "Documentação e referência",
+        "url": "https://docs.github.com/en/copilot"
+      },
+      {
+        "type": "Curso",
+        "title": "Hugging Face Agents Course",
+        "url": "https://huggingface.co/learn/agents-course/unit0/introduction"
+      },
+      {
+        "type": "Vídeo",
+        "title": "Full Stack Deep Learning · lectures",
+        "url": "https://fullstackdeeplearning.com/llm-bootcamp/"
+      },
+      {
+        "type": "Livro",
+        "title": "AI Engineering",
+        "url": "https://www.oreilly.com/library/view/ai-engineering/9781098166298/"
+      }
+    ]
+  },
+  {
+    "id": 60,
+    "title": "Engenharia de agentes de código",
+    "phase": 6,
+    "description": "Implemente um agente capaz de:",
+    "topics": [
+      "receber issue",
+      "analisar repo",
+      "encontrar arquivos",
+      "modificar código",
+      "rodar testes",
+      "corrigir erros",
+      "gerar diff"
+    ],
+    "required": [],
+    "resources": [
+      {
+        "type": "Material",
+        "title": "Documentação e referência",
+        "url": "https://platform.openai.com/docs/guides/tools"
+      },
+      {
+        "type": "Curso",
+        "title": "Hugging Face Agents Course",
+        "url": "https://huggingface.co/learn/agents-course/unit0/introduction"
+      },
+      {
+        "type": "Vídeo",
+        "title": "Full Stack Deep Learning · lectures",
+        "url": "https://fullstackdeeplearning.com/llm-bootcamp/"
+      },
+      {
+        "type": "Livro",
+        "title": "AI Engineering",
+        "url": "https://www.oreilly.com/library/view/ai-engineering/9781098166298/"
+      }
+    ]
+  }
+]
