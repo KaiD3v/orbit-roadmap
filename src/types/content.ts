@@ -1,10 +1,15 @@
-export type Resource = { type: string; title: string; url: string }
-export type Topic = { id: string; title: string; required: boolean }
+import type { phases } from '../data/roadmap'
+
+export type ResourceType = 'Material' | 'Curso' | 'Vídeo' | 'Livro'
+export type PhaseNumber = (typeof phases)[number]['number']
+
+export type Resource = { type: ResourceType, title: string, url: `https://${string}` }
+export type Topic = { id: string, title: string, required: boolean }
 
 export type Area = {
   id: number
   title: string
-  phase: number
+  phase: PhaseNumber
   description: string
   topics: Topic[]
   resources: Resource[]

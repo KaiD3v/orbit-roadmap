@@ -1,10 +1,10 @@
 import type { ChangeEvent } from 'react'
-import type { ProgressBackup } from '../types/progress'
+import { createBackup } from '../domain/backup'
+import { useProgress } from '../store/progress'
 
-export function BackupControls({ backup, importBackup, notify }: {
-  backup: ProgressBackup; importBackup: (value: unknown) => void; notify: (message: string) => void
-}) {
+export function BackupControls({ notify }: { notify: (message: string) => void }) {
   function exportBackup() {
+    const backup = createBackup(useProgress.getState())
     const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' })
     const link = document.createElement('a')
     link.href = URL.createObjectURL(blob)
@@ -20,8 +20,9 @@ export function BackupControls({ backup, importBackup, notify }: {
     if (!file) return
     try {
       const imported = JSON.parse(await file.text()) as unknown
-      if ((Object.keys(backup.done).length || backup.days.length) && !window.confirm('Importar este arquivo substituirá o progresso atual. Deseja continuar?')) return
-      importBackup(imported)
+      const { done, days } = useProgress.getState()
+      if ((Object.keys(done).length || days.length) && !window.confirm('Importar este arquivo substituirá o progresso atual. Deseja continuar?')) return
+      useProgress.getState().importBackup(imported)
       notify('Progresso importado')
     } catch {
       notify('Arquivo inválido. Use um JSON exportado pelo Orbit.')
@@ -30,8 +31,12 @@ export function BackupControls({ backup, importBackup, notify }: {
     }
   }
 
-  return <div className="top-actions">
-    <button className="text-button" type="button" onClick={exportBackup}>Exportar progresso ↗</button>
-    <label className="import-button">Importar <input type="file" accept="application/json,.json" onChange={loadBackup} /></label>
-  </div>
+  return (
+    <div className="top-actions">
+      <button className="text-button" type="button" onClick={exportBackup}>Exportar progresso ↗</button>
+      <label className="import-button">
+        Importar <input type="file" accept="application/json,.json" onChange={loadBackup} />
+      </label>
+    </div>
+  )
 }
