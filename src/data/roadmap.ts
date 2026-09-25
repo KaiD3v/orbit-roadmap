@@ -1,15 +1,7 @@
 import roadmap from './roadmap.json'
+import type { Area } from '../types/content'
 
-export type Resource = { type: string; title: string; url: string }
-export type Area = {
-  id: number
-  title: string
-  phase: number
-  description: string
-  topics: string[]
-  required: number[]
-  resources: Resource[]
-}
+export type { Area, Resource, Topic } from '../types/content'
 
 export const areas: Area[] = roadmap
 export const phases = [
@@ -23,4 +15,8 @@ export const phases = [
 
 export const orderedAreas = phases.flatMap((_, index) => areas.filter(area => area.phase === index + 1))
 export const displayNumber = new Map(orderedAreas.map((area, index) => [area.id, index + 1]))
-export const validTopicKeys = new Set(areas.flatMap(area => area.topics.map((_, index) => `${area.id}:${index}`)))
+export const validTopicKeys = new Set(areas.flatMap(area => area.topics.map(topic => topic.id)))
+export const legacyTopicKeys = new Map<string, string>(areas.flatMap(area => area.topics.flatMap(topic => {
+  const originalIndex = Number(topic.id.match(/-t(\d+)$/)?.[1]) - 1
+  return Number.isInteger(originalIndex) ? [[`${area.id}:${originalIndex}`, topic.id] as const] : []
+})))

@@ -1,15 +1,17 @@
 import { areas, orderedAreas, phases, type Area } from '../data/roadmap'
+import type { Done } from '../types/progress'
 
-export type Done = Record<string, true>
-export const topicKey = (area: Area, index: number) => `${area.id}:${index}`
+export type { Done } from '../types/progress'
+export const TOPIC_XP = 10
+export const PHASE_XP = 100
 
 export function countDone(area: Area, done: Done) {
-  return area.topics.filter((_, index) => done[topicKey(area, index)]).length
+  return area.topics.filter(topic => done[topic.id]).length
 }
 
 export function priorityProgress(area: Area, done: Done, required: boolean): [number, number] {
-  const indices = area.topics.map((_, index) => index).filter(index => area.required.includes(index) === required)
-  return [indices.filter(index => done[topicKey(area, index)]).length, indices.length]
+  const topics = area.topics.filter(topic => topic.required === required)
+  return [topics.filter(topic => done[topic.id]).length, topics.length]
 }
 
 export function phaseProgress(phase: number, done: Done): [number, number] {
@@ -18,10 +20,12 @@ export function phaseProgress(phase: number, done: Done): [number, number] {
 }
 
 export function nextArea(done: Done) {
+  const first = orderedAreas[0]
+  if (!first) throw new Error('Roadmap sem áreas')
   return orderedAreas.find(area => {
     const [completed, total] = priorityProgress(area, done, true)
     return completed < total
-  }) || orderedAreas.find(area => countDone(area, done) < area.topics.length) || orderedAreas[0]
+  }) || orderedAreas.find(area => countDone(area, done) < area.topics.length) || first
 }
 
 export function streak(days: string[]) {
@@ -55,19 +59,30 @@ export function metrics(done: Done, days: string[]) {
     requiredTotal,
     deepDone: completed - requiredDone,
     deepTotal: total - requiredTotal,
-    percent: Math.round(requiredDone / requiredTotal * 100),
-    xp: completed * 10 + finishedPhases * 100,
+    percent: requiredTotal ? Math.round(requiredDone / requiredTotal * 100) : 0,
+    xp: completed * TOPIC_XP + finishedPhases * PHASE_XP,
     finishedPhases,
     streak: streak(days),
   }
 }
 
-export function badges(progress: ReturnType<typeof metrics>) {
-  return [
-    ['✦', 'Primeiro passo', 'Conclua seu primeiro tópico', progress.completed >= 1],
-    ['⚡', 'Em movimento', 'Conclua 10 tópicos', progress.completed >= 10],
-    ['◈', 'Consistência', 'Conclua 50 tópicos', progress.completed >= 50],
-    ['⌁', 'Mestre de fase', 'Complete uma fase', progress.finishedPhases >= 1],
-    ['✳', 'Órbita completa', 'Conclua todo o roadmap', progress.completed === progress.total],
-  ] as const
+export type Metrics = ReturnType<typeof metrics>
+
+export function levelFor(percent: number) {
+  if (percent === 100) return 'Arquiteto orbital'
+  if (percent >= 60) return 'Especialista'
+  if (percent >= 25) return 'Construtor'
+  return 'Explorador'
 }
+
+export function badges(progress: ReturnType<typeof metrics>) {
+  return BADGES.map(badge => [badge.icon, badge.title, badge.description, badge.earned(progress)] as const)
+}
+
+const BADGES = [
+  { icon: '✦', title: 'Primeiro passo', description: 'Conclua seu primeiro tópico', earned: (progress: ReturnType<typeof metrics>) => progress.completed >= 1 },
+  { icon: '⚡', title: 'Em movimento', description: 'Conclua 10 tópicos', earned: (progress: ReturnType<typeof metrics>) => progress.completed >= 10 },
+  { icon: '◈', title: 'Consistência', description: 'Conclua 50 tópicos', earned: (progress: ReturnType<typeof metrics>) => progress.completed >= 50 },
+  { icon: '⌁', title: 'Mestre de fase', description: 'Complete uma fase', earned: (progress: ReturnType<typeof metrics>) => progress.finishedPhases >= 1 },
+  { icon: '✳', title: 'Órbita completa', description: 'Conclua todo o roadmap', earned: (progress: ReturnType<typeof metrics>) => progress.completed === progress.total },
+] as const

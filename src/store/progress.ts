@@ -1,30 +1,45 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import { validTopicKeys } from '../data/roadmap'
-import type { Done } from '../domain/progress'
+import { legacyTopicKeys, validTopicKeys } from '../data/roadmap'
+import type { Done, ProgressBackup, ProgressData } from '../types/progress'
 
-type ProgressData = { done: Done; days: string[] }
 type ProgressStore = ProgressData & {
   toggleTopic: (key: string) => void
   importBackup: (input: unknown) => void
 }
 
-function cleanProgress(input: unknown): ProgressData {
+const isDay = (day: unknown): day is string => {
+  if (typeof day !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(day)) return false
+  const date = new Date(`${day}T00:00:00Z`)
+  return !Number.isNaN(date.valueOf()) && date.toISOString().startsWith(day)
+}
+
+export function cleanProgress(input: unknown): ProgressData {
   if (!input || typeof input !== 'object') throw new Error('Arquivo inválido')
   const value = input as Record<string, unknown>
   if (!value.done || typeof value.done !== 'object' || Array.isArray(value.done) || !Array.isArray(value.days)) throw new Error('Arquivo inválido')
   return {
-    done: Object.fromEntries(Object.entries(value.done).filter(([key, checked]) => validTopicKeys.has(key) && checked === true)) as Done,
-    days: [...new Set(value.days.filter((day): day is string => typeof day === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(day)))],
+    done: Object.fromEntries(Object.entries(value.done).flatMap(([key, checked]) => {
+      const stableKey = validTopicKeys.has(key) ? key : legacyTopicKeys.get(key)
+      return checked === true && stableKey ? [[stableKey, true]] : []
+    })) as Done,
+    days: [...new Set(value.days.filter(isDay))],
   }
 }
+
+const emptyProgress = (): ProgressData => ({ done: {}, days: [] })
+const safeProgress = (input: unknown): ProgressData | undefined => {
+  try { return cleanProgress(input) } catch { return undefined }
+}
+
+export const createBackup = (done: Done, days: string[]): ProgressBackup => ({ version: 2, ...cleanProgress({ done, days }) })
 
 function legacyProgress(): ProgressData {
   try {
     const saved = localStorage.getItem('orbit-roadmap-v1')
-    return saved ? cleanProgress(JSON.parse(saved)) : { done: {}, days: [] }
+    return saved ? cleanProgress(JSON.parse(saved)) : emptyProgress()
   } catch {
-    return { done: {}, days: [] }
+    return emptyProgress()
   }
 }
 
@@ -48,10 +63,16 @@ export const useProgress = create<ProgressStore>()(
         })
       },
       importBackup: input => {
-        if (!input || typeof input !== 'object' || (input as Record<string, unknown>).version !== 1) throw new Error('Arquivo inválido')
+        if (!input || typeof input !== 'object' || ![1, 2].includes((input as Record<string, unknown>).version as number)) throw new Error('Arquivo inválido')
         set(cleanProgress(input))
       },
     }),
-    { name: 'orbit-roadmap-react-v1', partialize: state => ({ done: state.done, days: state.days }) },
+    {
+      name: 'orbit-roadmap-react-v1',
+      version: 2,
+      migrate: persisted => safeProgress(persisted),
+      merge: (persisted, current) => ({ ...current, ...(safeProgress(persisted) ?? {}) }),
+      partialize: state => ({ done: state.done, days: state.days }),
+    },
   ),
 )
