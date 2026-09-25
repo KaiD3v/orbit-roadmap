@@ -15,10 +15,12 @@ Para conferir a versão de produção: `pnpm build` e `pnpm preview`. Execute `p
 
 - `src/data/areas.ts` e `src/types/content.ts`: conteúdo tipado do roadmap (áreas, tópicos com IDs estáveis e materiais). Tipo de material, fase e URL `https://` inválidos quebram o `tsc`. Nunca renomeie IDs de tópicos: o progresso salvo depende deles.
 - `src/data/roadmap.ts`: fases e índices derivados (`orderedAreas`, `areasByPhase`, `stepLabel`).
-- `src/domain/`: regras puras, sem dependência do React ou do navegador — `progress.ts` (percentuais, XP, sequência de estudo, conquistas), `filter.ts` (busca e filtros do mapa) e `backup.ts` (validação e migração de progresso importado/legado).
+- `src/domain/`: regras puras, sem dependência do React ou do navegador — `progress.ts` (percentuais, XP, sequência de estudo, próximo passo, estados de fase e área, metas, conquistas e feedback das ações), `filter.ts` (busca e filtros do mapa) e `backup.ts` (validação e migração de progresso importado/legado).
 - `src/store/progress.ts` e `src/types/progress.ts`: marcações e dias de estudo no Zustand, persistidos em `localStorage`.
-- `src/components/`: seções da interface — `Hero`, `StatsBar`, `Journey`, `MapToolbar`, `RoadmapMap`, `AreaDialog`, `Achievements`, `SectionHeading`, `Sidebar`, `BackupControls` e `Toast`.
+- `src/components/`: seções da interface — `Hero` (só na primeira visita), `NextStep` (card "Seu próximo passo"), `Journey`, `MapToolbar`, `RoadmapMap` (fases e trilha), `AreaDialog`, `Achievements`, `SectionHeading`, `Sidebar` (menu hambúrguer no mobile), `BackupControls` e `Toast`.
 - `src/styles/`: estilos globais e por área da interface (`index.css` importa os demais arquivos).
 - `src/App.tsx`: composição da aplicação.
 
-O armazenamento usa a chave `orbit-roadmap-react-v1` com esquema versão 2. O progresso já salvo nessa chave é migrado automaticamente para IDs estáveis dos tópicos. Se a versão HTML anterior tiver sido aberta **na mesma origem**, o estado de `orbit-roadmap-v1` é lido na primeira execução. Como `file://` e `http://localhost` usam armazenamentos separados, para migrar o progresso da versão HTML aberta como arquivo local, exporte `orbit-progresso.json` nela e use **Importar** na versão React. Backups antigos (v1) continuam aceitos; novas exportações são v2.
+O armazenamento usa a chave `orbit-roadmap-react-v1` com esquema versão 2. O progresso já salvo nessa chave é migrado automaticamente para IDs estáveis dos tópicos. Se a versão HTML anterior tiver sido aberta **na mesma origem**, o estado de `orbit-roadmap-v1` é lido na primeira execução. Como `file://` e `http://localhost` usam armazenamentos separados, para migrar o progresso da versão HTML aberta como arquivo local, exporte `orbit-progresso.json` nela e use **Restaurar backup** na versão React. Backups antigos (v1) continuam aceitos; novas exportações são v2.
+
+Ideias avaliadas para o futuro ficam em [BACKLOG.md](BACKLOG.md).
