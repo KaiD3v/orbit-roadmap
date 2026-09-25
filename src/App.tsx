@@ -12,8 +12,6 @@ import { StatsBar } from './components/StatsBar'
 import { Toast } from './components/Toast'
 import type { Area } from './types/content'
 
-
-
 function App() {
   const [selected, setSelected] = useState<Area | null>(null)
   const [search, setSearch] = useState('')
@@ -35,24 +33,26 @@ function App() {
     })
   }
 
-  return <>
-    <div className="app-shell">
-      <Sidebar resetView={resetView} />
-      <main id="inicio">
-        <header className="topbar">
-          <div className="breadcrumb">Roadmap <span>/</span> Engenharia de Software com IA</div>
-          <BackupControls notify={setToast} />
-        </header>
-        <Hero onContinue={continueJourney} />
-        <StatsBar />
-        <Journey search={search} onSearch={setSearch} filter={filter} onFilter={setFilter} open={setSelected} />
-        <Achievements />
-        <footer>Feito para aprender construindo. Seu progresso é salvo neste navegador. <span>Orbit / React</span></footer>
-      </main>
-    </div>
-    <AreaDialog area={selected} notify={setToast} close={() => setSelected(null)} />
-    <Toast message={toast} onHide={setToast} />
-  </>
+  return (
+    <>
+      <div className="app-shell">
+        <Sidebar resetView={resetView} />
+        <main id="inicio">
+          <header className="topbar">
+            <div className="breadcrumb">Roadmap <span>/</span> Engenharia de Software com IA</div>
+            <BackupControls notify={setToast} />
+          </header>
+          <Hero onContinue={continueJourney} />
+          <StatsBar />
+          <Journey search={search} onSearch={setSearch} filter={filter} onFilter={setFilter} open={setSelected} />
+          <Achievements />
+          <footer>Feito para aprender construindo. Seu progresso é salvo neste navegador. <span>Orbit</span></footer>
+        </main>
+      </div>
+      <AreaDialog area={selected} notify={setToast} close={() => setSelected(null)} />
+      <Toast message={toast} onHide={setToast} />
+    </>
+  )
 }
 
 export default App

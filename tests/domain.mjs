@@ -33,7 +33,7 @@ assert(!matchesArea(evalArea, {}, '', 'done'))
 
 const someTopic = evalArea.topics[0]
 assert.equal(toggleMessage({}, someTopic.id), `+${TOPIC_XP} XP · Tópico concluído!`)
-assert.equal(toggleMessage({ [someTopic.id]: true }, someTopic.id), 'Tópico reaberto')
+assert.equal(toggleMessage({ [someTopic.id]: true }, someTopic.id), 'Tópico desmarcado')
 
 const phase1Topics = areasByPhase.get(1).flatMap(area => area.topics)
 const lastTopic = phase1Topics[phase1Topics.length - 1]

@@ -20,12 +20,12 @@ export function Journey({ search, onSearch, filter, onFilter, open }: {
   return (
     <section className="journey" aria-labelledby="journey-title">
       <SectionHeading id="journey-title" label="Mapa de aprendizagem" title="Trace seu caminho">
-        As etapas vão de 01 a {orderedAreas.length}. Comece pelos tópicos obrigatórios para colocar o conhecimento
-        em prática; use os de aprofundamento para ampliar seu domínio.
+        São {orderedAreas.length} etapas. Comece pelos tópicos essenciais para já construir algo real; os extras
+        ficam para quando quiser ir mais fundo.
       </SectionHeading>
       <MapToolbar search={search} onSearch={onSearch} filter={filter} onFilter={onFilter} matches={matches} />
       <RoadmapMap query={query} filter={filter} nextId={nextArea(done).id} open={open} />
-      {matches === 0 && <p className="empty-state">Nenhum nó corresponde à busca. Tente outro termo ou filtro.</p>}
+      {matches === 0 && <p className="empty-state">Nada por aqui. Tente outro termo ou limpe os filtros.</p>}
     </section>
   )
 }

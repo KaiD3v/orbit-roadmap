@@ -14,7 +14,7 @@ export function MapToolbar({ search, onSearch, filter, onFilter, matches }: {
           <span aria-hidden="true">⌕</span>
           <input
             type="search"
-            placeholder="Encontrar no mapa"
+            placeholder="Buscar área ou tópico"
             aria-label="Encontrar área ou tópico no mapa"
             value={search}
             onChange={event => onSearch(event.target.value)}
@@ -37,8 +37,8 @@ export function MapToolbar({ search, onSearch, filter, onFilter, matches }: {
       <p className="map-legend">
         <span><i className="legend-dot" /> Próximo passo</span>
         <span><i className="legend-dot finished" /> Área concluída</span>
-        <span><i className="legend-dot extension" /> Aprofundamento</span>
-        <span>{matches} {matches === 1 ? 'nó encontrado' : 'nós encontrados'}</span>
+        <span><i className="legend-dot extension" /> Só extras</span>
+        <span>{matches} {matches === 1 ? 'área' : 'áreas'}</span>
       </p>
     </>
   )

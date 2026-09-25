@@ -13,8 +13,8 @@ function MapNode({ area, view }: { area: Area, view: MapView }) {
   const [deepDone, deepTotal] = priorityProgress(area, done, false)
   const number = stepLabel(area)
   const summary = requiredTotal && deepTotal
-    ? `${requiredDone}/${requiredTotal} obrig. · ${deepDone}/${deepTotal} aprof.`
-    : requiredTotal ? `Obrigatório · ${requiredDone}/${requiredTotal}` : `Aprofundamento · ${deepDone}/${deepTotal}`
+    ? `${requiredDone}/${requiredTotal} essenciais · ${deepDone}/${deepTotal} extras`
+    : requiredTotal ? `Essencial · ${requiredDone}/${requiredTotal}` : `Para ir além · ${deepDone}/${deepTotal}`
   const isNext = area.id === view.nextId && !view.query && view.filter === 'all'
   const className = ['map-node', finished && 'is-done', !requiredTotal && 'is-extension',
     !matchesArea(area, done, view.query, view.filter) && 'is-faded', isNext && 'is-next'].filter(Boolean).join(' ')
@@ -65,7 +65,7 @@ function PhaseMap({ phase, view }: { phase: Phase, view: MapView }) {
             </div>
           </div>
         ))}
-        <div className="map-end">Checkpoint {phase.number} / {phases.length}</div>
+        <div className="map-end">Fim da fase {phase.number} de {phases.length}</div>
       </div>
     </section>
   )

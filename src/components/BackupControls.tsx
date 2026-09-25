@@ -11,7 +11,7 @@ export function BackupControls({ notify }: { notify: (message: string) => void }
     link.download = 'orbit-progresso.json'
     link.click()
     window.setTimeout(() => URL.revokeObjectURL(link.href), 1000)
-    notify('Progresso exportado')
+    notify('Backup baixado')
   }
 
   async function loadBackup(event: ChangeEvent<HTMLInputElement>) {
@@ -21,11 +21,11 @@ export function BackupControls({ notify }: { notify: (message: string) => void }
     try {
       const imported = JSON.parse(await file.text()) as unknown
       const { done, days } = useProgress.getState()
-      if ((Object.keys(done).length || days.length) && !window.confirm('Importar este arquivo substituirá o progresso atual. Deseja continuar?')) return
+      if ((Object.keys(done).length || days.length) && !window.confirm('Isso troca seu progresso atual pelo do arquivo. Continuar?')) return
       useProgress.getState().importBackup(imported)
-      notify('Progresso importado')
+      notify('Progresso restaurado')
     } catch {
-      notify('Arquivo inválido. Use um JSON exportado pelo Orbit.')
+      notify('Não reconhecemos esse arquivo. Use um backup baixado do Orbit.')
     } finally {
       input.value = ''
     }
@@ -33,9 +33,9 @@ export function BackupControls({ notify }: { notify: (message: string) => void }
 
   return (
     <div className="top-actions">
-      <button className="text-button" type="button" onClick={exportBackup}>Exportar progresso ↗</button>
+      <button className="text-button" type="button" onClick={exportBackup}>Baixar backup</button>
       <label className="import-button">
-        Importar <input type="file" accept="application/json,.json" onChange={loadBackup} />
+        Restaurar backup <input type="file" accept="application/json,.json" onChange={loadBackup} />
       </label>
     </div>
   )

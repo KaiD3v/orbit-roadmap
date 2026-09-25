@@ -84,7 +84,7 @@ export function metrics(done: Done, days: string[]) {
 export type Metrics = ReturnType<typeof metrics>
 
 export function toggleMessage(done: Done, key: string) {
-  if (done[key]) return 'Tópico reaberto'
+  if (done[key]) return 'Tópico desmarcado'
   const after = { ...done, [key]: true as const }
   return countFinishedPhases(after) > countFinishedPhases(done)
     ? `Fase concluída! +${PHASE_XP} XP ✦`

@@ -50,11 +50,13 @@
   display: flex;
   align-items: center;
   gap: 12px;
+  min-height: 48px;
   text-decoration: none;
   padding: 12px 10px;
   border-radius: 11px;
   color: var(--muted);
   font-size: 13px;
+  line-height: 1.3;
 }
 .nav-link:hover,
 .nav-link.active {
@@ -175,7 +177,7 @@ main {
   border: 0;
 }
 .hero {
-  min-height: 320px;
+  padding: 40px 0 36px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -186,7 +188,10 @@ main {
 .hero-copy {
   position: relative;
   z-index: 1;
+  flex: 1;
   max-width: 700px;
+  /* O h1 dimensiona a fonte pela largura desta coluna (cqi) */
+  container-type: inline-size;
 }
 .hero-kicker,
 .small-label {
@@ -210,13 +215,18 @@ h3 {
   font-family: "Space Grotesk", sans-serif;
 }
 h1 {
-  font-size: clamp(42px, 4.6vw, 70px);
+  /* "inteligentes de verdade." ocupa ~10,1em: 9.6cqi faz a linha caber na coluna quando há espaço */
+  font-size: clamp(40px, 9.6cqi, 62px);
   line-height: 1.07;
   letter-spacing: -0.065em;
   margin: 18px 0;
+  text-wrap: balance;
 }
 h1 span {
   color: var(--violet);
+}
+h1 .no-break {
+  white-space: nowrap;
 }
 .hero p {
   max-width: 560px;
@@ -227,6 +237,7 @@ h1 span {
 .hero-actions {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 18px;
   margin-top: 27px;
 }
@@ -237,6 +248,7 @@ h1 span {
   color: var(--bg);
   padding: 14px 19px;
   font-weight: 700;
+  white-space: nowrap;
   box-shadow: 0 8px 30px #8d67ff44;
 }
 .primary-button:hover {
@@ -334,7 +346,7 @@ h1 span {
   padding: 21px;
   display: flex;
   gap: 15px;
-  align-items: center;
+  align-items: flex-start;
   border-right: 1px solid var(--line);
 }
 .stat:last-child {
@@ -413,6 +425,11 @@ h1 span {
   width: min(380px, 100%);
   color: var(--muted);
   font-size: 24px;
+}
+.search-field > span {
+  line-height: 1;
+  display: grid;
+  place-items: center;
 }
 .search-field input {
   background: none;
@@ -558,13 +575,15 @@ h1 span {
   border-radius: 12px;
   color: var(--muted);
 }
+/* Flex em vez de grid: a última conquista cresce e ocupa a sobra da linha */
 .badge-grid {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  display: flex;
+  flex-wrap: wrap;
   gap: 12px;
   margin-top: 25px;
 }
 .badge {
+  flex: 1 1 150px;
   padding: 18px 14px;
   border: 1px solid var(--line);
   border-radius: 12px;
@@ -572,7 +591,14 @@ h1 span {
   min-height: 134px;
 }
 .badge.locked {
-  opacity: 0.48;
+  opacity: 1;
+}
+.badge.locked .badge-icon {
+  filter: grayscale(1);
+  opacity: 0.45;
+}
+.badge.locked strong {
+  color: var(--muted);
 }
 .badge-icon {
   font-size: 27px;
@@ -621,10 +647,36 @@ footer {
 }
 @media (max-width: 1100px) {
   .orbit-wrap {
-    width: 240px;
-    height: 240px;
+    width: 254px;
+    height: 254px;
     margin-right: 0;
-    transform: scale(0.82);
+  }
+  .orbit-one {
+    width: 200px;
+    height: 200px;
+  }
+  .orbit-two {
+    width: 252px;
+    height: 252px;
+  }
+  .satellite-one {
+    top: 24px;
+    right: 53px;
+  }
+  .satellite-two {
+    bottom: 24px;
+    left: 57px;
+  }
+  .progress-ring {
+    width: 166px;
+    height: 166px;
+  }
+  .ring-inner {
+    width: 140px;
+    height: 140px;
+  }
+  .ring-inner span {
+    font-size: 40px;
   }
   .stat {
     padding: 15px;
@@ -638,8 +690,17 @@ footer {
   .stat strong {
     font-size: 18px;
   }
+  .stat div > span {
+    font-size: 10px;
+  }
   .resource-grid {
     grid-template-columns: repeat(2, 1fr);
+  }
+}
+/* Com o sidebar ainda visível, o anel espremia o título; o progresso segue no sidebar */
+@media (max-width: 1000px) {
+  .orbit-wrap {
+    display: none;
   }
 }
 @media (max-width: 820px) {
@@ -670,6 +731,12 @@ footer {
     overflow-x: auto;
     margin-top: 14px;
     gap: 4px;
+    scrollbar-width: none;
+    mask-image: linear-gradient(to right, #000 85%, transparent);
+    padding-right: 24px;
+  }
+  .sidebar nav::-webkit-scrollbar {
+    display: none;
   }
   .nav-link {
     white-space: nowrap;
@@ -684,9 +751,6 @@ footer {
   .topbar {
     height: 60px;
   }
-  .hero {
-    min-height: 300px;
-  }
   .orbit-wrap {
     display: none;
   }
@@ -699,9 +763,6 @@ footer {
   .stat:nth-child(-n + 2) {
     border-bottom: 1px solid var(--line);
   }
-  .badge-grid {
-    grid-template-columns: repeat(3, 1fr);
-  }
 }
 @media (max-width: 580px) {
   .topbar {
@@ -710,9 +771,6 @@ footer {
     justify-content: center;
     gap: 3px;
     height: 75px;
-  }
-  .hero {
-    min-height: 340px;
   }
   .hero p {
     font-size: 13px;
@@ -759,9 +817,6 @@ footer {
   .topic-grid,
   .resource-grid {
     grid-template-columns: 1fr;
-  }
-  .badge-grid {
-    grid-template-columns: repeat(2, 1fr);
   }
   footer {
     display: block;

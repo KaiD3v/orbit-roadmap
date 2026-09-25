@@ -27,8 +27,8 @@ export function Sidebar({ resetView }: { resetView: () => void }) {
       </nav>
       <div className="sidebar-bottom">
         <div className="level-label">Seu nível <strong>{level}</strong></div>
-        <div className="mini-progress" role="progressbar" aria-label="Progresso da trilha obrigatória" aria-valuenow={progress.percent} aria-valuemin={0} aria-valuemax={100}><span style={{ width: `${progress.percent}%` }} /></div>
-        <p>{progress.requiredDone} de {progress.requiredTotal} obrigatórios concluídos</p>
+        <div className="mini-progress" role="progressbar" aria-label="Progresso da trilha essencial" aria-valuenow={progress.percent} aria-valuemin={0} aria-valuemax={100}><span style={{ width: `${progress.percent}%` }} /></div>
+        <p>{progress.requiredDone} de {progress.requiredTotal} tópicos essenciais</p>
       </div>
     </aside>
   )
