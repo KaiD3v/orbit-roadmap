@@ -5,6 +5,7 @@ export type PhaseNumber = (typeof phases)[number]['number']
 
 export type Resource = { type: ResourceType, title: string, url: `https://${string}` }
 export type Topic = { id: string, title: string, required: boolean }
+export type Challenge = { title: string, brief: string, done: string[] }
 
 export type Area = {
   id: number
@@ -13,4 +14,5 @@ export type Area = {
   description: string
   topics: Topic[]
   resources: Resource[]
+  challenge?: Challenge
 }

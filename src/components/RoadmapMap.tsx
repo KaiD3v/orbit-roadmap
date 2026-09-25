@@ -29,7 +29,9 @@ function NodeGlyph({ area, done, state }: { area: Area, done: Done, state: AreaS
 
 function MapNode({ area, view, index }: { area: Area, view: MapView, index: number }) {
   const done = useProgress(state => state.done)
+  const challenges = useProgress(state => state.challenges)
   const state = areaState(area, done, view.nextId)
+  const challengeDone = Boolean(area.challenge && challenges[String(area.id)])
   const [requiredDone, requiredTotal] = priorityProgress(area, done, true)
   const [deepDone, deepTotal] = priorityProgress(area, done, false)
   const number = stepLabel(area)
@@ -53,8 +55,10 @@ function MapNode({ area, view, index }: { area: Area, view: MapView, index: numb
     prevState.current = state
   }, [state])
 
-  const nodeClassName = ['map-node', `is-${state}`, !requiredTotal && 'is-extension', celebrating && 'is-celebrating']
-    .filter(Boolean).join(' ')
+  const nodeClassName = [
+    'map-node', `is-${state}`, !requiredTotal && 'is-extension', celebrating && 'is-celebrating', challengeDone && 'has-challenge',
+  ].filter(Boolean).join(' ')
+  const challengeLabel = challengeDone ? '; desafio concluído' : ''
 
   return (
     <div className="map-node-row" style={{ '--x': offset } as CSSProperties} hidden={!matches}>
@@ -63,7 +67,7 @@ function MapNode({ area, view, index }: { area: Area, view: MapView, index: numb
         type="button"
         id={`area-${area.id}`}
         onClick={() => view.open(area)}
-        aria-label={`Abrir etapa ${number}: ${area.title}; ${summary}`}
+        aria-label={`Abrir etapa ${number}: ${area.title}; ${summary}${challengeLabel}`}
       >
         <NodeGlyph area={area} done={done} state={state} />
         {state === 'next' && <span className="node-tag">Comece aqui</span>}
@@ -113,8 +117,9 @@ function MapPath({ list, view, phaseColorDone }: { list: Area[], view: MapView, 
 
 function PhaseMap({ phase, view }: { phase: Phase, view: MapView }) {
   const done = useProgress(state => state.done)
+  const challenges = useProgress(state => state.challenges)
   const list = areasByPhase.get(phase.number) ?? []
-  const state = phaseState(phase.number, done)
+  const state = phaseState(phase.number, done, challenges)
   const searching = !!view.query || view.filter !== 'all'
   const phaseMatches = list.filter(area => matchesArea(area, done, view.query, view.filter)).length
   const [userOpen, setUserOpen] = useState<boolean | null>(null)

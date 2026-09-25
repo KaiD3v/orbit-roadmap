@@ -1,9 +1,11 @@
 import { useEffect, useRef, useState } from 'react'
 import { stepLabel } from '../data/roadmap'
-import { countDone, percent, PHASE_XP, priorityProgress, TOPIC_XP, type Feedback } from '../domain/progress'
-import { useProgress, useToggleTopic } from '../store/progress'
+import {
+  CHALLENGE_XP, countDone, isChallengeUnlocked, percent, PHASE_XP, priorityProgress, TOPIC_XP, type Feedback,
+} from '../domain/progress'
+import { useProgress, useToggleChallenge, useToggleTopic } from '../store/progress'
 import type { Area, Resource } from '../types/content'
-import type { Done } from '../types/progress'
+import type { Challenges, Done } from '../types/progress'
 
 function EssentialSteps({ area, done, toggle }: { area: Area, done: Done, toggle: (key: string) => void }) {
   const [expanded, setExpanded] = useState(false)
@@ -60,6 +62,39 @@ function EssentialSteps({ area, done, toggle }: { area: Area, done: Done, toggle
   )
 }
 
+function ChallengeSection({ area, done, challenges, toggleChallenge }: {
+  area: Area
+  done: Done
+  challenges: Challenges
+  toggleChallenge: (areaId: string) => void
+}) {
+  if (!area.challenge) return null
+  const areaKey = String(area.id)
+  const completed = Boolean(challenges[areaKey])
+  const unlocked = completed || isChallengeUnlocked(area, done)
+  return (
+    <section className={`topic-section challenge-section ${completed ? 'is-done' : ''}`}>
+      <div className="topic-section-head">
+        <h3>Construa isto</h3>
+        {completed && <span>Concluído</span>}
+      </div>
+      <p className="challenge-title">{area.challenge.title}</p>
+      <p className="challenge-brief">{area.challenge.brief}</p>
+      <ul className="challenge-criteria">
+        {area.challenge.done.map(item => <li key={item}>{item}</li>)}
+      </ul>
+      {!unlocked && <p className="challenge-locked">Libera quando você concluir os essenciais</p>}
+      <button
+        className={`ghost-button challenge-toggle ${completed ? 'is-done' : ''}`}
+        type="button"
+        onClick={() => toggleChallenge(areaKey)}
+      >
+        {completed ? `✓ Desafio concluído · +${CHALLENGE_XP} XP` : 'Concluí o desafio'}
+      </button>
+    </section>
+  )
+}
+
 function ExtrasGroup({ area, done, toggle }: { area: Area, done: Done, toggle: (key: string) => void }) {
   const extras = area.topics.filter(topic => !topic.required)
   if (!extras.length) return null
@@ -110,7 +145,9 @@ export function AreaDialog({ area, notify, close }: {
   close: () => void
 }) {
   const done = useProgress(state => state.done)
+  const challenges = useProgress(state => state.challenges)
   const toggle = useToggleTopic(notify)
+  const toggleChallenge = useToggleChallenge(notify)
   const ref = useRef<HTMLDialogElement>(null)
   useEffect(() => {
     const dialog = ref.current
@@ -146,6 +183,7 @@ export function AreaDialog({ area, notify, close }: {
           <div className="detail-main">
             {/* key={area.id}: recolhe o "+N depois" ao trocar de área, sem efeito extra */}
             <EssentialSteps area={area} done={done} toggle={toggle} key={area.id} />
+            <ChallengeSection area={area} done={done} challenges={challenges} toggleChallenge={toggleChallenge} />
             <ExtrasGroup area={area} done={done} toggle={toggle} />
             <h3 className="area-subtitle">Para estudar</h3>
             <ResourceHighlight resources={area.resources} />

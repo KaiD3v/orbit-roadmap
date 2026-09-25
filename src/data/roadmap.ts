@@ -19,6 +19,7 @@ export const orderedAreas = phases.flatMap(phase => areasByPhase.get(phase.numbe
 export const displayNumber = new Map(orderedAreas.map((area, index) => [area.id, index + 1]))
 export const stepLabel = (area: Area) => String(displayNumber.get(area.id)).padStart(2, '0')
 export const validTopicKeys = new Set(areas.flatMap(area => area.topics.map(topic => topic.id)))
+export const areasWithChallenge = new Set(areas.filter(area => area.challenge).map(area => String(area.id)))
 export const legacyTopicKeys = new Map<string, string>(areas.flatMap(area => area.topics.flatMap((topic) => {
   const originalIndex = Number(topic.id.match(/-t(\d+)$/)?.[1]) - 1
   return Number.isInteger(originalIndex) ? [[`${area.id}:${originalIndex}`, topic.id] as const] : []

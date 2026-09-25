@@ -1,9 +1,10 @@
 import { areas, areasByPhase, orderedAreas, phases } from '../data/roadmap'
-import type { Area, Topic } from '../types/content'
-import type { Done } from '../types/progress'
+import type { Area, Challenge, Topic } from '../types/content'
+import type { Challenges, Done } from '../types/progress'
 
 export const TOPIC_XP = 10
 export const PHASE_XP = 100
+export const CHALLENGE_XP = 50
 
 export const percent = (completed: number, total: number) =>
   total ? Math.round(completed / total * 100) : 0
@@ -24,6 +25,12 @@ export function priorityProgress(area: Area, done: Done, required: boolean): [nu
   return [topics.filter(topic => done[topic.id]).length, topics.length]
 }
 
+// Mesma regra usada para "área concluída": libera quando os essenciais acabam (ou tudo, se não há essenciais).
+export function isChallengeUnlocked(area: Area, done: Done) {
+  const [requiredDone, requiredTotal] = priorityProgress(area, done, true)
+  return requiredTotal ? requiredDone === requiredTotal : isAreaDone(area, done)
+}
+
 export function phaseProgress(phase: number, done: Done): [number, number] {
   const phaseAreas = areasByPhase.get(phase) ?? []
   const completed = phaseAreas.reduce((sum, area) => sum + countDone(area, done), 0)
@@ -40,16 +47,29 @@ export function nextArea(done: Done) {
   }) || orderedAreas.find(area => countDone(area, done) < area.topics.length) || first
 }
 
-export function nextTopic(done: Done): { area: Area, topic: Topic } | null {
+export type Step
+  = | { area: Area, kind: 'topic', topic: Topic }
+    | { area: Area, kind: 'challenge', challenge: Challenge }
+
+// Varre as áreas em ordem: essencial pendente primeiro, depois o desafio (se liberado e não feito),
+// só então segue para a próxima área. No fim, sobra o modo antigo: fechar os extras que restarem.
+export function nextTopic(done: Done, challenges: Challenges = {}): Step | null {
+  for (const area of orderedAreas) {
+    const requiredPending = area.topics.find(t => t.required && !done[t.id])
+    if (requiredPending) return { area, kind: 'topic', topic: requiredPending }
+    if (area.challenge && isChallengeUnlocked(area, done) && !challenges[String(area.id)]) {
+      return { area, kind: 'challenge', challenge: area.challenge }
+    }
+  }
   const area = nextArea(done)
-  const topic = area.topics.find(t => t.required && !done[t.id]) ?? area.topics.find(t => !done[t.id])
-  return topic ? { area, topic } : null
+  const topic = area.topics.find(t => !done[t.id])
+  return topic ? { area, kind: 'topic', topic } : null
 }
 
 export type PhaseState = 'done' | 'current' | 'future'
 
-export function phaseState(phase: number, done: Done): PhaseState {
-  if (nextTopic(done) === null) return 'done'
+export function phaseState(phase: number, done: Done, challenges: Challenges = {}): PhaseState {
+  if (nextTopic(done, challenges) === null) return 'done'
   const current = nextArea(done).phase
   if (phase === current) return 'current'
   return phase < current ? 'done' : 'future'
@@ -84,7 +104,7 @@ export function countFinishedPhases(done: Done) {
   }).length
 }
 
-export function metrics(done: Done, days: string[]) {
+export function metrics(done: Done, days: string[], challenges: Challenges = {}) {
   const total = areas.reduce((sum, area) => sum + area.topics.length, 0)
   const completed = areas.reduce((sum, area) => sum + countDone(area, done), 0)
   const [requiredDone, requiredTotal] = areas.reduce(([current, count], area) => {
@@ -92,6 +112,7 @@ export function metrics(done: Done, days: string[]) {
     return [current + areaDone, count + areaTotal]
   }, [0, 0])
   const finishedPhases = countFinishedPhases(done)
+  const challengesDone = Object.keys(challenges).length
   return {
     completed,
     total,
@@ -100,8 +121,9 @@ export function metrics(done: Done, days: string[]) {
     deepDone: completed - requiredDone,
     deepTotal: total - requiredTotal,
     percent: percent(requiredDone, requiredTotal),
-    xp: completed * TOPIC_XP + finishedPhases * PHASE_XP,
+    xp: completed * TOPIC_XP + finishedPhases * PHASE_XP + challengesDone * CHALLENGE_XP,
     finishedPhases,
+    challengesDone,
     streak: streak(days),
   }
 }
@@ -122,7 +144,12 @@ function justCompletedArea(area: Area, before: Done, after: Done) {
   return isAreaDone(area, after) && !isAreaDone(area, before)
 }
 
-export type Feedback = { message: string, kind: 'undo' | 'topic' | 'area' | 'level' | 'phase' | 'info' }
+export type Feedback = { message: string, kind: 'undo' | 'topic' | 'area' | 'level' | 'phase' | 'info' | 'challenge' }
+
+export function toggleChallengeFeedback(challenges: Challenges, areaId: string): Feedback {
+  if (challenges[areaId]) return { message: 'Desafio desmarcado', kind: 'undo' }
+  return { message: `Desafio concluído! +${CHALLENGE_XP} XP`, kind: 'challenge' }
+}
 
 // Prioridade da maior para a menor conquista: fase > nível > área > tópico > desmarcar.
 export function toggleFeedback(done: Done, key: string): Feedback {
@@ -168,6 +195,7 @@ const BADGES: Badge[] = [
   countBadge('⚡', 'Em movimento', 10),
   countBadge('◈', 'Consistência', 50),
   { icon: '⌁', title: 'Mestre de fase', description: 'Complete uma fase', earned: progress => progress.finishedPhases >= 1 },
+  { icon: '⚒', title: 'Mão na massa', description: 'Conclua seu primeiro desafio', earned: progress => progress.challengesDone >= 1 },
   { icon: '✳', title: 'Órbita completa', description: 'Conclua todo o roadmap', earned: progress => progress.completed === progress.total },
 ]
 

@@ -1,7 +1,7 @@
 import { useEffect, type CSSProperties } from 'react'
 import type { Feedback } from '../domain/progress'
 
-const BIG_KINDS = new Set(['level', 'phase'])
+const BIG_KINDS = new Set(['level', 'phase', 'challenge'])
 const PARTICLES = Array.from({ length: 8 }, (_, i) => i)
 
 export function Toast({ message, onHide }: {

@@ -1,22 +1,23 @@
 import { useMemo } from 'react'
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import { validTopicKeys } from '../data/roadmap'
+import { areasWithChallenge, validTopicKeys } from '../data/roadmap'
 import { cleanProgress, parseBackup, safeProgress } from '../domain/backup'
-import { localDay, metrics, toggleFeedback, type Feedback } from '../domain/progress'
+import { localDay, metrics, toggleChallengeFeedback, toggleFeedback, type Feedback } from '../domain/progress'
 import type { ProgressData } from '../types/progress'
 
 type ProgressStore = ProgressData & {
   toggleTopic: (key: string) => void
+  toggleChallenge: (areaId: string) => void
   importBackup: (input: unknown) => void
 }
 
 function legacyProgress(): ProgressData {
   try {
     const saved = localStorage.getItem('orbit-roadmap-v1')
-    return saved ? cleanProgress(JSON.parse(saved)) : { done: {}, days: [] }
+    return saved ? cleanProgress(JSON.parse(saved)) : { done: {}, days: [], challenges: {} }
   } catch {
-    return { done: {}, days: [] }
+    return { done: {}, days: [], challenges: {} }
   }
 }
 
@@ -38,14 +39,28 @@ export const useProgress = create<ProgressStore>()(
           return { done, days }
         })
       },
+      toggleChallenge: (areaId) => {
+        if (!areasWithChallenge.has(areaId)) return
+        set((state) => {
+          const challenges = { ...state.challenges }
+          const days = [...state.days]
+          if (challenges[areaId]) delete challenges[areaId]
+          else {
+            const today = localDay()
+            challenges[areaId] = today
+            if (!days.includes(today)) days.push(today)
+          }
+          return { challenges, days }
+        })
+      },
       importBackup: input => set(parseBackup(input)),
     }),
     {
       name: 'orbit-roadmap-react-v1',
-      version: 2,
+      version: 3,
       migrate: persisted => safeProgress(persisted),
       merge: (persisted, current) => ({ ...current, ...(safeProgress(persisted) ?? {}) }),
-      partialize: state => ({ done: state.done, days: state.days }),
+      partialize: state => ({ done: state.done, days: state.days, challenges: state.challenges }),
     },
   ),
 )
@@ -53,7 +68,8 @@ export const useProgress = create<ProgressStore>()(
 export function useMetrics() {
   const done = useProgress(state => state.done)
   const days = useProgress(state => state.days)
-  return useMemo(() => metrics(done, days), [done, days])
+  const challenges = useProgress(state => state.challenges)
+  return useMemo(() => metrics(done, days, challenges), [done, days, challenges])
 }
 
 export function useToggleTopic(notify: (feedback: Feedback) => void) {
@@ -62,5 +78,14 @@ export function useToggleTopic(notify: (feedback: Feedback) => void) {
   return (key: string) => {
     notify(toggleFeedback(done, key))
     toggleTopic(key)
+  }
+}
+
+export function useToggleChallenge(notify: (feedback: Feedback) => void) {
+  const challenges = useProgress(state => state.challenges)
+  const toggleChallenge = useProgress(state => state.toggleChallenge)
+  return (areaId: string) => {
+    notify(toggleChallengeFeedback(challenges, areaId))
+    toggleChallenge(areaId)
   }
 }

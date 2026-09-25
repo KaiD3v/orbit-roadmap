@@ -126,6 +126,52 @@
 .topic-section.deepening .topic {
   border-style: dashed;
 }
+/* Desafio prático: um cartão violeta (ação) que vira ciano (concluído) dentro da seção padrão */
+.challenge-section {
+  border: 1px solid #a889ff40;
+  border-radius: 14px;
+  padding: 16px 18px;
+  background: radial-gradient(360px 160px at 0% 0%, #a889ff17, transparent 70%), #101a38;
+}
+.challenge-section.is-done {
+  border-color: #65e1ec4d;
+  background: radial-gradient(360px 160px at 0% 0%, #65e1ec17, transparent 70%), #101a38;
+}
+.challenge-section.challenge-section > p.challenge-title {
+  font: 700 15px "Space Grotesk", sans-serif;
+  color: var(--text);
+  margin: 2px 0 8px;
+}
+.challenge-section.challenge-section > p.challenge-brief {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.6;
+  margin: 0 0 13px;
+}
+.challenge-criteria {
+  margin: 0 0 13px;
+  padding-left: 18px;
+  display: grid;
+  gap: 6px;
+  color: var(--text);
+  font-size: 12px;
+  line-height: 1.5;
+}
+.challenge-locked {
+  color: var(--muted);
+  font-size: 11px;
+  margin: 0 0 13px;
+}
+.challenge-toggle {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+.challenge-toggle.is-done {
+  border-color: var(--cyan);
+  background: #65e1ec14;
+  color: var(--cyan);
+}
 .essential-steps {
   list-style: none;
   margin: 0;

@@ -4,8 +4,8 @@ import { createServer } from 'vite'
 const server = await createServer({ server: { middlewareMode: true }, appType: 'custom' })
 const { areas, areasByPhase } = await server.ssrLoadModule('/src/data/roadmap.ts')
 const {
-  areaState, goalsLine, levelFor, localDay, metrics, nextGoals, nextTopic, percent, phaseState, PHASE_XP,
-  streak, toggleFeedback, TOPIC_XP,
+  areaState, badges, CHALLENGE_XP, goalsLine, isChallengeUnlocked, levelFor, localDay, metrics, nextGoals,
+  nextTopic, percent, phaseState, PHASE_XP, streak, toggleChallengeFeedback, toggleFeedback, TOPIC_XP,
 } = await server.ssrLoadModule('/src/domain/progress.ts')
 const { matchesArea, normalizeQuery } = await server.ssrLoadModule('/src/domain/filter.ts')
 const { parseBackup } = await server.ssrLoadModule('/src/domain/backup.ts')
@@ -45,28 +45,62 @@ const phaseFeedback = toggleFeedback(almostDone, lastTopic.id)
 assert.equal(phaseFeedback.kind, 'phase')
 assert.equal(phaseFeedback.message, `Fase concluída! +${PHASE_XP} XP ✦`)
 
-assert.throws(() => parseBackup({ version: 3, done: {}, days: [] }))
+assert.throws(() => parseBackup({ version: 4, done: {}, days: [] }))
+assert.deepEqual(parseBackup({ version: 3, done: {}, days: [], challenges: { 1: '2026-09-25' } }).challenges, { 1: '2026-09-25' })
 
 const area1 = areas.find(area => area.id === 1)
 const firstEssential = area1.topics.find(topic => topic.required)
 assert.equal(nextTopic({}).area.id, 1)
+assert.equal(nextTopic({}).kind, 'topic')
 assert.equal(nextTopic({}).topic.id, firstEssential.id)
 
 const area2 = areas.find(area => area.id === 2)
 const area1Essentials = area1.topics.filter(topic => topic.required)
 const area1EssentialsDone = Object.fromEntries(area1Essentials.map(topic => [topic.id, true]))
 const secondFirstEssential = area2.topics.find(topic => topic.required)
-assert.equal(nextTopic(area1EssentialsDone).area.id, 2)
-assert.equal(nextTopic(area1EssentialsDone).topic.id, secondFirstEssential.id)
+
+// Essenciais da área 1 completos, desafio pendente: o próximo passo é o desafio, ainda na área 1
+const area1ChallengeStep = nextTopic(area1EssentialsDone)
+assert.equal(area1ChallengeStep.kind, 'challenge')
+assert.equal(area1ChallengeStep.area.id, 1)
+assert.equal(area1ChallengeStep.challenge.title, area1.challenge.title)
+
+// Desafio marcado: o próximo passo segue para a área 2
+const area1ChallengeDone = { 1: localDay() }
+assert.equal(nextTopic(area1EssentialsDone, area1ChallengeDone).area.id, 2)
+assert.equal(nextTopic(area1EssentialsDone, area1ChallengeDone).topic.id, secondFirstEssential.id)
 
 const allDone = Object.fromEntries(areas.flatMap(area => area.topics).map(topic => [topic.id, true]))
-assert.equal(nextTopic(allDone), null)
+const allChallengesDone = Object.fromEntries(
+  areas.filter(area => area.challenge).map(area => [String(area.id), localDay()]),
+)
+assert.equal(nextTopic(allDone, allChallengesDone), null)
+// Tópicos todos feitos mas desafios não: ainda sobra o desafio da primeira área pendente
+assert.equal(nextTopic(allDone).kind, 'challenge')
 
 assert.equal(phaseState(1, {}), 'current')
 assert.equal(phaseState(2, {}), 'future')
 assert.equal(phaseState(1, area1EssentialsDone), 'current')
 assert.equal(phaseState(2, area1EssentialsDone), 'future')
-assert.equal(phaseState(6, allDone), 'done')
+assert.equal(phaseState(6, allDone, allChallengesDone), 'done')
+
+// Desafio: libera só quando os essenciais terminam; sem trava rígida (o store decide se permite marcar antes)
+assert.equal(isChallengeUnlocked(area1, {}), false)
+assert.equal(isChallengeUnlocked(area1, area1EssentialsDone), true)
+
+// XP do desafio soma no total, e entra na contagem de challengesDone
+const metricsWithChallenge = metrics({}, [], { 1: localDay() })
+assert.equal(metricsWithChallenge.xp, CHALLENGE_XP)
+assert.equal(metricsWithChallenge.challengesDone, 1)
+
+// Feedback do desafio: toast grande (kind 'challenge'), desfazer ao desmarcar
+assert.deepEqual(toggleChallengeFeedback({}, '1'), { message: `Desafio concluído! +${CHALLENGE_XP} XP`, kind: 'challenge' })
+assert.deepEqual(toggleChallengeFeedback({ 1: localDay() }, '1'), { message: 'Desafio desmarcado', kind: 'undo' })
+
+// Conquista "Mão na massa": desbloqueia no primeiro desafio concluído
+const handsOn = badges(metrics({}, [], { 1: localDay() })).find(badge => badge.title === 'Mão na massa')
+assert.equal(handsOn.unlocked, true)
+assert.equal(badges(metrics({}, [], {})).find(badge => badge.title === 'Mão na massa').unlocked, false)
 
 assert.equal(areaState(area1, {}, 1), 'next')
 assert.equal(areaState(area1, {}, 2), 'todo')

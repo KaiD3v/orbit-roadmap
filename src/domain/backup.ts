@@ -1,5 +1,5 @@
-import { legacyTopicKeys, validTopicKeys } from '../data/roadmap'
-import type { Done, ProgressBackup, ProgressData } from '../types/progress'
+import { areasWithChallenge, legacyTopicKeys, validTopicKeys } from '../data/roadmap'
+import type { Challenges, Done, ProgressBackup, ProgressData } from '../types/progress'
 
 export const isDay = (day: unknown): day is string => {
   if (typeof day !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(day)) return false
@@ -11,12 +11,15 @@ export function cleanProgress(input: unknown): ProgressData {
   if (!input || typeof input !== 'object') throw new Error('Arquivo inválido')
   const value = input as Record<string, unknown>
   if (!value.done || typeof value.done !== 'object' || Array.isArray(value.done) || !Array.isArray(value.days)) throw new Error('Arquivo inválido')
+  const challenges = value.challenges && typeof value.challenges === 'object' && !Array.isArray(value.challenges) ? value.challenges : {}
   return {
     done: Object.fromEntries(Object.entries(value.done).flatMap(([key, checked]) => {
       const stableKey = validTopicKeys.has(key) ? key : legacyTopicKeys.get(key)
       return checked === true && stableKey ? [[stableKey, true]] : []
     })) as Done,
     days: [...new Set(value.days.filter(isDay))],
+    challenges: Object.fromEntries(Object.entries(challenges).flatMap(([id, day]) =>
+      areasWithChallenge.has(id) && isDay(day) ? [[id, day]] : [])) as Challenges,
   }
 }
 
@@ -28,9 +31,9 @@ export const safeProgress = (input: unknown): ProgressData | undefined => {
   }
 }
 
-export const createBackup = (data: ProgressData): ProgressBackup => ({ version: 2, ...cleanProgress(data) })
+export const createBackup = (data: ProgressData): ProgressBackup => ({ version: 3, ...cleanProgress(data) })
 
 export function parseBackup(input: unknown): ProgressData {
-  if (!input || typeof input !== 'object' || ![1, 2].includes((input as Record<string, unknown>).version as number)) throw new Error('Arquivo inválido')
+  if (!input || typeof input !== 'object' || ![1, 2, 3].includes((input as Record<string, unknown>).version as number)) throw new Error('Arquivo inválido')
   return cleanProgress(input)
 }

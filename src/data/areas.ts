@@ -60,6 +60,17 @@ export const areas: Area[] = [
       { type: 'Vídeo', title: 'Full Stack Deep Learning · engenharia de produto', url: 'https://fullstackdeeplearning.com/course/2022/lecture-8-teams-and-pm/' },
       { type: 'Livro', title: 'Software Engineering at Google', url: 'https://abseil.io/resources/swe-book' },
     ],
+    challenge: {
+      title: 'Refatore um CRUD simples em módulos com fronteiras claras e um diagrama de arquitetura',
+      brief: 'Pegue um projeto pequeno seu (ou crie uma API de tarefas do zero) e reorganize em módulos com bounded contexts explícitos, injeção de dependência e uma camada de domínio isolada de framework. Não precisa de microsserviços nem de banco distribuído: um monólito modular já cumpre o objetivo.',
+      done: [
+        'O código está separado em pelo menos 3 módulos com fronteiras explícitas (ex.: domínio, aplicação, infraestrutura)',
+        'Nenhuma regra de negócio depende diretamente de biblioteca externa (framework, ORM)',
+        'Existe pelo menos uma interface com duas implementações diferentes (ex.: repositório em memória e em banco)',
+        'Um diagrama (desenho à mão ou ASCII) mostra os módulos e as dependências entre eles',
+        'Rodar os testes de domínio não exige subir banco nem servidor',
+      ],
+    },
   },
   {
     id: 2,
@@ -102,6 +113,17 @@ export const areas: Area[] = [
       { type: 'Vídeo', title: 'MIT 6.006 · videoaulas', url: 'https://ocw.mit.edu/courses/6-006-introduction-to-algorithms-spring-2020/resources/lecture-videos/' },
       { type: 'Livro', title: 'Open Data Structures', url: 'https://opendatastructures.org/' },
     ],
+    challenge: {
+      title: 'Construa um rate limiter e um autocomplete usando as estruturas certas',
+      brief: 'Implemente as duas funcionalidades do zero, sem lib pronta de rate limit: um limitador por usuário e um autocomplete que sugere palavras a partir de um prefixo. Meça a complexidade das operações principais. Não precisa de persistência em disco nem de interface gráfica; um script ou endpoint simples já serve.',
+      done: [
+        'O rate limiter aceita um limite de N requisições por janela de tempo e rejeita o excesso',
+        'O rate limiter usa uma estrutura de dados adequada (ex.: sliding window com fila) e você sabe justificar a escolha',
+        'O autocomplete usa trie ou hash map e retorna sugestões em menos de 50ms para 10 mil palavras',
+        'Cada função tem um comentário com a complexidade Big O',
+        'Existem testes cobrindo o caso de limite excedido e o de prefixo sem resultados',
+      ],
+    },
   },
   {
     id: 3,
@@ -141,6 +163,17 @@ export const areas: Area[] = [
       { type: 'Vídeo', title: 'IIT Bombay · aulas de sistemas operacionais', url: 'https://www.cse.iitb.ac.in/~mythili/os/' },
       { type: 'Livro', title: 'Operating Systems: Three Easy Pieces', url: 'https://pages.cs.wisc.edu/~remzi/OSTEP/' },
     ],
+    challenge: {
+      title: 'Diagnostique um processo lento usando as ferramentas de terminal',
+      brief: 'Suba um servidor local (pode ser o próprio projeto) e provoque um problema de propósito: uma conexão que não fecha, uma thread travada ou uma porta ocupada. Investigue com ferramentas de terminal, sem reiniciar o processo e sem debugger gráfico.',
+      done: [
+        'Você identificou o PID do processo com ps e viu seu uso de CPU/memória com top ou htop',
+        'Você listou os arquivos e sockets abertos pelo processo com lsof',
+        'Você usou strace (ou equivalente) para ver pelo menos uma chamada de sistema suspeita',
+        'Você registrou os comandos usados e o que cada um revelou, em um arquivo de anotações',
+        'Você explicou, em texto, a causa provável do problema provocado',
+      ],
+    },
   },
   {
     id: 4,
@@ -170,6 +203,17 @@ export const areas: Area[] = [
       { type: 'Vídeo', title: 'Stanford CS144 · aulas de redes', url: 'https://cs144.github.io/' },
       { type: 'Livro', title: 'Computer Networking: A Top-Down Approach', url: 'https://gaia.cs.umass.edu/kurose_ross/' },
     ],
+    challenge: {
+      title: 'Suba um servidor HTTP atrás de um reverse proxy e capture o tráfego',
+      brief: 'Crie um servidor HTTP simples e coloque um reverse proxy (nginx, Caddy ou um proxy escrito à mão) na frente dele, servindo por HTTPS com certificado autoassinado. Não precisa de domínio real nem de CDN; localhost e certificado local bastam.',
+      done: [
+        'O servidor responde via HTTP na porta interna e via HTTPS através do proxy',
+        'Você capturou o handshake TLS com curl -v ou Wireshark e identificou ao menos 2 etapas dele',
+        'O proxy adiciona um header customizado (ex.: X-Forwarded-For) e o servidor consegue lê-lo',
+        'Uma requisição para uma rota inexistente retorna 404 tratado pelo proxy, não um erro cru',
+        'Você documentou a diferença entre o que o cliente vê e o que o servidor recebe',
+      ],
+    },
   },
   {
     id: 5,
@@ -213,6 +257,17 @@ export const areas: Area[] = [
       { type: 'Vídeo', title: 'Full Stack Deep Learning · infraestrutura', url: 'https://fullstackdeeplearning.com/course/2022/' },
       { type: 'Livro', title: 'Designing Data-Intensive Applications', url: 'https://dataintensive.net/' },
     ],
+    challenge: {
+      title: 'Construa uma fila de jobs com retry, backoff e dead-letter queue',
+      brief: 'Use Redis e BullMQ (ou fila equivalente) para processar um job que falha de propósito em 50% das vezes. O job deve ter retry com backoff exponencial e, depois de esgotar as tentativas, ir para uma dead-letter queue. Não precisa de painel visual nem de múltiplos workers; um processo simples já mostra o comportamento.',
+      done: [
+        'Um job com falha simulada é tentado novamente automaticamente, com atraso crescente entre tentativas',
+        'Depois de N tentativas falhas, o job vai para uma fila (ou lista) separada de mortos',
+        'Dois jobs idênticos disparados em sequência não duplicam efeito (idempotency key ou deduplicação)',
+        'Os logs mostram, para cada job, tentativa, resultado e tempo de espera até a próxima',
+        'Existe um teste ou script que dispara 10 jobs e confirma quantos foram para a dead-letter queue',
+      ],
+    },
   },
   {
     id: 6,
@@ -245,6 +300,17 @@ export const areas: Area[] = [
       { type: 'Vídeo', title: 'CMU 15-445 · aulas de banco de dados', url: 'https://15445.courses.cs.cmu.edu/spring2026/schedule.html' },
       { type: 'Livro', title: 'Designing Data-Intensive Applications', url: 'https://dataintensive.net/' },
     ],
+    challenge: {
+      title: 'Otimize uma consulta lenta com EXPLAIN ANALYZE e prove o ganho com índice',
+      brief: 'Crie uma tabela com pelo menos 100 mil linhas geradas, escreva uma consulta que demore mais de 200ms e otimize-a até ficar abaixo de 20ms, usando índice ou reescrita. Não precisa de banco em produção nem de replicação; um Postgres local resolve.',
+      done: [
+        'Você rodou EXPLAIN ANALYZE antes e depois, e guardou os dois planos',
+        'A consulta caiu de mais de 200ms para menos de 20ms',
+        'Você explica por que o índice escolhido ajuda (tipo de índice, coluna, seletividade)',
+        'Uma transação com duas operações relacionadas é testada com rollback forçado e os dados voltam ao estado anterior',
+        'Você sabe dizer qual nível de isolamento a transação usou e o que mudaria em outro nível',
+      ],
+    },
   },
   {
     id: 7,
@@ -267,6 +333,17 @@ export const areas: Area[] = [
       { type: 'Vídeo', title: 'Redis · vídeos para desenvolvedores', url: 'https://redis.io/dev/' },
       { type: 'Livro', title: 'Designing Data-Intensive Applications', url: 'https://dataintensive.net/' },
     ],
+    challenge: {
+      title: 'Use Redis como cache e como pub/sub na mesma aplicação',
+      brief: 'Adicione cache de leitura, com expiração, para uma consulta cara e, separadamente, implemente um canal pub/sub onde um evento publicado por um processo é recebido por outro. Não precisa de cluster Redis nem de persistência configurada; a instância padrão local serve.',
+      done: [
+        'Uma consulta repetida é servida pelo cache na segunda vez, com tempo de resposta visivelmente menor',
+        'O cache expira sozinho depois de um TTL definido e a próxima leitura busca a origem de novo',
+        'Um publisher envia uma mensagem e um subscriber em outro processo a recebe e reage',
+        'Existe um rate limiter simples implementado com uma estrutura do Redis (ex.: contador com expiração)',
+        'Você mediu e anotou a diferença de latência com e sem cache',
+      ],
+    },
   },
   {
     id: 8,
@@ -295,6 +372,17 @@ export const areas: Area[] = [
       { type: 'Vídeo', title: 'MIT 6.5840 · aulas e laboratórios', url: 'https://pdos.csail.mit.edu/6.824/schedule.html' },
       { type: 'Livro', title: 'Designing Data-Intensive Applications', url: 'https://dataintensive.net/' },
     ],
+    challenge: {
+      title: 'Simule dois serviços com consistência eventual e prove que retries não duplicam efeito',
+      brief: 'Crie dois serviços simples, podem rodar na mesma máquina, que se comunicam por fila ou HTTP: um publica um evento, o outro processa e atualiza seu próprio estado. Derrube a conexão no meio de propósito e force retries. Não precisa de múltiplas regiões nem de um orquestrador de consenso; dois processos locais já mostram o problema.',
+      done: [
+        'O serviço consumidor aplica o mesmo evento duas vezes (retry forçado) sem duplicar o efeito',
+        'Existe uma janela em que os dois serviços mostram estados diferentes, e você registrou por quanto tempo',
+        'Uma idempotency key (ou equivalente) é usada para detectar o reprocessamento',
+        'Você simulou a queda de um dos serviços e descreveu o que acontece com as mensagens em trânsito',
+        'Um texto curto explica, com suas palavras, por que esse sistema é eventualmente consistente e não consistente forte',
+      ],
+    },
   },
   {
     id: 9,
@@ -1101,6 +1189,17 @@ export const areas: Area[] = [
       { type: 'Vídeo', title: 'Docker · treinamentos', url: 'https://www.docker.com/trainings/' },
       { type: 'Livro', title: 'Docker · recursos de estudo', url: 'https://docs.docker.com/get-started/resources/' },
     ],
+    challenge: {
+      title: 'Empacote uma aplicação com build multi-stage e suba o ambiente completo com Compose',
+      brief: 'Escreva um Dockerfile multi-stage para uma aplicação sua (build separado de runtime) e um docker-compose.yml que suba ela junto com um banco de dados. Não precisa de orquestrador nem de registry remoto; rodar local com docker compose up é suficiente.',
+      done: [
+        'A imagem final não contém ferramentas de build (compilador, dependências de dev), só o necessário para rodar',
+        'O Dockerfile usa cache de camadas de forma que mudar só o código da aplicação não reinstala todas as dependências',
+        'Existe um health check configurado e o container reporta unhealthy se o processo travar',
+        'O Compose sobe a aplicação e o banco na mesma rede, e a aplicação conecta pelo nome do serviço, não por IP',
+        'Um limite de memória ou CPU está definido para pelo menos um dos serviços',
+      ],
+    },
   },
   {
     id: 47,
@@ -1172,6 +1271,17 @@ export const areas: Area[] = [
       { type: 'Vídeo', title: 'GitHub Actions · vídeos de aprendizado', url: 'https://www.youtube.com/@GitHub' },
       { type: 'Livro', title: 'Software Engineering at Google', url: 'https://abseil.io/resources/swe-book' },
     ],
+    challenge: {
+      title: 'Monte um pipeline de CI que barra o merge se lint, testes ou build falharem',
+      brief: 'Configure um workflow (GitHub Actions ou equivalente) que rode lint, typecheck, testes e build a cada push, e falhe de forma visível se qualquer etapa quebrar. Não precisa de deploy automático em produção nem de ambiente de staging; falhar o pipeline corretamente já é o objetivo.',
+      done: [
+        'O pipeline roda automaticamente em cada push ou pull request',
+        'As etapas rodam em ordem (lint, typecheck, testes, build) e uma etapa que falha impede as seguintes',
+        'Um commit com erro de lint proposital faz o pipeline falhar de forma visível',
+        'Um commit com teste quebrado faz o pipeline falhar, mesmo que o lint passe',
+        'O tempo total do pipeline está registrado e é menor que 5 minutos',
+      ],
+    },
   },
   {
     id: 50,
@@ -1194,6 +1304,17 @@ export const areas: Area[] = [
       { type: 'Vídeo', title: 'Full Stack Deep Learning · engenharia de produto', url: 'https://fullstackdeeplearning.com/course/2022/lecture-8-teams-and-pm/' },
       { type: 'Livro', title: 'Software Engineering at Google', url: 'https://abseil.io/resources/swe-book' },
     ],
+    challenge: {
+      title: 'Cubra uma funcionalidade com três camadas de teste e um eval não-determinístico',
+      brief: 'Escolha uma funcionalidade real do seu projeto e escreva testes unitários (lógica isolada), um teste de integração (com dependência real, ex.: banco) e um E2E (fluxo completo). Se a funcionalidade usar IA generativa, adicione um eval que valida o resultado por critério, não por igualdade exata. Não precisa de cobertura total do projeto; cubra só essa funcionalidade a fundo.',
+      done: [
+        'Existe pelo menos um teste unitário que roda sem rede e sem banco',
+        'Existe um teste de integração que usa uma dependência real (banco, fila) e limpa o estado depois',
+        'Existe um teste E2E que passa pelo fluxo completo, da entrada até o resultado visível',
+        'Se aplicável, existe um eval que julga a resposta por critério (ex.: contém X, não contém Y) em vez de comparar string exata',
+        'A suíte inteira roda localmente com um único comando e termina sem falso positivo',
+      ],
+    },
   },
   {
     id: 51,
@@ -1213,6 +1334,17 @@ export const areas: Area[] = [
       { type: 'Vídeo', title: 'OpenTelemetry · demonstrações', url: 'https://www.youtube.com/@OpenTelemetry' },
       { type: 'Livro', title: 'Observability Engineering', url: 'https://www.oreilly.com/library/view/observability-engineering-2nd/9781098179915/' },
     ],
+    challenge: {
+      title: 'Instrumente uma aplicação com logs estruturados, métricas e um trace distribuído',
+      brief: 'Adicione os três pilares de observabilidade a uma aplicação pequena: logs em formato estruturado (JSON), métricas expostas para Prometheus e um trace com OpenTelemetry que atravesse pelo menos duas funções ou serviços. Não precisa manter um Grafana em produção; visualizar localmente já cumpre o objetivo.',
+      done: [
+        'Os logs saem em JSON com pelo menos nível, timestamp e mensagem',
+        'Uma métrica (contador ou histograma) é exposta em um endpoint /metrics e você a visualizou no Prometheus ou similar',
+        'Um trace do OpenTelemetry mostra pelo menos dois spans conectados (ex.: chamada HTTP e consulta ao banco)',
+        'Você conseguiu, a partir de um erro no log, achar o trace correspondente',
+        'Um painel ou consulta mostra a métrica ao longo do tempo',
+      ],
+    },
   },
   {
     id: 52,
@@ -1235,6 +1367,17 @@ export const areas: Area[] = [
       { type: 'Vídeo', title: 'Full Stack Deep Learning · engenharia de produto', url: 'https://fullstackdeeplearning.com/course/2022/lecture-8-teams-and-pm/' },
       { type: 'Livro', title: 'Designing Data-Intensive Applications', url: 'https://dataintensive.net/' },
     ],
+    challenge: {
+      title: 'Desenhe no papel um motor de busca semântica e um agente de suporte, com trade-offs explícitos',
+      brief: 'Escreva um design doc curto para dois sistemas: um motor de busca semântica e um agente de suporte ao cliente. Cubra os componentes principais, o fluxo de dados e pelo menos um trade-off justificado em cada um. Não precisa implementar nada nem estimar capacidade com números reais de produção; o objetivo é praticar o raciocínio, não construir o sistema.',
+      done: [
+        'Cada design tem um diagrama de componentes (pode ser desenho à mão)',
+        'Cada design descreve o fluxo de uma requisição do início ao fim',
+        'Cada design lista pelo menos um trade-off explícito (ex.: latência vs custo, consistência vs disponibilidade)',
+        'O design do motor de busca explica onde entram os embeddings e como o ranking é feito',
+        'O design do agente de suporte explica como ele decide quando escalar para um humano',
+      ],
+    },
   },
   {
     id: 53,
@@ -1259,6 +1402,17 @@ export const areas: Area[] = [
       { type: 'Vídeo', title: 'Data Engineering Zoomcamp · videoaulas', url: 'https://github.com/DataTalksClub/data-engineering-zoomcamp' },
       { type: 'Livro', title: 'Fundamentals of Data Engineering', url: 'https://www.oreilly.com/library/view/fundamentals-of-data/9781098108298/' },
     ],
+    challenge: {
+      title: 'Construa um pipeline que extrai, transforma e valida a qualidade dos dados antes de carregar',
+      brief: 'Pegue uma fonte de dados simples (CSV, API pública) e construa um pipeline ETL que extrai, transforma e carrega em um banco ou arquivo final, com uma etapa de validação de qualidade no meio. Não precisa de Airflow nem de agendamento automático; um script que roda do início ao fim já cumpre o objetivo.',
+      done: [
+        'O pipeline tem estágios separados e identificáveis: extração, transformação, validação, carga',
+        'A etapa de validação rejeita ou sinaliza registros com dados faltantes ou fora do formato esperado',
+        'Rodar o pipeline duas vezes com o mesmo dado de entrada não duplica registros no destino',
+        'Existe um log ou relatório final com quantos registros entraram, quantos foram rejeitados e quantos foram carregados',
+        'O pipeline trata pelo menos um erro esperado (ex.: linha corrompida) sem quebrar o processo inteiro',
+      ],
+    },
   },
   {
     id: 54,

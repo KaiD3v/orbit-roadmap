@@ -1,3 +1,4 @@
 export type Done = Record<string, true>
-export type ProgressData = { done: Done, days: string[] }
-export type ProgressBackup = ProgressData & { version: 2 }
+export type Challenges = Record<string, string>
+export type ProgressData = { done: Done, days: string[], challenges: Challenges }
+export type ProgressBackup = ProgressData & { version: 3 }

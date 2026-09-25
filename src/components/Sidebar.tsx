@@ -9,6 +9,7 @@ const PHASE_LABEL = { done: 'concluída', current: 'fase atual', future: 'a segu
 
 export function Sidebar({ resetView }: { resetView: () => void }) {
   const done = useProgress(state => state.done)
+  const challenges = useProgress(state => state.challenges)
   const progress = useMetrics()
   const level = levelFor(progress.percent)
   const [open, setOpen] = useState(false)
@@ -58,7 +59,7 @@ export function Sidebar({ resetView }: { resetView: () => void }) {
         <div className="sidebar-intro">Sua jornada em engenharia de software com IA</div>
         <nav aria-label="Fases do roadmap">
           {phases.map((phase) => {
-            const state = phaseState(phase.number, done)
+            const state = phaseState(phase.number, done, challenges)
             return (
               <a className={`nav-link is-${state}`} href={`#fase-${phase.number}`} key={phase.name} onClick={goToPhase}>
                 <span className="nav-number">{phase.number}</span>

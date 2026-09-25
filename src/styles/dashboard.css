@@ -396,6 +396,13 @@ h1 .no-break {
   margin: 0 0 26px;
   text-wrap: balance;
 }
+/* Título de desafio é uma frase inteira: tamanho menor que o de um tópico curto */
+.next-step-topic.is-challenge {
+  font-size: clamp(22px, 2.4vw, 30px);
+  line-height: 1.2;
+  letter-spacing: -0.03em;
+  max-width: 30ch;
+}
 .next-step-actions {
   display: flex;
   align-items: center;
