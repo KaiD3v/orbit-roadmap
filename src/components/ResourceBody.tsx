@@ -41,7 +41,8 @@ export function ResourceBody({ type, read, featured, size = 44 }: {
           </g>
         )}
         {type === 'Vídeo' && (
-          <g>
+          // Núcleo no centro do quadro (24,24), como os outros astros: é ele que fica sobre a linha
+          <g transform="translate(-6 -6)">
             <path className="body-tail body-tail-far" d="M33 27 L27 33 L6 10 Z" />
             <path className="body-tail body-tail-near" d="M33 27 L27 33 L16 21 Z" />
             <circle className="body-core" cx="30" cy="30" r="5" />

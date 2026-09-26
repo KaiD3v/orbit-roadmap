@@ -5,6 +5,7 @@ import { ResourceBody } from '../components/ResourceBody'
 import { ResourceCard } from '../components/ResourceCard'
 import { areasByPhase, phases, resourceEntries } from '../data/roadmap'
 import { normalizeQuery, queryMatcher } from '../domain/filter'
+import { nextArea } from '../domain/progress'
 import { byLevel, LEVEL_LABEL, normalizeResourceUrl } from '../domain/resources'
 import { useProgress } from '../store/progress'
 import type { Resource, ResourceLevel, ResourceType } from '../types/content'
@@ -39,6 +40,8 @@ export function LibraryPage({ openArea }: PageProps) {
   const [lang, setLang] = useState<LangFilter>('all')
   const [free, setFree] = useState<TriFilter>('all')
   const [read, setRead] = useState<TriFilter>('all')
+  // Paginação por fase: abre na fase atual da jornada
+  const [selectedPhase, setSelectedPhase] = useState(() => nextArea(useProgress.getState().done).phase as number)
 
   const matcher = queryMatcher(normalizeQuery(search))
   const filtering = matcher !== null || type !== 'all' || level !== 'all' || lang !== 'all' || free !== 'all' || read !== 'all'
@@ -53,8 +56,10 @@ export function LibraryPage({ openArea }: PageProps) {
     setRead('all')
   }
 
-  function scrollToPhase(number: number) {
-    document.getElementById(`library-phase-${number}`)
+  // Troca a página e volta ao topo da lista (o índice de fases), para não abrir a fase nova no meio
+  function goToPhase(number: number) {
+    setSelectedPhase(number)
+    document.getElementById('library-phase-index')
       ?.scrollIntoView({ behavior: REDUCED_MOTION() ? 'auto' : 'smooth', block: 'start' })
   }
 
@@ -81,7 +86,12 @@ export function LibraryPage({ openArea }: PageProps) {
   const totalMatches = groups.reduce(
     (sum, group) => sum + group.areaGroups.reduce((areaSum, g) => areaSum + g.resources.length, 0), 0,
   )
-  const matchedPhases = new Set(groups.map(group => group.phase.number))
+  // Com filtro, a fase escolhida pode ficar sem resultado: mostra a primeira que tem
+  const page = groups.find(group => group.phase.number === selectedPhase) ?? groups[0]
+  const pageIndex = page ? groups.indexOf(page) : -1
+  const previous = groups[pageIndex - 1]
+  const next = groups[pageIndex + 1]
+  const countIn = (group: (typeof groups)[number]) => group.areaGroups.reduce((sum, g) => sum + g.resources.length, 0)
   const totalRead = resourceEntries.filter(({ resource }) => resourcesRead[normalizeResourceUrl(resource.url)]).length
   const totalAll = resourceEntries.length
   const readPercent = totalAll ? Math.round((totalRead / totalAll) * 100) : 0
@@ -161,20 +171,26 @@ export function LibraryPage({ openArea }: PageProps) {
           </p>
         )}
       </div>
-      <nav className="library-phase-index" aria-label="Ir para a fase">
-        {phases.map(phase => (
-          <button
-            type="button"
-            className="library-phase-dot"
-            style={{ '--phase-color': `var(--phase-${phase.number})` } as CSSProperties}
-            disabled={!matchedPhases.has(phase.number)}
-            onClick={() => scrollToPhase(phase.number)}
-            key={phase.number}
-          >
-            <span aria-hidden="true" />
-            Fase {phase.number}
-          </button>
-        ))}
+      <nav className="library-phase-index" id="library-phase-index" aria-label="Fases da biblioteca">
+        {phases.map((phase) => {
+          const group = groups.find(g => g.phase.number === phase.number)
+          return (
+            <button
+              type="button"
+              className="library-phase-dot"
+              style={{ '--phase-color': `var(--phase-${phase.number})` } as CSSProperties}
+              disabled={!group}
+              aria-current={page?.phase.number === phase.number ? 'page' : undefined}
+              aria-label={`Fase ${phase.number}: ${phase.name}, ${group ? countIn(group) : 0} materiais`}
+              onClick={() => goToPhase(phase.number)}
+              key={phase.number}
+            >
+              <span aria-hidden="true" />
+              Fase {phase.number}
+              {group && <small>{countIn(group)}</small>}
+            </button>
+          )
+        })}
       </nav>
       <div className="library-main">
         {groups.length === 0 && (
@@ -184,15 +200,15 @@ export function LibraryPage({ openArea }: PageProps) {
             <button className="ghost-button" type="button" onClick={clearFilters}>Limpar filtros</button>
           </div>
         )}
-        {groups.map(({ phase, areaGroups }) => (
+        {page && (
           <section
             className="library-phase"
-            id={`library-phase-${phase.number}`}
-            style={{ '--phase-color': `var(--phase-${phase.number})` } as CSSProperties}
-            key={phase.number}
+            id={`library-phase-${page.phase.number}`}
+            style={{ '--phase-color': `var(--phase-${page.phase.number})` } as CSSProperties}
+            key={page.phase.number}
           >
-            <h3>Fase {phase.number}: {phase.name}</h3>
-            {areaGroups.map(({ area, resources }) => {
+            <h3>Fase {page.phase.number}: {page.phase.name}</h3>
+            {page.areaGroups.map(({ area, resources }) => {
               const readCount = resources.filter(r => resourcesRead[normalizeResourceUrl(r.url)]).length
               return (
                 <div className="observatory-area" key={area.id}>
@@ -224,7 +240,23 @@ export function LibraryPage({ openArea }: PageProps) {
               )
             })}
           </section>
-        ))}
+        )}
+        {(previous || next) && (
+          <nav className="library-pager" aria-label="Outras fases">
+            {previous && (
+              <button className="ghost-button" type="button" onClick={() => goToPhase(previous.phase.number)}>
+                <small>Fase anterior</small>
+                {previous.phase.name}
+              </button>
+            )}
+            {next && (
+              <button className="ghost-button is-next" type="button" onClick={() => goToPhase(next.phase.number)}>
+                <small>Próxima fase</small>
+                {next.phase.name}
+              </button>
+            )}
+          </nav>
+        )}
       </div>
     </section>
   )
