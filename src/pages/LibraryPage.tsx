@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { LibrarySky } from '../components/LibrarySky'
 import { ResourceCard } from '../components/ResourceCard'
 import { areasByPhase, phases } from '../data/roadmap'
 import { normalizeQuery, queryMatcher } from '../domain/filter'
@@ -55,6 +56,7 @@ export function LibraryPage({ openArea }: PageProps) {
 
   return (
     <section className="library-page" aria-labelledby="library-title">
+      <LibrarySky />
       <div className="library-top">
         <h1 id="library-title">Biblioteca de materiais</h1>
         <p>Todo material do roadmap, num só lugar. Filtre pelo que importa agora e volte depois pelo resto.</p>

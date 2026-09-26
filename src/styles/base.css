@@ -13,6 +13,21 @@
   --yellow: #ffd179;
   --panel-phase: #101831;
   --ring-track: #2b3454;
+  /* Cor de cada fase (mapa, sidebar e, agora, a Biblioteca); nunca ciano, reservado a "concluído" */
+  --phase-1: var(--violet);
+  --phase-2: #8fb3ff;
+  --phase-3: #ffbd88;
+  --phase-4: #e4a6ff;
+  --phase-5: #82dcaf;
+  --phase-6: #ffd179;
+  /* Céu fixo da carta celeste (Home e Biblioteca): cinco camadas de estrelas em grades desencontradas */
+  --sky-stars:
+    radial-gradient(1px 1px at 20px 30px, #ffffffb0, transparent),
+    radial-gradient(1px 1px at 140px 90px, #ffffff70, transparent),
+    radial-gradient(1.5px 1.5px at 80px 160px, #c9d4ff90, transparent),
+    radial-gradient(1px 1px at 230px 210px, #ffffff60, transparent),
+    radial-gradient(1px 1px at 60px 260px, #b5f3f860, transparent);
+  --sky-size: 290px 290px, 290px 290px, 290px 290px, 290px 290px, 290px 290px;
 }
 * {
   box-sizing: border-box;
@@ -25,17 +40,13 @@ body {
   color: var(--text);
   font-family: "DM Sans", sans-serif;
   font-variant-numeric: tabular-nums;
-  /* Céu fixo: duas camadas de estrelas em grades desencontradas + duas nebulosas bem sutis */
+  /* Céu fixo: estrelas (--sky-stars) + duas nebulosas bem sutis */
   background:
-    radial-gradient(1px 1px at 20px 30px, #ffffffb0, transparent),
-    radial-gradient(1px 1px at 140px 90px, #ffffff70, transparent),
-    radial-gradient(1.5px 1.5px at 80px 160px, #c9d4ff90, transparent),
-    radial-gradient(1px 1px at 230px 210px, #ffffff60, transparent),
-    radial-gradient(1px 1px at 60px 260px, #b5f3f860, transparent),
+    var(--sky-stars),
     radial-gradient(900px 600px at 85% -10%, #a889ff1f, transparent 70%),
     radial-gradient(800px 700px at -10% 110%, #65e1ec14, transparent 70%),
     var(--bg);
-  background-size: 290px 290px, 290px 290px, 290px 290px, 290px 290px, 290px 290px, auto, auto, auto;
+  background-size: var(--sky-size), auto, auto, auto;
   background-attachment: fixed;
   scrollbar-color: #2e3a63 transparent;
 }
