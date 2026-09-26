@@ -1,12 +1,19 @@
 import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import { areasByPhase, phases, stepLabel, type Phase } from '../data/roadmap'
 import { matchesArea, type Filter, type QueryMatcher } from '../domain/filter'
-import { areaState, percent, phaseState, priorityProgress, type AreaState } from '../domain/progress'
+import { areaState, localDay, percent, phaseState, priorityProgress, type AreaState } from '../domain/progress'
+import { phaseCard, type ShareCardData } from '../domain/shareCard'
 import { useProgress } from '../store/progress'
 import type { Area } from '../types/content'
 import type { Done } from '../types/progress'
 
-type MapView = { matcher: QueryMatcher | null, filter: Filter, nextId: number, open: (area: Area) => void }
+type MapView = {
+  matcher: QueryMatcher | null
+  filter: Filter
+  nextId: number
+  open: (area: Area) => void
+  openShare: (data: ShareCardData) => void
+}
 
 // Padrão senoidal repetido a cada 8 nós (J05): desvio horizontal em fração da amplitude.
 const OFFSETS = [0, 0.5, 0.85, 0.5, 0, -0.5, -0.85, -0.5]
@@ -168,6 +175,16 @@ function PhaseMap({ phase, view }: { phase: Phase, view: MapView }) {
           <span className={`phase-status is-${state}`}>{headStatus}</span>
         </button>
       </h3>
+      {state === 'done' && (
+        <button
+          className="text-button phase-share"
+          type="button"
+          aria-label={`Compartilhar a conclusão da fase ${phase.number}`}
+          onClick={() => view.openShare(phaseCard(phase, done, challenges, localDay()))}
+        >
+          Compartilhar
+        </button>
+      )}
       <div className="map-track" id={`fase-${phase.number}-body`} hidden={!expanded}>
         <MapPath list={list} view={view} phaseColorDone={doneRun} />
         {list.map((area) => {

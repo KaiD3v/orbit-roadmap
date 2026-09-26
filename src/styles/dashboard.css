@@ -902,6 +902,22 @@ footer {
 .toast.show {
   opacity: 1;
   transform: translateY(0);
+  /* Só clicável (e focável pelo mouse) enquanto visível; sem isso o botão "Compartilhar" nunca reage */
+  pointer-events: auto;
+}
+.toast-share {
+  display: block;
+  margin: 10px auto 0;
+  border: 1px solid #ffffff33;
+  border-radius: 10px;
+  background: #ffffff12;
+  color: var(--text);
+  font: 600 12px "DM Sans", sans-serif;
+  padding: 8px 16px;
+}
+.toast-share:hover {
+  border-color: var(--cyan);
+  background: #65e1ec1a;
 }
 .toast-area {
   border-color: var(--cyan);

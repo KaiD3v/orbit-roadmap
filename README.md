@@ -24,11 +24,12 @@ Para a jornada não virar obrigação, o progresso é visual e recompensado: o m
 - **Revisão espaçada:** de vez em quando, um tópico essencial concluído há semanas volta no card "Seu próximo passo" para relembrar ("Ainda lembra de…?"), num ciclo de 14/30/90 dias.
 - **Backup:** baixe e restaure o seu progresso em JSON.
 - **Progresso por link:** copie um link com o seu progresso e abra no outro aparelho para juntar (sem apagar o que já estava lá).
+- **Cards compartilháveis:** ao concluir um desafio ou uma fase, gere uma imagem (formato feed ou stories) pronta para postar no LinkedIn, Instagram ou X, com um nome ou @ opcional.
 - **Responsivo**, com menu hambúrguer no celular. As animações respeitam a preferência do sistema por menos movimento.
 
 ## Privacidade
 
-Não há conta, servidor nem rastreamento. O progresso fica **só no seu navegador** (`localStorage`). Para levar o progresso para outro navegador ou aparelho, use **Baixar backup**/**Restaurar backup** ou **Copiar link de progresso**: o link carrega o progresso depois do `#`, uma parte do endereço que o navegador nunca envia a nenhum servidor.
+Não há conta, servidor nem rastreamento. O progresso fica **só no seu navegador** (`localStorage`). Para levar o progresso para outro navegador ou aparelho, use **Baixar backup**/**Restaurar backup** ou **Copiar link de progresso**: o link carrega o progresso depois do `#`, uma parte do endereço que o navegador nunca envia a nenhum servidor. Os cards compartilháveis também são gerados inteiramente no seu aparelho (nada é enviado a um servidor); o nome ou @ opcional que você digitar para aparecer no card fica só no seu navegador, fora do backup e do link de progresso.
 
 ## Instalação
 

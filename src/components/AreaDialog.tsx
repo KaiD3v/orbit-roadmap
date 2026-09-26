@@ -3,6 +3,7 @@ import { stepLabel } from '../data/roadmap'
 import {
   CHALLENGE_XP, countDone, isChallengeUnlocked, percent, PHASE_XP, priorityProgress, TOPIC_XP, type Feedback,
 } from '../domain/progress'
+import { challengeCard, type ShareCardData } from '../domain/shareCard'
 import { useProgress, useToggleChallenge, useToggleTopic } from '../store/progress'
 import type { Area, Resource } from '../types/content'
 import type { Challenges, Done } from '../types/progress'
@@ -73,15 +74,17 @@ function EssentialSteps({ area, done, toggle, highlightTopicId }: {
   )
 }
 
-function ChallengeSection({ area, done, challenges, toggleChallenge }: {
+function ChallengeSection({ area, done, challenges, toggleChallenge, openShare }: {
   area: Area
   done: Done
   challenges: Challenges
   toggleChallenge: (areaId: string) => void
+  openShare: (data: ShareCardData) => void
 }) {
   if (!area.challenge) return null
   const areaKey = String(area.id)
-  const completed = Boolean(challenges[areaKey])
+  const completedDay = challenges[areaKey]
+  const completed = Boolean(completedDay)
   const unlocked = completed || isChallengeUnlocked(area, done)
   return (
     <section className={`topic-section challenge-section ${completed ? 'is-done' : ''}`}>
@@ -95,13 +98,20 @@ function ChallengeSection({ area, done, challenges, toggleChallenge }: {
         {area.challenge.done.map(item => <li key={item}>{item}</li>)}
       </ul>
       {!unlocked && <p className="challenge-locked">Libera quando você concluir os essenciais</p>}
-      <button
-        className={`ghost-button challenge-toggle ${completed ? 'is-done' : ''}`}
-        type="button"
-        onClick={() => toggleChallenge(areaKey)}
-      >
-        {completed ? `✓ Desafio concluído · +${CHALLENGE_XP} XP` : 'Concluí o desafio'}
-      </button>
+      <div className="challenge-actions">
+        <button
+          className={`ghost-button challenge-toggle ${completed ? 'is-done' : ''}`}
+          type="button"
+          onClick={() => toggleChallenge(areaKey)}
+        >
+          {completed ? `✓ Desafio concluído · +${CHALLENGE_XP} XP` : 'Concluí o desafio'}
+        </button>
+        {completedDay && (
+          <button className="text-button" type="button" onClick={() => openShare(challengeCard(area, completedDay))}>
+            Compartilhar
+          </button>
+        )}
+      </div>
     </section>
   )
 }
@@ -150,11 +160,12 @@ function ResourceHighlight({ resources }: { resources: Resource[] }) {
   )
 }
 
-export function AreaDialog({ area, notify, close, highlightTopicId }: {
+export function AreaDialog({ area, notify, close, highlightTopicId, openShare }: {
   area: Area | null
   notify: (feedback: Feedback) => void
   close: () => void
   highlightTopicId?: string | null
+  openShare: (data: ShareCardData) => void
 }) {
   const done = useProgress(state => state.done)
   const challenges = useProgress(state => state.challenges)
@@ -206,7 +217,13 @@ export function AreaDialog({ area, notify, close, highlightTopicId }: {
           <div className="detail-main">
             {/* key={area.id}: recolhe o "+N depois" ao trocar de área, sem efeito extra */}
             <EssentialSteps area={area} done={done} toggle={toggle} highlightTopicId={highlightTopicId} key={area.id} />
-            <ChallengeSection area={area} done={done} challenges={challenges} toggleChallenge={toggleChallenge} />
+            <ChallengeSection
+              area={area}
+              done={done}
+              challenges={challenges}
+              toggleChallenge={toggleChallenge}
+              openShare={openShare}
+            />
             <ExtrasGroup area={area} done={done} toggle={toggle} />
             <h3 className="area-subtitle">Para estudar</h3>
             <ResourceHighlight resources={area.resources} />

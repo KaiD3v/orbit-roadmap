@@ -14,6 +14,8 @@ const {
   combineProgress, decodeProgress, encodeProgress, newTopicsCount,
 } = await server.ssrLoadModule('/src/domain/share.ts')
 const { answerReview, pickReview, REVIEW_INTERVALS, timeAgo } = await server.ssrLoadModule('/src/domain/review.ts')
+const { challengeCard, formatCardDate, phaseCard, pluralize } = await server.ssrLoadModule('/src/domain/shareCard.ts')
+const { phases: allPhases } = await server.ssrLoadModule('/src/data/roadmap.ts')
 
 // dias atrás, no formato do progresso ('YYYY-MM-DD', fuso local) — usado nos testes de revisão espaçada.
 // setDate (não subtração em ms) para não tropeçar em horário de verão, como o resto do arquivo já faz.
@@ -387,8 +389,46 @@ const dirtyReviews = cleanProgress({
 })
 assert.deepEqual(dirtyReviews.reviews, { [area1FirstEssential.id]: { at: '2026-01-15', step: 1 } })
 
+// B05: cards compartilháveis — dados puros (o desenho em canvas fica em components/share/drawCard.ts)
+assert.equal(formatCardDate('2026-01-05'), '5 jan 2026')
+assert.equal(formatCardDate('2026-09-25'), '25 set 2026')
+assert.equal(pluralize(1, 'área', 'áreas'), '1 área')
+assert.equal(pluralize(2, 'área', 'áreas'), '2 áreas')
+
+const cCard = challengeCard(area1, '2026-01-05')
+assert.equal(cCard.kind, 'challenge')
+assert.equal(cCard.title, area1.challenge.title)
+assert.equal(cCard.subtitle, area1.title)
+assert.deepEqual(cCard.lines, area1.challenge.done)
+assert.equal(cCard.stats.xp, CHALLENGE_XP)
+assert.deepEqual(cCard.stars, { lit: 1, total: 1 })
+assert.equal(cCard.date, '5 jan 2026')
+assert.equal(cCard.caption, `Concluí o desafio "${area1.challenge.title}" na trilha de Engenharia de Software com IA.`)
+const areaWithoutChallenge = areasByPhase.get(2)[0] // fase 2 em diante ainda não tem desafios (AGENTS.md)
+assert.throws(() => challengeCard(areaWithoutChallenge, '2026-01-05'))
+
+const phase1 = allPhases[0]
+const phase1Areas = areasByPhase.get(1)
+const phase1AllDone = Object.fromEntries(phase1Topics.map(topic => [topic.id, true]))
+const phase1ChallengesDone = Object.fromEntries(
+  phase1Areas.filter(area => area.challenge).map(area => [String(area.id), localDay()]),
+)
+const pCard = phaseCard(phase1, phase1AllDone, phase1ChallengesDone, '2026-01-05')
+assert.equal(pCard.kind, 'phase')
+assert.equal(pCard.title, `Fase 1: ${phase1.name}`)
+assert.deepEqual(pCard.stars, { lit: phase1Areas.length, total: phase1Areas.length })
+assert.equal(pCard.stats.areas, phase1Areas.length)
+assert.equal(pCard.stats.topics, phase1Topics.length)
+const phase1ChallengeCount = phase1Areas.filter(area => area.challenge).length
+assert.equal(pCard.stats.xp, phase1Topics.length * TOPIC_XP + PHASE_XP + phase1ChallengeCount * CHALLENGE_XP)
+assert(pCard.caption.includes(`${phase1Areas.length} áreas`)) // plural: fase 1 tem várias áreas
+assert(pCard.caption.startsWith('Completei a Fase 1:'))
+// Sem desafios concluídos: o XP cai só pelo bônus de fase e pelos tópicos
+const pCardNoChallenges = phaseCard(phase1, phase1AllDone, {}, '2026-01-05')
+assert.equal(pCardNoChallenges.stats.xp, phase1Topics.length * TOPIC_XP + PHASE_XP)
+
 await server.close()
 console.log(
   'domain: percent, localDay, streak, matchesArea, toggleFeedback, nextTopic, phaseState, areaState, nextGoals, '
-  + 'link de progresso (F02), revisão espaçada (F03) e meta semanal (B02) OK',
+  + 'link de progresso (F02), revisão espaçada (F03), meta semanal (B02) e cards compartilháveis (B05) OK',
 )

@@ -162,8 +162,13 @@
   font-size: 11px;
   margin: 0 0 13px;
 }
+.challenge-actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
 .challenge-toggle {
-  width: 100%;
+  flex: 1;
   display: flex;
   justify-content: center;
 }
