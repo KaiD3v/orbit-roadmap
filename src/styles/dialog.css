@@ -243,6 +243,11 @@
 .resource-featured span {
   font-size: 14px;
 }
+/* B06: "depois, este" sinaliza a ordem sugerida sem numeração decorativa (só quando há `why`) */
+.resource-tag-next {
+  color: var(--muted);
+  font-weight: 600;
+}
 .resource-list {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -309,4 +314,16 @@
   margin-top: 4px;
   font-size: 11px;
   color: var(--muted);
+}
+/* B06: "Onde estudar" por tópico, ao lado do botão de nota */
+.topic-resources {
+  display: inline-block;
+}
+.topic-resources-toggle {
+  margin: 4px 0 0 3px;
+  font-size: 11px;
+}
+.topic-resources .resource-list {
+  grid-template-columns: 1fr;
+  margin-top: 8px;
 }

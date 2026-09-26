@@ -5,8 +5,9 @@ import {
   CHALLENGE_XP, countDone, isChallengeUnlocked, percent, PHASE_XP, priorityProgress, TOPIC_XP, type Feedback,
 } from '../domain/progress'
 import { useProgress, useToggleChallenge, useToggleTopic } from '../store/progress'
+import { ResourceCard, TopicResources } from './ResourceCard'
 import type { Area, Resource } from '../types/content'
-import type { Challenges, Done, Notes } from '../types/progress'
+import type { Challenges, Done, Notes, ResourcesRead } from '../types/progress'
 
 // B03: nota curta por tópico. Um tópico com nota aberta por vez (controlado pelo pai, `AreaDialog`),
 // fora do `<label>` do checkbox para não competir com ele. Esc fecha a nota, não o `<dialog>`.
@@ -74,12 +75,14 @@ function TopicNote({ topicId, notes, setNote, openNoteId, onOpenNote, onCloseNot
   return <TopicNoteEditor topicId={topicId} note={note} setNote={setNote} onClose={onCloseNote} />
 }
 
-function EssentialSteps({ area, done, toggle, highlightTopicId, noteProps }: {
+function EssentialSteps({ area, done, toggle, highlightTopicId, noteProps, resourcesRead, onToggleRead }: {
   area: Area
   done: Done
   toggle: (key: string) => void
   highlightTopicId?: string | null
   noteProps: Omit<NoteProps, 'topicId'>
+  resourcesRead: ResourcesRead
+  onToggleRead: (url: string) => void
 }) {
   const [expanded, setExpanded] = useState(false)
   const essentials = area.topics.filter(topic => topic.required)
@@ -116,6 +119,12 @@ function EssentialSteps({ area, done, toggle, highlightTopicId, noteProps }: {
                     </span>
                   </label>
                   <TopicNote topicId={topic.id} {...noteProps} />
+                  <TopicResources
+                    area={area}
+                    topicId={topic.id}
+                    resourcesRead={resourcesRead}
+                    onToggleRead={onToggleRead}
+                  />
                 </li>
               ))}
             </ol>
@@ -136,6 +145,12 @@ function EssentialSteps({ area, done, toggle, highlightTopicId, noteProps }: {
                   <span>{topic.title}</span>
                 </label>
                 <TopicNote topicId={topic.id} {...noteProps} />
+                <TopicResources
+                  area={area}
+                  topicId={topic.id}
+                  resourcesRead={resourcesRead}
+                  onToggleRead={onToggleRead}
+                />
               </div>
             ))}
           </div>
@@ -178,11 +193,13 @@ function ChallengeSection({ area, done, challenges, toggleChallenge }: {
   )
 }
 
-function ExtrasGroup({ area, done, toggle, noteProps }: {
+function ExtrasGroup({ area, done, toggle, noteProps, resourcesRead, onToggleRead }: {
   area: Area
   done: Done
   toggle: (key: string) => void
   noteProps: Omit<NoteProps, 'topicId'>
+  resourcesRead: ResourcesRead
+  onToggleRead: (url: string) => void
 }) {
   const extras = area.topics.filter(topic => !topic.required)
   if (!extras.length) return null
@@ -199,6 +216,12 @@ function ExtrasGroup({ area, done, toggle, noteProps }: {
               <span>{topic.title}</span>
             </label>
             <TopicNote topicId={topic.id} {...noteProps} />
+            <TopicResources
+              area={area}
+              topicId={topic.id}
+              resourcesRead={resourcesRead}
+              onToggleRead={onToggleRead}
+            />
           </div>
         ))}
       </div>
@@ -206,23 +229,25 @@ function ExtrasGroup({ area, done, toggle, noteProps }: {
   )
 }
 
-function ResourceHighlight({ resources }: { resources: Resource[] }) {
+function ResourceHighlight({ resources, resourcesRead, onToggleRead }: {
+  resources: Resource[]
+  resourcesRead: ResourcesRead
+  onToggleRead: (url: string) => void
+}) {
   const [first, ...rest] = resources
   if (!first) return null
   return (
     <div className="resource-highlight">
-      <a className="resource resource-featured" href={first.url} target="_blank" rel="noopener noreferrer">
-        <span className="resource-tag">Comece por este</span>
-        <small>{first.type} ↗</small>
-        <span>{first.title}</span>
-      </a>
+      <ResourceCard resource={first} resourcesRead={resourcesRead} onToggleRead={onToggleRead} featured />
       {rest.length > 0 && (
         <div className="resource-list">
           {rest.map(resource => (
-            <a className="resource resource-compact" href={resource.url} target="_blank" rel="noopener noreferrer" key={`${resource.type}-${resource.url}`}>
-              <small>{resource.type} ↗</small>
-              <span>{resource.title}</span>
-            </a>
+            <ResourceCard
+              resource={resource}
+              resourcesRead={resourcesRead}
+              onToggleRead={onToggleRead}
+              key={resource.url}
+            />
           ))}
         </div>
       )}
@@ -240,6 +265,8 @@ export function AreaDialog({ area, notify, close, highlightTopicId }: {
   const challenges = useProgress(state => state.challenges)
   const notes = useProgress(state => state.notes)
   const setNote = useProgress(state => state.setNote)
+  const resourcesRead = useProgress(state => state.resourcesRead)
+  const toggleResourceRead = useProgress(state => state.toggleResourceRead)
   const toggle = useToggleTopic(notify)
   const toggleChallenge = useToggleChallenge(notify)
   const ref = useRef<HTMLDialogElement>(null)
@@ -305,12 +332,25 @@ export function AreaDialog({ area, notify, close, highlightTopicId }: {
               toggle={toggle}
               highlightTopicId={highlightTopicId}
               noteProps={noteProps}
+              resourcesRead={resourcesRead}
+              onToggleRead={toggleResourceRead}
               key={area.id}
             />
             <ChallengeSection area={area} done={done} challenges={challenges} toggleChallenge={toggleChallenge} />
-            <ExtrasGroup area={area} done={done} toggle={toggle} noteProps={noteProps} />
+            <ExtrasGroup
+              area={area}
+              done={done}
+              toggle={toggle}
+              noteProps={noteProps}
+              resourcesRead={resourcesRead}
+              onToggleRead={toggleResourceRead}
+            />
             <h3 className="area-subtitle">Para estudar</h3>
-            <ResourceHighlight resources={area.resources} />
+            <ResourceHighlight
+              resources={area.resources}
+              resourcesRead={resourcesRead}
+              onToggleRead={toggleResourceRead}
+            />
             <p className="detail-note">
               Cada tópico vale {TOPIC_XP} XP, e fechar uma fase rende mais {PHASE_XP}. Tudo fica salvo neste
               navegador.
