@@ -98,7 +98,9 @@ export function NextStep({ notify, open }: {
       <span><strong className={`xp-value ${xpPulsing ? 'is-pulsing' : ''}`}>{progress.xp}</strong> XP</span>
       <span><strong>{progress.streak}</strong> {progress.streak === 1 ? 'dia seguido' : 'dias seguidos'}</span>
       <span className="next-step-week">
-        <span><strong>{week.done}</strong> de {week.goal} nesta semana</span>
+        {weekHit
+          ? <span><strong>{week.done}</strong> nesta semana</span>
+          : <span><strong>{week.done}</strong> de {week.goal} nesta semana</span>}
         {weekHit && <span className="week-hit">· Meta da semana batida</span>}
         <span className="week-dots" aria-hidden="true">
           {Array.from({ length: week.goal }, (_, i) => <i key={i} className={i < weekLit ? 'is-done' : ''} />)}
