@@ -122,6 +122,11 @@
   margin-right: 5px;
   border: 1.5px solid #3b4670;
 }
+.nav-library {
+  margin-top: 6px;
+  border-top: 1px solid var(--line);
+  padding-top: 18px;
+}
 .sidebar-bottom {
   margin-top: auto;
   border: 1px solid var(--line);
@@ -805,15 +810,21 @@ h1 .no-break {
 }
 .resource {
   display: block;
-  text-decoration: none;
   background: #1a2544;
   border: 1px solid var(--line);
   border-radius: 9px;
   padding: 12px;
 }
+.resource.is-read {
+  border-color: #65e1ec4d;
+}
 .resource:hover {
   border-color: var(--violet);
   background: #243156;
+}
+.resource-link {
+  display: block;
+  text-decoration: none;
 }
 .resource small {
   display: block;
@@ -825,6 +836,23 @@ h1 .no-break {
   font-size: 11px;
   line-height: 1.35;
   font-weight: 600;
+}
+/* B06: "por que estudar" abaixo do título, e o controle de "lido" fora do link (não navega ao clicar) */
+.resource-why {
+  margin: 6px 0 0;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.45;
+}
+.resource-read-toggle {
+  display: flex;
+  align-items: center;
+  margin-top: 9px;
+  padding: 0;
+  font-size: 11px;
+}
+.resource-read-toggle[aria-pressed="true"] {
+  color: var(--cyan);
 }
 .empty-state {
   padding: 28px;

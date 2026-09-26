@@ -1,4 +1,5 @@
 import { areas } from './areas'
+import { normalizeResourceUrl } from '../domain/resources'
 import type { Area } from '../types/content'
 
 export { areas }
@@ -27,3 +28,10 @@ export const legacyTopicKeys = new Map<string, string>(areas.flatMap(area => are
   const originalIndex = topicIndex(topic.id)
   return Number.isInteger(originalIndex) ? [[`${area.id}:${originalIndex}`, topic.id] as const] : []
 })))
+
+// B06: Biblioteca de materiais. `resourceEntries` guarda cada material junto da área dona, na mesma
+// ordem de exibição do mapa (fase, depois posição no array); um mesmo material (ex.: um livro citado
+// em 5 áreas) aparece uma vez por área, todas com a mesma chave (URL normalizada). `validResourceKeys`
+// é usado na migração para descartar chaves de materiais que não existem mais (curadoria trocou a URL).
+export const resourceEntries = orderedAreas.flatMap(area => area.resources.map(resource => ({ area, resource })))
+export const validResourceKeys = new Set(resourceEntries.map(({ resource }) => normalizeResourceUrl(resource.url)))

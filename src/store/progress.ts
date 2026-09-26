@@ -1,12 +1,13 @@
 import { useMemo } from 'react'
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import { areas, areasWithChallenge, validTopicKeys } from '../data/roadmap'
+import { areas, areasWithChallenge, validResourceKeys, validTopicKeys } from '../data/roadmap'
 import { cleanProgress, NOTE_MAX, parseBackup, safeProgress } from '../domain/backup'
 import {
   finishedPhase, levelFor, localDay, metrics, toggleChallengeFeedback, toggleFeedback, weekProgress,
   type Feedback,
 } from '../domain/progress'
+import { normalizeResourceUrl } from '../domain/resources'
 import { answerReview as answerReviewData } from '../domain/review'
 import { combineProgress, newTopicsCount } from '../domain/share'
 import { challengeCard, levelCard, phaseCard, type ShareCardData } from '../domain/shareCard'
@@ -23,9 +24,12 @@ type ProgressStore = ProgressData & {
   mergeProgress: (incoming: ProgressData) => number
   answerReview: (topicId: string, remembered: boolean) => void
   setNote: (topicId: string, text: string) => void
+  toggleResourceRead: (url: string) => void
 }
 
-const emptyProgress = (): ProgressData => ({ done: {}, days: [], challenges: {}, doneAt: {}, reviews: {}, notes: {} })
+const emptyProgress = (): ProgressData => (
+  { done: {}, days: [], challenges: {}, doneAt: {}, reviews: {}, notes: {}, resourcesRead: {} }
+)
 
 function legacyProgress(): ProgressData {
   try {
@@ -92,15 +96,27 @@ export const useProgress = create<ProgressStore>()(
           return { notes }
         })
       },
+      // B06: marcar/desmarcar material como lido. Também não registra dia de estudo, mesma lógica da
+      // nota: ler um material é estudar, mas o XP de material já é contado à parte (materialXp).
+      toggleResourceRead: (url) => {
+        const key = normalizeResourceUrl(url)
+        if (!validResourceKeys.has(key)) return
+        set((state) => {
+          const resourcesRead = { ...state.resourcesRead }
+          if (resourcesRead[key]) delete resourcesRead[key]
+          else resourcesRead[key] = localDay()
+          return { resourcesRead }
+        })
+      },
     }),
     {
       name: 'orbit-roadmap-react-v1',
-      version: 5,
+      version: 6,
       migrate: persisted => safeProgress(persisted),
       merge: (persisted, current) => ({ ...current, ...(safeProgress(persisted) ?? {}) }),
       partialize: (state) => {
-        const { done, days, challenges, doneAt, reviews, notes } = state
-        return { done, days, challenges, doneAt, reviews, notes }
+        const { done, days, challenges, doneAt, reviews, notes, resourcesRead } = state
+        return { done, days, challenges, doneAt, reviews, notes, resourcesRead }
       },
     },
   ),
@@ -110,7 +126,8 @@ export function useMetrics() {
   const done = useProgress(state => state.done)
   const days = useProgress(state => state.days)
   const challenges = useProgress(state => state.challenges)
-  return useMemo(() => metrics(done, days, challenges), [done, days, challenges])
+  const resourcesRead = useProgress(state => state.resourcesRead)
+  return useMemo(() => metrics(done, days, challenges, resourcesRead), [done, days, challenges, resourcesRead])
 }
 
 // Meta semanal (B02): "3 de 5 nesta semana", ao lado da sequência no card "Seu próximo passo".

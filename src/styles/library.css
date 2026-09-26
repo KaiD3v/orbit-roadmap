@@ -1,0 +1,90 @@
+/* B06: Biblioteca de materiais — dialog de tela cheia (sem roteador, aberto por #biblioteca) */
+#library-dialog {
+  position: fixed;
+  inset: 0;
+  margin: 0;
+  width: 100%;
+  max-width: none;
+  height: 100dvh;
+  max-height: none;
+  border: 0;
+  background:
+    radial-gradient(700px 360px at 100% 0%, #a889ff1f, transparent 70%),
+    #0a1030;
+  color: var(--text);
+  padding: 0;
+}
+#library-dialog::backdrop {
+  background: #050a1ccc;
+  backdrop-filter: blur(4px);
+}
+.library-top {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  padding: 28px min(6vw, 40px) 18px;
+  border-bottom: 1px solid var(--line);
+  background: #0a1030;
+}
+.library-top h2 {
+  font-size: 26px;
+  margin: 20px 0 6px;
+}
+.library-top > p {
+  color: var(--muted);
+  font-size: 13px;
+  max-width: 560px;
+  margin: 0 0 18px;
+}
+.library-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+.library-filter select {
+  background: #0d1430b3;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  color: var(--text);
+  padding: 9px 10px;
+  font-size: 12px;
+}
+.library-main {
+  padding: 24px min(6vw, 40px) 60px;
+  display: grid;
+  gap: 34px;
+  max-width: 1100px;
+}
+.library-phase h3 {
+  font-size: 15px;
+  color: var(--cyan);
+  margin: 0 0 16px;
+}
+.library-area + .library-area {
+  margin-top: 20px;
+}
+.library-area-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.library-area-head h4 {
+  font-size: 14px;
+  margin: 0;
+}
+.library-main .resource-list {
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+}
+@media (max-width: 580px) {
+  .library-top,
+  .library-main {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+  .library-main .resource-list {
+    grid-template-columns: 1fr;
+  }
+}

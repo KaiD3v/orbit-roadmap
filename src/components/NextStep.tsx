@@ -3,6 +3,7 @@ import { areas, stepLabel } from '../data/roadmap'
 import { goalsLine, levelFor, localDay, nextTopic, priorityProgress, type Feedback } from '../domain/progress'
 import { pickReview, reviewElapsedDays, timeAgo } from '../domain/review'
 import { useMetrics, useProgress, useToggleTopic, useWeek } from '../store/progress'
+import { TopicResources } from './ResourceCard'
 import type { Area } from '../types/content'
 
 function useXpPulse(xp: number) {
@@ -30,6 +31,8 @@ export function NextStep({ notify, open }: {
   const doneAt = useProgress(state => state.doneAt)
   const reviews = useProgress(state => state.reviews)
   const notes = useProgress(state => state.notes)
+  const resourcesRead = useProgress(state => state.resourcesRead)
+  const toggleResourceRead = useProgress(state => state.toggleResourceRead)
   const answerReview = useProgress(state => state.answerReview)
   const progress = useMetrics()
   const week = useWeek()
@@ -39,7 +42,7 @@ export function NextStep({ notify, open }: {
 
   // Revisão espaçada (F03): "de vez em quando, um tópico concluído há semanas volta para relembrar".
   const today = localDay()
-  const progressData = { done, days, challenges, doneAt, reviews, notes }
+  const progressData = { done, days, challenges, doneAt, reviews, notes, resourcesRead }
   const reviewTopic = pickReview(progressData, today)
   const reviewArea = reviewTopic && areas.find(area => area.topics.some(topic => topic.id === reviewTopic.id))
   const reviewNote = reviewTopic && notes[reviewTopic.id]
@@ -157,6 +160,13 @@ export function NextStep({ notify, open }: {
                     Ver área
                   </button>
                 </div>
+                <TopicResources
+                  area={area}
+                  topicId={next.topic.id}
+                  resourcesRead={resourcesRead}
+                  onToggleRead={toggleResourceRead}
+                  label="Onde estudar isto"
+                />
               </>
             )}
         <p className="next-step-footer">{footer}</p>

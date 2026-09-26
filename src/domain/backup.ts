@@ -1,6 +1,8 @@
-import { areasWithChallenge, legacyTopicKeys, validTopicKeys } from '../data/roadmap'
+import { areasWithChallenge, legacyTopicKeys, validResourceKeys, validTopicKeys } from '../data/roadmap'
 import { localDay } from './progress'
-import type { Challenges, Done, DoneAt, Notes, ProgressBackup, ProgressData, ReviewStep, Reviews } from '../types/progress'
+import type {
+  Challenges, Done, DoneAt, Notes, ProgressBackup, ProgressData, ResourcesRead, ReviewStep, Reviews,
+} from '../types/progress'
 
 // B03: nota curta por tópico. Não depende de o tópico estar concluído nem viaja no link (F02, `domain/share.ts`).
 export const NOTE_MAX = 500
@@ -29,6 +31,9 @@ export function cleanProgress(input: unknown, today: string = localDay()): Progr
   const notesInput = value.notes && typeof value.notes === 'object' && !Array.isArray(value.notes)
     ? value.notes as Record<string, unknown>
     : {}
+  const resourcesReadInput = value.resourcesRead && typeof value.resourcesRead === 'object' && !Array.isArray(value.resourcesRead)
+    ? value.resourcesRead as Record<string, unknown>
+    : {}
 
   const done = Object.fromEntries(Object.entries(value.done).flatMap(([key, checked]) => {
     const stableKey = validTopicKeys.has(key) ? key : legacyTopicKeys.get(key)
@@ -53,6 +58,11 @@ export function cleanProgress(input: unknown, today: string = localDay()): Progr
     return trimmed ? [[id, trimmed]] : []
   })) as Notes
 
+  // B06: material lido descarta chave que não existe mais (curadoria trocou ou removeu a URL);
+  // não depende de nenhum tópico estar concluído, como as notas.
+  const resourcesRead = Object.fromEntries(Object.entries(resourcesReadInput).flatMap(([key, day]) =>
+    validResourceKeys.has(key) && isDay(day) ? [[key, day]] : [])) as ResourcesRead
+
   return {
     done,
     days: [...new Set(value.days.filter(isDay))],
@@ -61,6 +71,7 @@ export function cleanProgress(input: unknown, today: string = localDay()): Progr
     doneAt,
     reviews,
     notes,
+    resourcesRead,
   }
 }
 
@@ -72,10 +83,10 @@ export const safeProgress = (input: unknown, today: string = localDay()): Progre
   }
 }
 
-export const createBackup = (data: ProgressData): ProgressBackup => ({ version: 5, ...cleanProgress(data) })
+export const createBackup = (data: ProgressData): ProgressBackup => ({ version: 6, ...cleanProgress(data) })
 
 export function parseBackup(input: unknown, today: string = localDay()): ProgressData {
-  if (!input || typeof input !== 'object' || ![1, 2, 3, 4, 5].includes((input as Record<string, unknown>).version as number)) {
+  if (!input || typeof input !== 'object' || ![1, 2, 3, 4, 5, 6].includes((input as Record<string, unknown>).version as number)) {
     throw new Error('Arquivo inválido')
   }
   return cleanProgress(input, today)

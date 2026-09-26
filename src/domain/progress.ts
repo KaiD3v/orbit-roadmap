@@ -1,10 +1,27 @@
-import { areas, areasByPhase, orderedAreas, phases } from '../data/roadmap'
+import { areas, areasByPhase, orderedAreas, phases, resourceEntries } from '../data/roadmap'
+import { normalizeResourceUrl } from './resources'
 import type { Area, Challenge, Topic } from '../types/content'
-import type { Challenges, Done, DoneAt } from '../types/progress'
+import type { Challenges, Done, DoneAt, ResourcesRead } from '../types/progress'
 
 export const TOPIC_XP = 10
 export const PHASE_XP = 100
 export const CHALLENGE_XP = 50
+export const MATERIAL_XP = 5
+export const MATERIAL_XP_CAP_PER_AREA = 4
+
+// B06: XP por material lido, com teto por área (para não virar farm marcando os mesmos 4 tipos
+// genéricos). Um material citado em várias áreas (ex.: o mesmo livro) conta o XP em cada uma delas.
+export function materialXp(resourcesRead: ResourcesRead) {
+  const perArea = new Map<number, number>()
+  for (const { area, resource } of resourceEntries) {
+    if (resourcesRead[normalizeResourceUrl(resource.url)]) {
+      perArea.set(area.id, (perArea.get(area.id) ?? 0) + 1)
+    }
+  }
+  let capped = 0
+  for (const count of perArea.values()) capped += Math.min(count, MATERIAL_XP_CAP_PER_AREA)
+  return capped * MATERIAL_XP
+}
 
 export const percent = (completed: number, total: number) =>
   total ? Math.round(completed / total * 100) : 0
@@ -137,7 +154,7 @@ export function finishedPhase(before: Done, after: Done) {
   })
 }
 
-export function metrics(done: Done, days: string[], challenges: Challenges = {}) {
+export function metrics(done: Done, days: string[], challenges: Challenges = {}, resourcesRead: ResourcesRead = {}) {
   const total = areas.reduce((sum, area) => sum + area.topics.length, 0)
   const completed = areas.reduce((sum, area) => sum + countDone(area, done), 0)
   const [requiredDone, requiredTotal] = areas.reduce(([current, count], area) => {
@@ -154,7 +171,7 @@ export function metrics(done: Done, days: string[], challenges: Challenges = {})
     deepDone: completed - requiredDone,
     deepTotal: total - requiredTotal,
     percent: percent(requiredDone, requiredTotal),
-    xp: completed * TOPIC_XP + finishedPhases * PHASE_XP + challengesDone * CHALLENGE_XP,
+    xp: completed * TOPIC_XP + finishedPhases * PHASE_XP + challengesDone * CHALLENGE_XP + materialXp(resourcesRead),
     finishedPhases,
     challengesDone,
     streak: streak(days),

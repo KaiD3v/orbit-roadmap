@@ -16,6 +16,25 @@ assert(areas.every(area =>
   ),
 ))
 
+// B06: campos opcionais de Resource, quando presentes, respeitam o formato. `topics` só pode apontar
+// para um tópico da MESMA área (senão o link "Onde estudar" abriria um tópico de outra área).
+for (const area of areas) {
+  const areaTopicIds = new Set(area.topics.map(topic => topic.id))
+  for (const resource of area.resources) {
+    if (resource.topics) {
+      assert(resource.topics.length > 0, `${area.title}: "topics" vazio em "${resource.title}"`)
+      assert(
+        resource.topics.every(id => areaTopicIds.has(id)),
+        `${area.title}: "${resource.title}" aponta para tópico fora da área`,
+      )
+    }
+    if (resource.why) assert(resource.why.length <= 140, `${area.title}: "why" longo demais em "${resource.title}"`)
+    if (resource.duration) assert(resource.duration.length <= 20, `${area.title}: "duration" longa demais em "${resource.title}"`)
+    if (resource.level) assert(['iniciante', 'intermediario', 'avancado'].includes(resource.level))
+    if (resource.lang) assert(['pt', 'en'].includes(resource.lang))
+  }
+}
+
 // F01: as 14 áreas da fase 1 têm desafio, com o formato mínimo (3 a 5 critérios de pronto)
 const phase1Areas = areas.filter(area => area.phase === 1)
 assert.equal(phase1Areas.length, 14)
@@ -38,12 +57,13 @@ globalThis.window = { localStorage: globalThis.localStorage }
 const { cleanProgress, createBackup, NOTE_MAX, parseBackup, safeProgress } = await server.ssrLoadModule('/src/domain/backup.ts')
 const { localDay } = await server.ssrLoadModule('/src/domain/progress.ts')
 const { pickReview } = await server.ssrLoadModule('/src/domain/review.ts')
+const { normalizeResourceUrl } = await server.ssrLoadModule('/src/domain/resources.ts')
 const { useProgress } = await server.ssrLoadModule('/src/store/progress.ts')
 const cleaned = cleanProgress({ done: legacyDone, days: ['2026-09-25', '2026-02-30', 'inválido'] })
 const firstTopicId = areas.find(area => area.id === 1).topics[0].id
 assert.equal(useProgress.getState().done[firstTopicId], true)
 useProgress.getState().importBackup({ version: 1, done: legacyDone, days: [] })
-assert.equal(createBackup(useProgress.getState()).version, 5)
+assert.equal(createBackup(useProgress.getState()).version, 6)
 
 // Migração v2 -> v3: progresso salvo sem `challenges` (v1/v2) ganha objeto vazio, sem perder done/days
 const migratedV2 = safeProgress({ done: legacyDone, days: ['2026-09-25'] })
@@ -111,6 +131,27 @@ assert.deepEqual(migratedV4.notes, {})
 assert.equal(migratedV4.done[firstTopicId], true)
 assert.deepEqual(migratedV4.days, ['2026-09-25'])
 
+// Migração v5 -> v6 (B06): progresso sem `resourcesRead` ganha objeto vazio, sem perder o resto
+const migratedV5 = safeProgress({
+  done: legacyDone, days: ['2026-09-25'], challenges: { 1: '2026-09-25' }, doneAt: {}, reviews: {}, notes: {},
+})
+assert.deepEqual(migratedV5.resourcesRead, {})
+assert.equal(migratedV5.done[firstTopicId], true)
+assert.deepEqual(migratedV5.days, ['2026-09-25'])
+
+// Migração completa v1 -> v6: um progresso salvo na v1 (chave legada `{área}:{índice}`) chega íntegro
+// até o esquema atual, com todos os campos novos preenchidos com o padrão vazio
+const migratedV1toV6 = safeProgress({ done: legacyDone, days: ['2026-09-25'] })
+assert.deepEqual(migratedV1toV6, {
+  done: { [firstTopicId]: true },
+  days: ['2026-09-25'],
+  challenges: {},
+  doneAt: { [firstTopicId]: localDay() },
+  reviews: {},
+  notes: {},
+  resourcesRead: {},
+})
+
 // setNote (B03): trim + corta em NOTE_MAX, remove a chave quando fica vazia, ignora tópico inválido.
 // Anotar não registra dia de estudo (dias não devem crescer).
 useProgress.setState({ done: {}, days: [], challenges: {}, doneAt: {}, reviews: {}, notes: {} })
@@ -141,13 +182,46 @@ useProgress.setState({
   doneAt: {},
   reviews: {},
   notes: { [firstTopicId]: 'nota de backup' },
+  resourcesRead: {},
 })
 const notesBackup = createBackup(useProgress.getState())
-assert.equal(notesBackup.version, 5)
+assert.equal(notesBackup.version, 6)
 assert.deepEqual(parseBackup(notesBackup).notes, { [firstTopicId]: 'nota de backup' })
+
+// toggleResourceRead (B06): marca/desmarca com a URL normalizada, sem registrar dia de estudo (como a
+// nota); ignora URL que não é de nenhum material do roadmap.
+const firstAreaResourceUrl = areas.find(area => area.id === 1).resources[0].url
+useProgress.setState({ done: {}, days: [], challenges: {}, doneAt: {}, reviews: {}, notes: {}, resourcesRead: {} })
+useProgress.getState().toggleResourceRead(firstAreaResourceUrl)
+assert.equal(useProgress.getState().resourcesRead[normalizeResourceUrl(firstAreaResourceUrl)], localDay())
+assert.deepEqual(useProgress.getState().days, [])
+useProgress.getState().toggleResourceRead(firstAreaResourceUrl)
+assert.equal(useProgress.getState().resourcesRead[normalizeResourceUrl(firstAreaResourceUrl)], undefined)
+useProgress.getState().toggleResourceRead('https://site-que-nao-existe-no-roadmap.example/artigo')
+assert.deepEqual(useProgress.getState().resourcesRead, {})
+
+// Backup v6 (B06): ida e volta preserva materiais lidos
+useProgress.setState({
+  done: {},
+  days: [],
+  challenges: {},
+  doneAt: {},
+  reviews: {},
+  notes: {},
+  resourcesRead: { [normalizeResourceUrl(firstAreaResourceUrl)]: '2026-09-20' },
+})
+const resourcesReadBackup = createBackup(useProgress.getState())
+assert.equal(resourcesReadBackup.version, 6)
+assert.deepEqual(
+  parseBackup(resourcesReadBackup).resourcesRead,
+  { [normalizeResourceUrl(firstAreaResourceUrl)]: '2026-09-20' },
+)
 
 await server.close()
 
 assert.deepEqual(cleaned.done, { [firstTopicId]: true })
 assert.deepEqual(cleaned.days, ['2026-09-25'])
-console.log(`store: ${topics.length} IDs únicos, 14 desafios da fase 1, migração v1..v4 -> v5 íntegra e notas por tópico (B03) OK`)
+console.log(
+  `store: ${topics.length} IDs únicos, 14 desafios da fase 1, migração v1..v5 -> v6 íntegra, `
+  + 'notas por tópico (B03) e materiais lidos (B06) OK',
+)

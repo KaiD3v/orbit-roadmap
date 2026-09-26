@@ -4,12 +4,13 @@ import { createServer } from 'vite'
 const server = await createServer({ server: { middlewareMode: true }, appType: 'custom' })
 const { areas, areasByPhase } = await server.ssrLoadModule('/src/data/roadmap.ts')
 const {
-  areaState, badges, CHALLENGE_XP, goalsLine, isChallengeUnlocked, levelFor, localDay, metrics, nextGoals,
-  nextTopic, percent, phaseState, PHASE_XP, streak, toggleChallengeFeedback, toggleFeedback, TOPIC_XP,
-  weekProgress, weekStart, WEEKLY_GOAL,
+  areaState, badges, CHALLENGE_XP, goalsLine, isChallengeUnlocked, levelFor, localDay, materialXp, MATERIAL_XP,
+  MATERIAL_XP_CAP_PER_AREA, metrics, nextGoals, nextTopic, percent, phaseState, PHASE_XP, streak,
+  toggleChallengeFeedback, toggleFeedback, TOPIC_XP, weekProgress, weekStart, WEEKLY_GOAL,
 } = await server.ssrLoadModule('/src/domain/progress.ts')
 const { matchesArea, normalizeQuery, queryMatcher } = await server.ssrLoadModule('/src/domain/filter.ts')
 const { cleanProgress, NOTE_MAX, parseBackup } = await server.ssrLoadModule('/src/domain/backup.ts')
+const { normalizeResourceUrl, resourceMeta, resourcesForTopic } = await server.ssrLoadModule('/src/domain/resources.ts')
 const {
   combineProgress, decodeProgress, encodeProgress, newTopicsCount,
 } = await server.ssrLoadModule('/src/domain/share.ts')
@@ -93,7 +94,8 @@ const phaseFeedback = toggleFeedback(almostDone, lastTopic.id)
 assert.equal(phaseFeedback.kind, 'phase')
 assert.equal(phaseFeedback.message, `Fase concluída! +${PHASE_XP} XP ✦`)
 
-assert.throws(() => parseBackup({ version: 6, done: {}, days: [] }))
+assert.doesNotThrow(() => parseBackup({ version: 6, done: {}, days: [] }))
+assert.throws(() => parseBackup({ version: 7, done: {}, days: [] }))
 assert.deepEqual(parseBackup({ version: 3, done: {}, days: [], challenges: { 1: '2026-09-25' } }).challenges, { 1: '2026-09-25' })
 
 const area1 = areas.find(area => area.id === 1)
@@ -232,7 +234,10 @@ assert.deepEqual(roundTrip.challenges, allChallengesDoneLink)
 
 // Ida e volta com progresso vazio
 const emptyRoundTrip = decodeProgress(encodeProgress({ done: {}, days: [], challenges: {} }))
-assert.deepEqual(emptyRoundTrip, { done: {}, days: [], challenges: {}, doneAt: {}, reviews: {}, notes: {} })
+assert.deepEqual(
+  emptyRoundTrip,
+  { done: {}, days: [], challenges: {}, doneAt: {}, reviews: {}, notes: {}, resourcesRead: {} },
+)
 
 // Link com segmento de área inexistente: ignora o segmento ruim, mantém o resto
 const area1FirstEssential = area1.topics.find(topic => topic.required)
@@ -281,6 +286,13 @@ const localWithNotes = { ...localWithDates, notes: { [area1FirstEssential.id]: '
 const incomingWithNotes = { ...incomingLink, notes: { [area2FirstEssential.id]: 'nota que não deveria entrar' } }
 const combinedNotes = combineProgress(localWithNotes, incomingWithNotes)
 assert.deepEqual(combinedNotes.notes, { [area1FirstEssential.id]: 'minha nota local' })
+
+// B06: material lido também não viaja no link — mesma regra das notas
+const someResourceUrl = area1.resources[0].url
+const localWithResourcesRead = { ...localWithDates, notes: {}, resourcesRead: { [normalizeResourceUrl(someResourceUrl)]: '2026-01-01' } }
+const incomingWithResourcesRead = { ...incomingLink, notes: {}, resourcesRead: {} }
+const combinedResourcesRead = combineProgress(localWithResourcesRead, incomingWithResourcesRead)
+assert.deepEqual(combinedResourcesRead.resourcesRead, { [normalizeResourceUrl(someResourceUrl)]: '2026-01-01' })
 
 // F03: revisão espaçada — elegibilidade por degrau (14 / 30 / 90 dias), 1 por dia, desempate e as duas respostas
 const todayStr = localDay()
@@ -498,8 +510,69 @@ assert.equal(jCardFull.stats.topics, areas.reduce((sum, area) => sum + area.topi
 assert.equal(jCardFull.stats.xp, metrics(allDone, [], allChallengesDone).xp)
 assert(jCardFull.caption.startsWith(`${areas.length} áreas concluídas de ${areas.length}`))
 
+// Migração (esquema v5 -> v6, B06): progresso sem `resourcesRead` ganha objeto vazio, sem perder nada
+const migratedV5 = cleanProgress({ done: { [area1FirstEssential.id]: true }, days: [], challenges: {}, notes: {} })
+assert.deepEqual(migratedV5.resourcesRead, {})
+assert.equal(migratedV5.done[area1FirstEssential.id], true)
+
+// cleanProgress descarta chave de material lido que não existe mais (curadoria trocou/removeu a URL)
+// e mantém as válidas; não depende de nenhum tópico estar concluído.
+const firstAreaResourceUrl = normalizeResourceUrl(area1.resources[0].url)
+const dirtyResourcesRead = cleanProgress({
+  done: {},
+  days: [],
+  challenges: {},
+  resourcesRead: {
+    [firstAreaResourceUrl]: '2026-01-15',
+    'https://site-que-saiu-da-curadoria.example/artigo': '2026-01-15',
+    [firstAreaResourceUrl + '-invalida']: 'não é uma data',
+  },
+})
+assert.deepEqual(dirtyResourcesRead.resourcesRead, { [firstAreaResourceUrl]: '2026-01-15' })
+
+// normalizeResourceUrl: chave estável, sem barra final e sem parâmetros utm_*
+assert.equal(normalizeResourceUrl('https://exemplo.com/guia/'), 'https://exemplo.com/guia')
+assert.equal(normalizeResourceUrl('https://exemplo.com/guia'), 'https://exemplo.com/guia')
+assert.equal(
+  normalizeResourceUrl('https://exemplo.com/guia?utm_source=x&ref=y'),
+  'https://exemplo.com/guia?ref=y',
+)
+assert.equal(normalizeResourceUrl('https://exemplo.com/'), 'https://exemplo.com/')
+
+// resourcesForTopic: só materiais da própria área cujo `topics` inclui o id pedido
+const linkedResource = area1.resources.find(resource => resource.topics?.length)
+assert(linkedResource, 'curadoria da fase 1 deveria ligar pelo menos um material a um tópico')
+const linkedTopicId = linkedResource.topics[0]
+assert(resourcesForTopic(area1, linkedTopicId).some(resource => resource.url === linkedResource.url))
+assert.deepEqual(resourcesForTopic(area1, 'id-sem-material-ligado'), [])
+
+// resourceMeta: só entram os campos preenchidos, na ordem tipo/nível/idioma/grátis-pago/duração
+assert.equal(
+  resourceMeta({ type: 'Vídeo', level: 'intermediario', lang: 'en', free: true, duration: '40 min' }),
+  'Vídeo · Intermediário · EN · grátis · 40 min',
+)
+assert.equal(resourceMeta({ type: 'Material', free: false }), 'Material · pago')
+assert.equal(resourceMeta({ type: 'Livro' }), 'Livro')
+
+// materialXp: +5 por material lido, com teto de 4 por área (não farma marcando o mesmo material várias vezes).
+// Área 46 (Docker) tem 5 materiais; 3 deles (multi-stage, get-started, get-started/resources) só existem
+// ali — abaixo do teto, XP soma normal. Um material citado em outra área (ex.: um livro repetido) conta o
+// XP em cada área que o cita: "Docker · treinamentos" também aparece na área 37, então marcar os 5 materiais
+// da área 46 rende o teto dela (4) mais 1 crédito na área 37.
+const dockerArea = areas.find(area => area.id === 46)
+assert.equal(dockerArea.resources.length, 5)
+const belowCapUrls = [dockerArea.resources[0].url, dockerArea.resources[1].url, dockerArea.resources[3].url]
+const belowCapRead = Object.fromEntries(belowCapUrls.map(url => [normalizeResourceUrl(url), '2026-01-01']))
+assert.equal(materialXp(belowCapRead), 3 * MATERIAL_XP)
+const allDockerRead = Object.fromEntries(dockerArea.resources.map(r => [normalizeResourceUrl(r.url), '2026-01-01']))
+assert.equal(materialXp(allDockerRead), MATERIAL_XP_CAP_PER_AREA * MATERIAL_XP + MATERIAL_XP)
+assert.equal(materialXp({}), 0)
+// entra em `metrics`, sem afetar o nível (que só olha essenciais)
+assert.equal(metrics({}, [], {}, belowCapRead).xp, 3 * MATERIAL_XP)
+
 await server.close()
 console.log(
   'domain: percent, localDay, streak, matchesArea, toggleFeedback, nextTopic, phaseState, areaState, nextGoals, '
-  + 'link de progresso (F02), revisão espaçada (F03), meta semanal (B02), notas por tópico (B03) e cards compartilháveis (B05) OK',
+  + 'link de progresso (F02), revisão espaçada (F03), meta semanal (B02), notas por tópico (B03), '
+  + 'cards compartilháveis (B05) e materiais/XP de leitura (B06) OK',
 )

@@ -70,6 +70,10 @@ export function Sidebar({ resetView, openShare }: { resetView: () => void, openS
             )
           })}
         </nav>
+        <a className="nav-link nav-library" href="#biblioteca" onClick={() => setOpen(false)}>
+          <span className="nav-number" aria-hidden="true">▤</span>
+          Biblioteca de materiais
+        </a>
         <div className="sidebar-bottom">
           <div className="level-label">
             <span>Seu nível <strong>{level}</strong></span>
