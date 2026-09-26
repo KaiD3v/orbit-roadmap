@@ -1,5 +1,5 @@
 import { areas, orderedAreas } from '../data/roadmap'
-import { matchesArea, normalizeQuery, type Filter } from '../domain/filter'
+import { matchesArea, normalizeQuery, queryMatcher, type Filter } from '../domain/filter'
 import { nextArea } from '../domain/progress'
 import { useProgress } from '../store/progress'
 import { MapToolbar } from './MapToolbar'
@@ -16,7 +16,8 @@ export function Journey({ search, onSearch, filter, onFilter, open }: {
 }) {
   const done = useProgress(state => state.done)
   const query = normalizeQuery(search)
-  const matches = areas.filter(area => matchesArea(area, done, query, filter)).length
+  const matcher = queryMatcher(query)
+  const matches = areas.filter(area => matchesArea(area, done, matcher, filter)).length
   return (
     <section className="journey" aria-labelledby="journey-title">
       <SectionHeading id="journey-title" title="Trace seu caminho">
@@ -24,7 +25,7 @@ export function Journey({ search, onSearch, filter, onFilter, open }: {
         ficam para quando quiser ir mais fundo.
       </SectionHeading>
       <MapToolbar search={search} onSearch={onSearch} filter={filter} onFilter={onFilter} matches={matches} />
-      <RoadmapMap query={query} filter={filter} nextId={nextArea(done).id} open={open} />
+      <RoadmapMap matcher={matcher} filter={filter} nextId={nextArea(done).id} open={open} />
       {matches === 0 && <p className="empty-state">Nada por aqui. Tente outro termo ou limpe os filtros.</p>}
     </section>
   )

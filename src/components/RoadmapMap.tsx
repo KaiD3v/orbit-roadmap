@@ -1,12 +1,12 @@
 import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import { areasByPhase, phases, stepLabel, type Phase } from '../data/roadmap'
-import { matchesArea, type Filter } from '../domain/filter'
+import { matchesArea, type Filter, type QueryMatcher } from '../domain/filter'
 import { areaState, percent, phaseState, priorityProgress, type AreaState } from '../domain/progress'
 import { useProgress } from '../store/progress'
 import type { Area } from '../types/content'
 import type { Done } from '../types/progress'
 
-type MapView = { query: string, filter: Filter, nextId: number, open: (area: Area) => void }
+type MapView = { matcher: QueryMatcher | null, filter: Filter, nextId: number, open: (area: Area) => void }
 
 // Padrão senoidal repetido a cada 8 nós (J05): desvio horizontal em fração da amplitude.
 const OFFSETS = [0, 0.5, 0.85, 0.5, 0, -0.5, -0.85, -0.5]
@@ -38,7 +38,7 @@ function MapNode({ area, view, index }: { area: Area, view: MapView, index: numb
   const summary = requiredTotal && deepTotal
     ? `${requiredDone}/${requiredTotal} essenciais · ${deepDone}/${deepTotal} extras`
     : requiredTotal ? `Essencial · ${requiredDone}/${requiredTotal}` : `Para ir além · ${deepDone}/${deepTotal}`
-  const matches = matchesArea(area, done, view.query, view.filter)
+  const matches = matchesArea(area, done, view.matcher, view.filter)
   const offset = offsetAt(index)
   const side = offset > 0 ? 'label-left' : 'label-right'
 
@@ -95,7 +95,7 @@ function buildPath(points: { x: number, y: number }[]) {
 // O CSS dimensiona o SVG com as mesmas variáveis dos nós, então o caminho passa pelo centro de cada um.
 function MapPath({ list, view, phaseColorDone }: { list: Area[], view: MapView, phaseColorDone: number }) {
   const done = useProgress(state => state.done)
-  const visible = list.filter(area => matchesArea(area, done, view.query, view.filter))
+  const visible = list.filter(area => matchesArea(area, done, view.matcher, view.filter))
   if (visible.length < 2) return null
   const points = visible.map((_, i) => ({ x: offsetAt(i), y: i + 0.5 }))
   const lastDoneIndex = Math.min(phaseColorDone, points.length) - 1
@@ -120,8 +120,8 @@ function PhaseMap({ phase, view }: { phase: Phase, view: MapView }) {
   const challenges = useProgress(state => state.challenges)
   const list = areasByPhase.get(phase.number) ?? []
   const state = phaseState(phase.number, done, challenges)
-  const searching = !!view.query || view.filter !== 'all'
-  const phaseMatches = list.filter(area => matchesArea(area, done, view.query, view.filter)).length
+  const searching = !!view.matcher || view.filter !== 'all'
+  const phaseMatches = list.filter(area => matchesArea(area, done, view.matcher, view.filter)).length
   const [userOpen, setUserOpen] = useState<boolean | null>(null)
   const expanded = searching ? phaseMatches > 0 : (userOpen ?? state === 'current')
 
@@ -140,7 +140,7 @@ function PhaseMap({ phase, view }: { phase: Phase, view: MapView }) {
 
   // Quantos nós visíveis, a partir do início, já estão concluídos (para colorir o trecho percorrido do caminho).
   const visibleStates = list
-    .filter(area => matchesArea(area, done, view.query, view.filter))
+    .filter(area => matchesArea(area, done, view.matcher, view.filter))
     .map(area => areaState(area, done, view.nextId))
   let doneRun = 0
   while (doneRun < visibleStates.length && visibleStates[doneRun] === 'done') doneRun++
@@ -171,7 +171,7 @@ function PhaseMap({ phase, view }: { phase: Phase, view: MapView }) {
       <div className="map-track" id={`fase-${phase.number}-body`} hidden={!expanded}>
         <MapPath list={list} view={view} phaseColorDone={doneRun} />
         {list.map((area) => {
-          const matches = matchesArea(area, done, view.query, view.filter)
+          const matches = matchesArea(area, done, view.matcher, view.filter)
           if (matches) visibleIndex++
           return <MapNode area={area} view={view} index={visibleIndex} key={area.id} />
         })}

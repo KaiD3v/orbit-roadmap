@@ -7,7 +7,7 @@ const {
   areaState, badges, CHALLENGE_XP, goalsLine, isChallengeUnlocked, levelFor, localDay, metrics, nextGoals,
   nextTopic, percent, phaseState, PHASE_XP, streak, toggleChallengeFeedback, toggleFeedback, TOPIC_XP,
 } = await server.ssrLoadModule('/src/domain/progress.ts')
-const { matchesArea, normalizeQuery } = await server.ssrLoadModule('/src/domain/filter.ts')
+const { matchesArea, normalizeQuery, queryMatcher } = await server.ssrLoadModule('/src/domain/filter.ts')
 const { cleanProgress, parseBackup } = await server.ssrLoadModule('/src/domain/backup.ts')
 const {
   combineProgress, decodeProgress, encodeProgress, newTopicsCount,
@@ -36,15 +36,30 @@ assert.equal(streak([localDay(today), localDay(yesterday)]), 2)
 assert.equal(streak([localDay(dayBeforeYesterday)]), 0)
 
 const ragArea = areas.find(area => area.id === 18)
-assert(matchesArea(ragArea, {}, normalizeQuery('rag'), 'all'))
+assert(matchesArea(ragArea, {}, queryMatcher(normalizeQuery('rag')), 'all'))
 const evalArea = areas.find(area => area.id === 31)
-assert(matchesArea(evalArea, {}, normalizeQuery('AVALIAÇÃO'), 'all'))
-assert(!matchesArea(evalArea, {}, normalizeQuery('inexistente'), 'all'))
+assert(matchesArea(evalArea, {}, queryMatcher(normalizeQuery('AVALIAÇÃO')), 'all'))
+assert(!matchesArea(evalArea, {}, queryMatcher(normalizeQuery('inexistente')), 'all'))
 const evalDone = Object.fromEntries(evalArea.topics.map(topic => [topic.id, true]))
-assert(matchesArea(evalArea, evalDone, '', 'done'))
-assert(!matchesArea(evalArea, evalDone, '', 'pending'))
-assert(matchesArea(evalArea, {}, '', 'pending'))
-assert(!matchesArea(evalArea, {}, '', 'done'))
+assert(matchesArea(evalArea, evalDone, queryMatcher(''), 'done'))
+assert(!matchesArea(evalArea, evalDone, queryMatcher(''), 'pending'))
+assert(matchesArea(evalArea, {}, queryMatcher(''), 'pending'))
+assert(!matchesArea(evalArea, {}, queryMatcher(''), 'done'))
+
+// B01: busca por início de palavra, sem acento, escapando caracteres especiais.
+// "rag" bate em "RAG" (início da palavra), não em "storage" (meio da palavra).
+assert(queryMatcher(normalizeQuery('rag'))(normalizeQuery('rag avançado')))
+assert(!queryMatcher(normalizeQuery('rag'))(normalizeQuery('sistema de storage')))
+assert(queryMatcher(normalizeQuery('memoria'))(normalizeQuery('memória virtual')))
+assert(queryMatcher(normalizeQuery('event sour'))(normalizeQuery('event sourcing')))
+assert(!queryMatcher(normalizeQuery('event sour'))(normalizeQuery('sourcing manual')))
+for (const special of ['c++', 'node.js', '(iniciante)']) {
+  const normalized = normalizeQuery(special)
+  assert.doesNotThrow(() => queryMatcher(normalized)(normalized))
+  assert(queryMatcher(normalized)(normalizeQuery(`prefixo ${special}`)))
+}
+assert.equal(queryMatcher(''), null)
+assert(areas.every(area => matchesArea(area, {}, queryMatcher(''), 'all')))
 
 const someTopic = evalArea.topics[0]
 assert.deepEqual(toggleFeedback({}, someTopic.id), { message: `+${TOPIC_XP} XP · Tópico concluído!`, kind: 'topic' })
