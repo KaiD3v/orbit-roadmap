@@ -130,10 +130,18 @@ export function newTopicsCount(current: Done, incoming: Done): number {
 }
 
 // União: nada do progresso local se perde ao importar um link (diferente de importBackup, que substitui).
+// Datas não viajam no link (F03): tópico que já existia aqui mantém seu `doneAt`; o que chega de novo ganha hoje.
 export function combineProgress(current: ProgressData, incoming: ProgressData): ProgressData {
+  const today = localDay()
+  const doneAt = { ...current.doneAt }
+  for (const id of Object.keys(incoming.done)) {
+    if (!doneAt[id]) doneAt[id] = today
+  }
   return cleanProgress({
     done: { ...current.done, ...incoming.done },
     days: [...new Set([...current.days, ...incoming.days])],
     challenges: { ...current.challenges, ...incoming.challenges },
+    doneAt,
+    reviews: current.reviews,
   })
 }

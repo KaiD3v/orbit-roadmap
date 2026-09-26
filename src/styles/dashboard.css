@@ -417,6 +417,47 @@ h1 .no-break {
   color: var(--muted);
   font-size: 13px;
 }
+/* Revisão espaçada (F03): bloco secundário, abaixo das ações, sem substituir o próximo passo */
+.next-step-review {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 16px;
+  margin: 0 0 26px;
+  padding: 14px 18px;
+  border: 1px solid #a889ff33;
+  border-radius: 16px;
+  background: #ffffff08;
+}
+.next-step-review p {
+  margin: 0;
+  flex: 1;
+  min-width: 200px;
+  font-size: 14px;
+  line-height: 1.5;
+}
+.next-step-review-when {
+  color: var(--muted);
+}
+.next-step-review-actions {
+  display: flex;
+  gap: 8px;
+}
+.next-step-review-actions button {
+  min-height: 40px;
+  padding: 9px 16px;
+  font-size: 13px;
+}
+/* Ponto com cauda: um "cometa" que passou de novo, discreto e sem animação contínua (nem emoji ☄) */
+.review-comet {
+  flex: none;
+  width: 30px;
+  height: 8px;
+  background:
+    radial-gradient(circle at right, var(--violet) 0 3px, #a889ff00 4px),
+    linear-gradient(90deg, transparent, #a889ffa0 85%, transparent);
+  background-repeat: no-repeat;
+}
 /* Constelação: pontos distribuídos numa órbita com rotate + translate */
 .area-orbit {
   --size: 176px;
@@ -710,6 +751,12 @@ h1 .no-break {
   color: #9fb0cf;
   background: #0f1d3a;
   border-color: #28496a;
+}
+/* Destaque breve (2s, removido via JS) do tópico aberto pelo "Rever" da revisão espaçada (F03) */
+.topic.is-highlighted {
+  border-color: var(--violet);
+  box-shadow: 0 0 0 3px #a889ff40, 0 0 20px #a889ff40;
+  transition: border-color 0.6s ease, box-shadow 0.6s ease;
 }
 .resource {
   display: block;

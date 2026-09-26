@@ -8,10 +8,19 @@ const {
   nextTopic, percent, phaseState, PHASE_XP, streak, toggleChallengeFeedback, toggleFeedback, TOPIC_XP,
 } = await server.ssrLoadModule('/src/domain/progress.ts')
 const { matchesArea, normalizeQuery } = await server.ssrLoadModule('/src/domain/filter.ts')
-const { parseBackup } = await server.ssrLoadModule('/src/domain/backup.ts')
+const { cleanProgress, parseBackup } = await server.ssrLoadModule('/src/domain/backup.ts')
 const {
   combineProgress, decodeProgress, encodeProgress, newTopicsCount,
 } = await server.ssrLoadModule('/src/domain/share.ts')
+const { answerReview, pickReview, REVIEW_INTERVALS, timeAgo } = await server.ssrLoadModule('/src/domain/review.ts')
+
+// dias atrás, no formato do progresso ('YYYY-MM-DD', fuso local) — usado nos testes de revisão espaçada.
+// setDate (não subtração em ms) para não tropeçar em horário de verão, como o resto do arquivo já faz.
+function daysAgo(n) {
+  const date = new Date()
+  date.setDate(date.getDate() - n)
+  return localDay(date)
+}
 
 assert.equal(percent(0, 0), 0)
 assert.equal(percent(1, 3), 33)
@@ -48,11 +57,17 @@ const phaseFeedback = toggleFeedback(almostDone, lastTopic.id)
 assert.equal(phaseFeedback.kind, 'phase')
 assert.equal(phaseFeedback.message, `Fase concluída! +${PHASE_XP} XP ✦`)
 
-assert.throws(() => parseBackup({ version: 4, done: {}, days: [] }))
+assert.throws(() => parseBackup({ version: 5, done: {}, days: [] }))
 assert.deepEqual(parseBackup({ version: 3, done: {}, days: [], challenges: { 1: '2026-09-25' } }).challenges, { 1: '2026-09-25' })
 
 const area1 = areas.find(area => area.id === 1)
 const firstEssential = area1.topics.find(topic => topic.required)
+
+// v4: aceita doneAt/reviews, e um tópico concluído sem doneAt migra para a data passada como `today`
+const v4Backup = parseBackup(
+  { version: 4, done: { [firstEssential.id]: true }, days: [], doneAt: {}, reviews: {} }, '2026-01-10',
+)
+assert.equal(v4Backup.doneAt[firstEssential.id], '2026-01-10')
 assert.equal(nextTopic({}).area.id, 1)
 assert.equal(nextTopic({}).kind, 'topic')
 assert.equal(nextTopic({}).topic.id, firstEssential.id)
@@ -170,7 +185,7 @@ assert.deepEqual(roundTrip.challenges, allChallengesDoneLink)
 
 // Ida e volta com progresso vazio
 const emptyRoundTrip = decodeProgress(encodeProgress({ done: {}, days: [], challenges: {} }))
-assert.deepEqual(emptyRoundTrip, { done: {}, days: [], challenges: {} })
+assert.deepEqual(emptyRoundTrip, { done: {}, days: [], challenges: {}, doneAt: {}, reviews: {} })
 
 // Link com segmento de área inexistente: ignora o segmento ruim, mantém o resto
 const area1FirstEssential = area1.topics.find(topic => topic.required)
@@ -201,5 +216,136 @@ const combined = combineProgress(localState, incoming)
 assert.deepEqual(combined.done, { [area1FirstEssential.id]: true, [area2FirstEssential.id]: true })
 assert.deepEqual(new Set(combined.days), new Set(['2026-09-20', '2026-09-21']))
 
+// F03: no link (F02), datas não viajam — tópico que já existia mantém seu doneAt, o novo ganha hoje
+const localWithDates = {
+  done: { [area1FirstEssential.id]: true },
+  days: [],
+  challenges: {},
+  doneAt: { [area1FirstEssential.id]: '2026-01-01' },
+  reviews: {},
+}
+const incomingLink = { done: { [area2FirstEssential.id]: true }, days: [], challenges: {}, doneAt: {}, reviews: {} }
+const combinedWithDates = combineProgress(localWithDates, incomingLink)
+assert.equal(combinedWithDates.doneAt[area1FirstEssential.id], '2026-01-01')
+assert.equal(combinedWithDates.doneAt[area2FirstEssential.id], localDay())
+
+// F03: revisão espaçada — elegibilidade por degrau (14 / 30 / 90 dias), 1 por dia, desempate e as duas respostas
+const todayStr = localDay()
+assert.deepEqual(REVIEW_INTERVALS, [14, 30, 90])
+const reviewData = overrides => ({ done: {}, days: [], challenges: {}, doneAt: {}, reviews: {}, ...overrides })
+
+// Degrau 0 (sem revisão ainda): referência é `doneAt`, intervalo de 14 dias
+const step0Early = reviewData({
+  done: { [area1FirstEssential.id]: true }, doneAt: { [area1FirstEssential.id]: daysAgo(13) },
+})
+assert.equal(pickReview(step0Early, todayStr), null)
+const step0Ready = reviewData({
+  done: { [area1FirstEssential.id]: true }, doneAt: { [area1FirstEssential.id]: daysAgo(14) },
+})
+assert.equal(pickReview(step0Ready, todayStr).id, area1FirstEssential.id)
+
+// Degrau 1: referência passa a ser `reviews[id].at`, intervalo de 30 dias
+const step1Early = reviewData({
+  done: { [area1FirstEssential.id]: true },
+  doneAt: { [area1FirstEssential.id]: daysAgo(200) },
+  reviews: { [area1FirstEssential.id]: { at: daysAgo(29), step: 1 } },
+})
+assert.equal(pickReview(step1Early, todayStr), null)
+const step1Ready = reviewData({
+  done: { [area1FirstEssential.id]: true },
+  doneAt: { [area1FirstEssential.id]: daysAgo(200) },
+  reviews: { [area1FirstEssential.id]: { at: daysAgo(30), step: 1 } },
+})
+assert.equal(pickReview(step1Ready, todayStr).id, area1FirstEssential.id)
+
+// Degrau 2: intervalo de 90 dias
+const step2Ready = reviewData({
+  done: { [area1FirstEssential.id]: true },
+  doneAt: { [area1FirstEssential.id]: daysAgo(200) },
+  reviews: { [area1FirstEssential.id]: { at: daysAgo(90), step: 2 } },
+})
+assert.equal(pickReview(step2Ready, todayStr).id, area1FirstEssential.id)
+
+// Graduado (degrau 3, interno): já passou por uma revisão de 90 dias, sai do ciclo para sempre
+const graduated = reviewData({
+  done: { [area1FirstEssential.id]: true },
+  doneAt: { [area1FirstEssential.id]: daysAgo(400) },
+  reviews: { [area1FirstEssential.id]: { at: daysAgo(400), step: 3 } },
+})
+assert.equal(pickReview(graduated, todayStr), null)
+
+// Só essenciais entram no ciclo, mesmo que um extra esteja concluído há muito tempo
+const extraTopic = area1.topics.find(topic => !topic.required)
+if (extraTopic) {
+  const extraOnly = reviewData({ done: { [extraTopic.id]: true }, doneAt: { [extraTopic.id]: daysAgo(400) } })
+  assert.equal(pickReview(extraOnly, todayStr), null)
+}
+
+// No máximo uma revisão por dia: já respondida hoje (em qualquer tópico), nada mais aparece
+const dailyLimit = reviewData({
+  done: { [area1FirstEssential.id]: true, [area2FirstEssential.id]: true },
+  doneAt: { [area1FirstEssential.id]: daysAgo(14), [area2FirstEssential.id]: daysAgo(14) },
+  reviews: { [area2FirstEssential.id]: { at: todayStr, step: 0 } },
+})
+assert.equal(pickReview(dailyLimit, todayStr), null)
+
+// Desempate por menor id (área 1 antes da área 2, não a ordem lexicográfica da string)
+const tie = reviewData({
+  done: { [area1FirstEssential.id]: true, [area2FirstEssential.id]: true },
+  doneAt: { [area1FirstEssential.id]: daysAgo(14), [area2FirstEssential.id]: daysAgo(14) },
+})
+assert.equal(pickReview(tie, todayStr).id, area1FirstEssential.id)
+
+// Escolha determinística: o mais atrasado vence, mesmo estando em outra área
+const overdue = reviewData({
+  done: { [area1FirstEssential.id]: true, [area2FirstEssential.id]: true },
+  doneAt: { [area1FirstEssential.id]: daysAgo(15), [area2FirstEssential.id]: daysAgo(40) },
+})
+assert.equal(pickReview(overdue, todayStr).id, area2FirstEssential.id)
+
+// answerReview: "Lembro" avança o degrau; no degrau 2, avança para o graduado (encerra o ciclo)
+const afterRemember0 = answerReview(step0Ready, area1FirstEssential.id, true, todayStr)
+assert.deepEqual(afterRemember0.reviews[area1FirstEssential.id], { at: todayStr, step: 1 })
+const afterRemember2 = answerReview(step2Ready, area1FirstEssential.id, true, todayStr)
+assert.equal(afterRemember2.reviews[area1FirstEssential.id].step, 3)
+
+// answerReview: "Rever" nunca pune — volta ao degrau 0 e o tópico continua concluído
+const afterReview = answerReview(step2Ready, area1FirstEssential.id, false, todayStr)
+assert.deepEqual(afterReview.reviews[area1FirstEssential.id], { at: todayStr, step: 0 })
+assert.equal(afterReview.done[area1FirstEssential.id], true)
+
+// answerReview num tópico não concluído: não cria revisão nenhuma (defensivo)
+assert.equal(answerReview(reviewData(), 'id-inexistente', true, todayStr).reviews['id-inexistente'], undefined)
+
+// timeAgo: texto do tempo passado, coerente com os limiares de revisão
+assert.equal(timeAgo(14), 'há 2 semanas')
+assert.equal(timeAgo(20), 'há 3 semanas')
+assert.equal(timeAgo(30), 'há 1 mês')
+assert.equal(timeAgo(90), 'há 3 meses')
+assert.equal(timeAgo(1), 'há 1 semana')
+
+// Migração (esquema v3 -> v4): tópico já concluído sem doneAt recebe a data da migração, sem perder progresso
+const migratedV3 = cleanProgress({ done: { [area1FirstEssential.id]: true }, days: [], challenges: {} }, '2026-02-01')
+assert.equal(migratedV3.doneAt[area1FirstEssential.id], '2026-02-01')
+assert.deepEqual(migratedV3.reviews, {})
+
+// cleanProgress filtra reviews de tópico não concluído, id inexistente, data ou degrau inválidos
+const dirtyReviews = cleanProgress({
+  done: { [area1FirstEssential.id]: true },
+  days: [],
+  challenges: {},
+  doneAt: { [area1FirstEssential.id]: '2026-01-01' },
+  reviews: {
+    [area1FirstEssential.id]: { at: '2026-01-15', step: 1 },
+    [area2FirstEssential.id]: { at: '2026-01-15', step: 1 }, // não concluído aqui: descartado
+    'id-fantasma': { at: '2026-01-15', step: 1 }, // id inexistente
+    [`${area1FirstEssential.id}-2`]: { at: 'não é uma data', step: 1 },
+  },
+})
+assert.deepEqual(dirtyReviews.reviews, { [area1FirstEssential.id]: { at: '2026-01-15', step: 1 } })
+
 await server.close()
-console.log('domain: percent, localDay, streak, matchesArea, toggleFeedback, nextTopic, phaseState, areaState, nextGoals e link de progresso (F02) OK')
+console.log(
+  'domain: percent, localDay, streak, matchesArea, toggleFeedback, nextTopic, phaseState, areaState, nextGoals, '
+  + 'link de progresso (F02) e revisão espaçada (F03) OK',
+)

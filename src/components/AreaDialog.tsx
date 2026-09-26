@@ -7,12 +7,23 @@ import { useProgress, useToggleChallenge, useToggleTopic } from '../store/progre
 import type { Area, Resource } from '../types/content'
 import type { Challenges, Done } from '../types/progress'
 
-function EssentialSteps({ area, done, toggle }: { area: Area, done: Done, toggle: (key: string) => void }) {
+function EssentialSteps({ area, done, toggle, highlightTopicId }: {
+  area: Area
+  done: Done
+  toggle: (key: string) => void
+  highlightTopicId?: string | null
+}) {
   const [expanded, setExpanded] = useState(false)
   const essentials = area.topics.filter(topic => topic.required)
+  const detailsRef = useRef<HTMLDetailsElement>(null)
+  const completed = essentials.filter(topic => done[topic.id])
+  // "Rever" (F03) pode apontar para um tópico já concluído, escondido dentro do <details> recolhido: abre-o.
+  const highlightIsCompleted = highlightTopicId != null && completed.some(topic => topic.id === highlightTopicId)
+  useEffect(() => {
+    if (highlightIsCompleted && detailsRef.current) detailsRef.current.open = true
+  }, [highlightIsCompleted])
   if (!essentials.length) return null
   const pending = essentials.filter(topic => !done[topic.id])
-  const completed = essentials.filter(topic => done[topic.id])
   const visible = expanded ? pending : pending.slice(0, 3)
   const hiddenCount = pending.length - visible.length
 
@@ -29,7 +40,7 @@ function EssentialSteps({ area, done, toggle }: { area: Area, done: Done, toggle
             <ol className="essential-steps">
               {visible.map((topic, index) => (
                 <li className={index === 0 ? 'is-next' : ''} key={topic.id}>
-                  <label className="topic">
+                  <label className="topic" id={`topic-${topic.id}`}>
                     <input type="checkbox" checked={Boolean(done[topic.id])} onChange={() => toggle(topic.id)} />
                     <span>
                       {index === 0 && <span className="step-tag">Próximo</span>}
@@ -46,11 +57,11 @@ function EssentialSteps({ area, done, toggle }: { area: Area, done: Done, toggle
         </button>
       )}
       {completed.length > 0 && (
-        <details className="steps-done">
+        <details className="steps-done" ref={detailsRef}>
           <summary>✓ {completed.length} feitos</summary>
           <div className="topic-grid">
             {completed.map(topic => (
-              <label className="topic checked" key={topic.id}>
+              <label className="topic checked" id={`topic-${topic.id}`} key={topic.id}>
                 <input type="checkbox" checked onChange={() => toggle(topic.id)} />
                 <span>{topic.title}</span>
               </label>
@@ -139,10 +150,11 @@ function ResourceHighlight({ resources }: { resources: Resource[] }) {
   )
 }
 
-export function AreaDialog({ area, notify, close }: {
+export function AreaDialog({ area, notify, close, highlightTopicId }: {
   area: Area | null
   notify: (feedback: Feedback) => void
   close: () => void
+  highlightTopicId?: string | null
 }) {
   const done = useProgress(state => state.done)
   const challenges = useProgress(state => state.challenges)
@@ -154,6 +166,17 @@ export function AreaDialog({ area, notify, close }: {
     if (area && dialog && !dialog.open) dialog.showModal()
     if (!area && dialog?.open) dialog.close()
   }, [area])
+
+  // Revisão espaçada (F03): "Rever" abre o painel já rolado até o tópico, com um destaque breve (2s).
+  useEffect(() => {
+    if (!area || !highlightTopicId) return
+    const target = document.getElementById(`topic-${highlightTopicId}`)
+    if (!target) return
+    target.scrollIntoView({ block: 'center' })
+    target.classList.add('is-highlighted')
+    const timer = window.setTimeout(() => target.classList.remove('is-highlighted'), 2000)
+    return () => window.clearTimeout(timer)
+  }, [area, highlightTopicId])
 
   const [requiredDone, requiredTotal] = area ? priorityProgress(area, done, true) : [0, 0]
   const useExtras = requiredTotal === 0
@@ -182,7 +205,7 @@ export function AreaDialog({ area, notify, close }: {
           </div>
           <div className="detail-main">
             {/* key={area.id}: recolhe o "+N depois" ao trocar de área, sem efeito extra */}
-            <EssentialSteps area={area} done={done} toggle={toggle} key={area.id} />
+            <EssentialSteps area={area} done={done} toggle={toggle} highlightTopicId={highlightTopicId} key={area.id} />
             <ChallengeSection area={area} done={done} challenges={challenges} toggleChallenge={toggleChallenge} />
             <ExtrasGroup area={area} done={done} toggle={toggle} />
             <h3 className="area-subtitle">Para estudar</h3>

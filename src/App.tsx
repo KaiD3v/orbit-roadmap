@@ -17,9 +17,22 @@ const LINK_HASH_PREFIX = '#p='
 
 function App() {
   const [selected, setSelected] = useState<Area | null>(null)
+  const [highlightTopicId, setHighlightTopicId] = useState<string | null>(null)
   const [search, setSearch] = useState('')
   const [filter, setFilter] = useState<Filter>('all')
   const [toast, setToast] = useState<Feedback | null>(null)
+
+  // Abre o painel da área; usado tanto pelos cliques normais (mapa, próximo passo) quanto pelo "Rever"
+  // da revisão espaçada, que também destaca o tópico revisado dentro do painel.
+  function openArea(area: Area, topicId?: string) {
+    setHighlightTopicId(topicId ?? null)
+    setSelected(area)
+  }
+
+  function closeArea() {
+    setSelected(null)
+    setHighlightTopicId(null)
+  }
 
   // Progresso por link (F02): se o endereço trouxer `#p=…`, junta com o progresso local uma única vez.
   useEffect(() => {
@@ -57,13 +70,13 @@ function App() {
             <BackupControls notify={setToast} />
           </header>
           <Hero />
-          <NextStep notify={setToast} open={setSelected} />
-          <Journey search={search} onSearch={setSearch} filter={filter} onFilter={setFilter} open={setSelected} />
+          <NextStep notify={setToast} open={openArea} />
+          <Journey search={search} onSearch={setSearch} filter={filter} onFilter={setFilter} open={openArea} />
           <Achievements />
           <footer>Feito para aprender construindo. Seu progresso é salvo neste navegador. <span>Orbit</span></footer>
         </main>
       </div>
-      <AreaDialog area={selected} notify={setToast} close={() => setSelected(null)} />
+      <AreaDialog area={selected} notify={setToast} close={closeArea} highlightTopicId={highlightTopicId} />
       <Toast message={toast} onHide={setToast} />
     </>
   )

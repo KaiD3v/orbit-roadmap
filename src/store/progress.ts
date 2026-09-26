@@ -4,6 +4,7 @@ import { persist } from 'zustand/middleware'
 import { areasWithChallenge, validTopicKeys } from '../data/roadmap'
 import { cleanProgress, parseBackup, safeProgress } from '../domain/backup'
 import { localDay, metrics, toggleChallengeFeedback, toggleFeedback, type Feedback } from '../domain/progress'
+import { answerReview as answerReviewData } from '../domain/review'
 import { combineProgress, newTopicsCount } from '../domain/share'
 import type { ProgressData } from '../types/progress'
 
@@ -12,14 +13,17 @@ type ProgressStore = ProgressData & {
   toggleChallenge: (areaId: string) => void
   importBackup: (input: unknown) => void
   mergeProgress: (incoming: ProgressData) => number
+  answerReview: (topicId: string, remembered: boolean) => void
 }
+
+const emptyProgress = (): ProgressData => ({ done: {}, days: [], challenges: {}, doneAt: {}, reviews: {} })
 
 function legacyProgress(): ProgressData {
   try {
     const saved = localStorage.getItem('orbit-roadmap-v1')
-    return saved ? cleanProgress(JSON.parse(saved)) : { done: {}, days: [], challenges: {} }
+    return saved ? cleanProgress(JSON.parse(saved)) : emptyProgress()
   } catch {
-    return { done: {}, days: [], challenges: {} }
+    return emptyProgress()
   }
 }
 
@@ -32,13 +36,19 @@ export const useProgress = create<ProgressStore>()(
         set((state) => {
           const done = { ...state.done }
           const days = [...state.days]
-          if (done[key]) delete done[key]
-          else {
+          const doneAt = { ...state.doneAt }
+          const reviews = { ...state.reviews }
+          if (done[key]) {
+            delete done[key]
+            delete doneAt[key]
+            delete reviews[key]
+          } else {
             done[key] = true
             const today = localDay()
+            doneAt[key] = today
             if (!days.includes(today)) days.push(today)
           }
-          return { done, days }
+          return { done, days, doneAt, reviews }
         })
       },
       toggleChallenge: (areaId) => {
@@ -61,13 +71,17 @@ export const useProgress = create<ProgressStore>()(
         set(state => combineProgress(state, incoming))
         return added
       },
+      answerReview: (topicId, remembered) => set(state => answerReviewData(state, topicId, remembered, localDay())),
     }),
     {
       name: 'orbit-roadmap-react-v1',
-      version: 3,
+      version: 4,
       migrate: persisted => safeProgress(persisted),
       merge: (persisted, current) => ({ ...current, ...(safeProgress(persisted) ?? {}) }),
-      partialize: state => ({ done: state.done, days: state.days, challenges: state.challenges }),
+      partialize: (state) => {
+        const { done, days, challenges, doneAt, reviews } = state
+        return { done, days, challenges, doneAt, reviews }
+      },
     },
   ),
 )
