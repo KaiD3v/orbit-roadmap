@@ -83,9 +83,11 @@ src/
     ResourceBody.tsx       o astro de um material por tipo (L02): planeta com anel (Livro), estrela numa
                            órbita parada (Curso), cometa (Vídeo) ou estrela de quatro pontas (Material);
                            só currentColor, sem cor fixa no SVG — não lido = cor da fase, lido = ciano
-    LibrarySky.tsx         fundo da Biblioteca (L01): o céu da Home + duas nebulosas próprias e quatro
-                           constelações-figura de estudo (livro, lamparina, pena, óculos) nas margens;
-                           decorativo, `aria-hidden`, sem nenhuma animação
+    LibrarySky.tsx         fundo da Biblioteca (L01): o céu da Home (fundo fixo) + a grade de atlas, e
+                           `LibraryHeaderFigures`, duas figuras de estudo (livro, lamparina) presas aos
+                           cantos só do cabeçalho (`.library-top`, que nunca rola por baixo de nada —
+                           por isso não colidem com títulos de área). Decorativo, `aria-hidden`, sem
+                           nenhuma animação
     ShareCard.tsx          diálogo de compartilhamento (B05): pré-visualização do card em <canvas>,
                            formato (feed/stories), nome/@ opcional, compartilhar/baixar e copiar legenda
     share/drawCard.ts      desenha o ShareCardData num <canvas> 2D (fundo, título, constelação, anel de
@@ -225,7 +227,7 @@ Cada área tem os 4 materiais de sempre (Material, Curso, Vídeo, Livro), mas ag
 - **Marcar como lido não registra dia de estudo** — mesma lógica das notas (B03): ler não é a mesma coisa que estudar/concluir um tópico, e a ação já rende XP à parte.
 - **Biblioteca, "o observatório" (`pages/LibraryPage.tsx`):** todos os materiais do roadmap, agrupados por fase e área (ordem de `orderedAreas`), com busca (mesma regra de início de palavra da B01, `domain/filter.ts`) e filtros por tipo, nível, idioma, gratuito e lido/não lido, em chips (o chip de tipo dobra como legenda do astro). É a rota **`#/biblioteca`**, uma página dentro da shell (a sidebar continua visível), com entrada pela sidebar. "Abrir área" abre o painel da área por cima da Biblioteca.
   - **Linguagem visual:** cada área é uma **constelação** — um astro por material (`ResourceBody`, por tipo: planeta com anel = Livro, estrela numa órbita parada = Curso, cometa = Vídeo, estrela de quatro pontas = Material), ligados por uma linha na ordem de `byLevel`. Não lido = contorno na cor da fase; **lido = aceso em ciano** (a mesma regra de "concluído" do mapa); o primeiro da linha é "Comece por este" (substitui o "depois, este" do painel, que a linha já mostra). Em telas ≥820px a constelação é uma fileira que rola na horizontal quando não cabe; abaixo disso vira uma coluna vertical (astro à esquerda de cada cartão, como a trilha do mapa no mobile).
-  - Fundo próprio (`LibrarySky.tsx`, L01): o mesmo céu da Home (estrelas, agora numa variável `--sky-stars` reaproveitada por `body`) com duas nebulosas próprias e quatro constelações-figura decorativas (livro aberto, lamparina, pena, óculos) nas margens — fixo, sem nenhuma animação.
+  - Fundo próprio (`LibrarySky.tsx`, L01): o mesmo céu da Home (estrelas, agora numa variável `--sky-stars` reaproveitada por `body`) com duas nebulosas próprias e uma grade de atlas — fixo, sem nenhuma animação. Duas figuras de estudo (livro aberto, lamparina) ficam só nos cantos do cabeçalho (`LibraryHeaderFigures`), nunca no fundo fixo da página inteira: um fundo fixo com figuras coladas a um ponto da tela acaba passando por baixo de conteúdos diferentes conforme a página rola.
   - Cores de fase em tokens `--phase-1` a `--phase-6` (`base.css`), usados tanto por `map.css` (mapa) quanto pela Biblioteca; nunca ciano.
 - **Verificação de links:** `scripts/check-links.mjs` (`pnpm check-links`, fora do `pnpm test`) faz `HEAD` (e `GET` se o `HEAD` falhar) em cada URL única com limite de concorrência e timeout, e lista as que não respondem 2xx/3xx. Não conserta nada sozinho; alguns catálogos (ex.: `oreilly.com`) bloqueiam pedidos automatizados com 403 mesmo com a página existindo — trate isso como ruído conhecido, não prova de link quebrado.
 - **Testes:** `tests/store.mjs` cobre `topics[]` restrito a tópicos da mesma área, limites de `why`/`duration`, a migração v5 → v6 e `toggleResourceRead`. `tests/domain.mjs` cobre `normalizeResourceUrl`, `resourcesForTopic`, `resourceMeta`, `byLevel` (ordem, estabilidade, sem nível por último, sem mutação) e o teto de `materialXp` (inclusive o crédito em mais de uma área para um material compartilhado).
