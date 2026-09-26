@@ -339,25 +339,54 @@ h1 .no-break {
   border-style: dashed;
   transform: rotate(20deg);
 }
+/* Astros girando sobre a órbita maior (raio = metade de .orbit-two) e piscando de leve.
+   O transform base é a posição de repouso: com movimento reduzido a animação some e eles ficam ali. */
 .orbit-satellite {
+  --r: 154px;
   position: absolute;
+  top: 50%;
+  left: 50%;
   border-radius: 50%;
+  transform: rotate(var(--start)) translateX(var(--r));
+  animation:
+    satellite-orbit var(--period) linear infinite,
+    satellite-twinkle var(--blink) ease-in-out infinite alternate;
 }
 .satellite-one {
+  --start: -58deg;
+  --period: 48s;
+  --blink: 2.6s;
   width: 12px;
   height: 12px;
+  margin: -6px 0 0 -6px;
   background: var(--coral);
-  top: 30px;
-  right: 65px;
   box-shadow: 0 0 25px var(--coral);
 }
 .satellite-two {
+  --start: 128deg;
+  --period: 72s;
+  --blink: 3.4s;
   width: 8px;
   height: 8px;
+  margin: -4px 0 0 -4px;
   background: var(--cyan);
-  bottom: 30px;
-  left: 70px;
   box-shadow: 0 0 25px var(--cyan);
+  animation-delay: 0s, -1.2s;
+}
+@keyframes satellite-orbit {
+  to {
+    transform: rotate(calc(var(--start) + 360deg)) translateX(var(--r));
+  }
+}
+@keyframes satellite-twinkle {
+  from {
+    opacity: 1;
+    scale: 1;
+  }
+  to {
+    opacity: 0.55;
+    scale: 0.8;
+  }
 }
 .progress-ring {
   width: 203px;
@@ -1092,13 +1121,8 @@ footer {
     width: 252px;
     height: 252px;
   }
-  .satellite-one {
-    top: 24px;
-    right: 53px;
-  }
-  .satellite-two {
-    bottom: 24px;
-    left: 57px;
+  .orbit-satellite {
+    --r: 126px;
   }
   .progress-ring {
     width: 166px;
