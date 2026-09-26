@@ -42,16 +42,17 @@ src/
     content.ts             Area, Topic, Resource, Challenge, ResourceType, PhaseNumber
     progress.ts            Done, Challenges, DoneAt, Reviews, ReviewStep, ProgressData, ProgressBackup
   domain/                  REGRAS PURAS: sem React, sem DOM, sem localStorage
-    progress.ts            XP, níveis, conquistas, metas, próximo passo, estados de fase/área, feedback
+    progress.ts            XP, níveis, conquistas, metas, meta semanal, próximo passo, estados de fase/área, feedback
     filter.ts              busca e filtros do mapa
     backup.ts              validação, limpeza e migração de progresso (arquivo, localStorage, legado)
     share.ts               progresso por link: codifica/decodifica o hash e junta com o progresso local
     review.ts              revisão espaçada: Leitner de 3 degraus (pickReview, answerReview, timeAgo)
   store/
-    progress.ts            Zustand + persist (localStorage) e hooks (useMetrics, useToggleTopic, useToggleChallenge);
+    progress.ts            Zustand + persist (localStorage) e hooks (useMetrics, useWeek, useToggleTopic, useToggleChallenge);
                            a ação `answerReview` é lida direto via `useProgress(state => state.answerReview)`
   components/              só exibição: leem o store e chamam o domínio
     NextStep.tsx           card "Seu próximo passo" (o elemento principal da tela), com o bloco de revisão espaçada
+                           e a meta semanal no rodapé
     Hero.tsx               boas-vindas, só na primeira visita (depois vira um <h1> sr-only)
     Journey.tsx            seção do mapa: título, MapToolbar, RoadmapMap, lista vazia
     MapToolbar.tsx         busca, filtros e contagem de resultados
@@ -146,6 +147,7 @@ Leitner de 3 degraus (sem lib de repetição espaçada: é resposta binária, al
 - **XP** = tópicos concluídos × **10** + fases 100% concluídas × **100** + desafios concluídos × **50**.
 - **Nível**, pelo percentual de **essenciais** concluídos: Explorador (<25%), Construtor (≥25%), Especialista (≥60%), Arquiteto orbital (100%).
 - **Sequência:** dias consecutivos em `days` terminando hoje ou ontem (estudar hoje não é obrigatório para manter a sequência até o fim do dia). Marcar um tópico ou um desafio registra o dia.
+- **Meta semanal (B02):** `weekProgress` (`domain/progress.ts`) conta, na semana de segunda a domingo (`weekStart`, fuso local), os tópicos concluídos (por `doneAt`) mais os desafios concluídos (por `challenges`, 1 cada) contra a meta fixa `WEEKLY_GOAL = 5`. Revisões não contam. Não depende de campo novo no esquema; configurar a meta fica para depois. O card "Seu próximo passo" mostra "**N** de 5 nesta semana" com 5 pontos (acesos em ciano); ao bater a meta no ato de marcar um tópico (transição 4 → 5), `toggleFeedback` devolve um toast "Meta da semana batida! +10 XP" — só nessa transição, nunca ao recarregar a página, e com prioridade abaixo de fase/nível/área concluídos.
 
 ### Duas definições de "fase concluída" (cuidado)
 
@@ -178,7 +180,7 @@ Leitner de 3 degraus (sem lib de repetição espaçada: é resposta binária, al
 
 ### Feedback (toasts)
 
-`toggleFeedback` escolhe a mensagem mais importante do momento: **fase** > **nível** > **área** > **tópico**, e **desmarcar** ("Tópico desmarcado") à parte. Os desafios usam `toggleChallengeFeedback`. Os tipos `phase`, `level` e `challenge` usam o toast grande. Animações de comemoração só acontecem **na transição**, nunca ao recarregar a página.
+`toggleFeedback` escolhe a mensagem mais importante do momento: **fase** > **nível** > **área** > **meta semanal batida** > **tópico**, e **desmarcar** ("Tópico desmarcado") à parte. Os desafios usam `toggleChallengeFeedback`. Os tipos `phase`, `level` e `challenge` usam o toast grande; `week` (meta semanal) usa o pequeno, como `topic`. Animações de comemoração só acontecem **na transição**, nunca ao recarregar a página.
 
 ### Busca
 
@@ -214,5 +216,5 @@ Leitner de 3 degraus (sem lib de repetição espaçada: é resposta binária, al
 
 ## Onde está o quê além do código
 
-- [BACKLOG.md](BACKLOG.md): ideias avaliadas (notas por tópico, PWA, cards compartilháveis, recomendação de materiais mais completa, meta semanal) e o que foi descartado, com o motivo.
-- Implementadas: **progresso por link** (F02, `domain/share.ts`) e **revisão espaçada** (F03, `domain/review.ts`), ver "Regras de negócio" acima.
+- [BACKLOG.md](BACKLOG.md): ideias avaliadas (notas por tópico, PWA, cards compartilháveis, recomendação de materiais mais completa) e o que foi descartado, com o motivo.
+- Implementadas: **progresso por link** (F02, `domain/share.ts`), **revisão espaçada** (F03, `domain/review.ts`) e **meta semanal** (B02, `weekProgress`/`weekStart` em `domain/progress.ts`), ver "Regras de negócio" acima.

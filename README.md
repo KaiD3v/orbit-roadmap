@@ -20,7 +20,7 @@ Para a jornada não virar obrigação, o progresso é visual e recompensado: o m
 - **Mapa por fases:** só a fase atual fica aberta, como uma trilha. As outras mostram uma estrela por área.
 - **Painel da área:** mostra os essenciais como uma sequência de passos, os extras recolhidos, o desafio prático e os materiais de estudo, com um deles em destaque.
 - **Busca e filtros** por área ou tópico.
-- **Recompensas:** XP, níveis (Explorador, Construtor, Especialista, Arquiteto orbital), conquistas, sequência de dias e a meta mais próxima ("Falta 1 tópico para…").
+- **Recompensas:** XP, níveis (Explorador, Construtor, Especialista, Arquiteto orbital), conquistas, sequência de dias, meta semanal (5 tópicos ou desafios por semana) e a meta mais próxima ("Falta 1 tópico para…").
 - **Revisão espaçada:** de vez em quando, um tópico essencial concluído há semanas volta no card "Seu próximo passo" para relembrar ("Ainda lembra de…?"), num ciclo de 14/30/90 dias.
 - **Backup:** baixe e restaure o seu progresso em JSON.
 - **Progresso por link:** copie um link com o seu progresso e abra no outro aparelho para juntar (sem apagar o que já estava lá).

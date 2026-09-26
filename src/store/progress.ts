@@ -3,7 +3,7 @@ import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { areasWithChallenge, validTopicKeys } from '../data/roadmap'
 import { cleanProgress, parseBackup, safeProgress } from '../domain/backup'
-import { localDay, metrics, toggleChallengeFeedback, toggleFeedback, type Feedback } from '../domain/progress'
+import { localDay, metrics, toggleChallengeFeedback, toggleFeedback, weekProgress, type Feedback } from '../domain/progress'
 import { answerReview as answerReviewData } from '../domain/review'
 import { combineProgress, newTopicsCount } from '../domain/share'
 import type { ProgressData } from '../types/progress'
@@ -93,11 +93,24 @@ export function useMetrics() {
   return useMemo(() => metrics(done, days, challenges), [done, days, challenges])
 }
 
+// Meta semanal (B02): "3 de 5 nesta semana", ao lado da sequência no card "Seu próximo passo".
+export function useWeek() {
+  const doneAt = useProgress(state => state.doneAt)
+  const challenges = useProgress(state => state.challenges)
+  return useMemo(() => weekProgress(doneAt, challenges, localDay()), [doneAt, challenges])
+}
+
 export function useToggleTopic(notify: (feedback: Feedback) => void) {
   const done = useProgress(state => state.done)
+  const doneAt = useProgress(state => state.doneAt)
+  const challenges = useProgress(state => state.challenges)
   const toggleTopic = useProgress(state => state.toggleTopic)
   return (key: string) => {
-    notify(toggleFeedback(done, key))
+    const today = localDay()
+    // Meta da semana antes/depois deste tópico, só para o aviso de transição (nunca ao recarregar).
+    const before = weekProgress(doneAt, challenges, today)
+    const after = done[key] ? before : weekProgress({ ...doneAt, [key]: today }, challenges, today)
+    notify(toggleFeedback(done, key, { before: before.done, after: after.done, goal: before.goal }))
     toggleTopic(key)
   }
 }
