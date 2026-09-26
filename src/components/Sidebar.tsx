@@ -3,13 +3,14 @@ import { phases } from '../data/roadmap'
 import { levelFor, localDay, phaseState } from '../domain/progress'
 import { levelCard, type ShareCardData } from '../domain/shareCard'
 import { BookIcon } from './icons/BookIcon'
+import { href, type Path } from '../router'
 import { useMetrics, useProgress } from '../store/progress'
 
 // Só "concluída" usa glifo; atual e a seguir são desenhados no CSS (.nav-state)
 const PHASE_ICON = { done: '✓', current: '', future: '' } as const
 const PHASE_LABEL = { done: 'concluída', current: 'fase atual', future: 'a seguir' } as const
 
-export function Sidebar({ resetView, openShare }: { resetView: () => void, openShare: (data: ShareCardData) => void }) {
+export function Sidebar({ path, openShare }: { path: Path, openShare: (data: ShareCardData) => void }) {
   const done = useProgress(state => state.done)
   const challenges = useProgress(state => state.challenges)
   const progress = useMetrics()
@@ -34,13 +35,14 @@ export function Sidebar({ resetView, openShare }: { resetView: () => void, openS
     }
   }, [open])
 
-  function goToPhase() {
-    resetView()
+  // Clicar de novo na mesma fase precisa disparar `hashchange`: é nele que a HomePage limpa busca e filtro.
+  function goToPhase(anchor: string) {
+    if (location.hash === anchor) history.replaceState(null, '', location.pathname + location.search)
     setOpen(false)
   }
 
   return (
-    <aside className={`sidebar ${open ? 'is-open' : ''}`} aria-label="Navegação" ref={ref}>
+    <aside className={`sidebar ${open ? 'is-open' : ''} ${path === '/' ? '' : 'is-subpage'}`} aria-label="Navegação" ref={ref}>
       <div className="sidebar-head">
         <a className="brand" href="#inicio">
           <span className="brand-mark" aria-hidden="true">✳</span>
@@ -63,7 +65,7 @@ export function Sidebar({ resetView, openShare }: { resetView: () => void, openS
           {phases.map((phase) => {
             const state = phaseState(phase.number, done, challenges)
             return (
-              <a className={`nav-link is-${state}`} href={`#fase-${phase.number}`} key={phase.name} onClick={goToPhase}>
+              <a className={`nav-link is-${state}`} href={`#fase-${phase.number}`} key={phase.name} onClick={() => goToPhase(`#fase-${phase.number}`)}>
                 <span className="nav-number">{phase.number}</span>
                 {phase.name}
                 <span className={`nav-state is-${state}`} aria-label={PHASE_LABEL[state]}>{PHASE_ICON[state]}</span>
@@ -72,7 +74,12 @@ export function Sidebar({ resetView, openShare }: { resetView: () => void, openS
           })}
         </nav>
         <div className="nav-divider" aria-hidden="true" />
-        <a className="nav-link nav-library" href="#biblioteca" onClick={() => setOpen(false)}>
+        <a
+          className="nav-link nav-library"
+          href={href('/biblioteca')}
+          aria-current={path === '/biblioteca' ? 'page' : undefined}
+          onClick={() => setOpen(false)}
+        >
           <span className="nav-number"><BookIcon /></span>
           Biblioteca de materiais
         </a>

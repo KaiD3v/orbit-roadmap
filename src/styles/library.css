@@ -1,34 +1,11 @@
-/* B06: Biblioteca de materiais — dialog de tela cheia (sem roteador, aberto por #biblioteca) */
-#library-dialog {
-  position: fixed;
-  inset: 0;
-  margin: 0;
-  width: 100%;
-  max-width: none;
-  height: 100dvh;
-  max-height: none;
-  border: 0;
-  background:
-    radial-gradient(700px 360px at 100% 0%, #a889ff1f, transparent 70%),
-    #0a1030;
-  color: var(--text);
-  padding: 0;
-}
-#library-dialog::backdrop {
-  background: #050a1ccc;
-  backdrop-filter: blur(4px);
-}
+/* B06: Biblioteca de materiais, rota #/biblioteca (página dentro da shell, ao lado da sidebar) */
 .library-top {
-  position: sticky;
-  top: 0;
-  z-index: 1;
-  padding: 28px min(6vw, 40px) 18px;
+  padding: 36px 0 18px;
   border-bottom: 1px solid var(--line);
-  background: #0a1030;
 }
-.library-top h2 {
-  font-size: 26px;
-  margin: 20px 0 6px;
+.library-top h1 {
+  font-size: clamp(26px, 3vw, 34px);
+  margin: 0 0 6px;
 }
 .library-top > p {
   color: var(--muted);
@@ -51,10 +28,9 @@
   font-size: 12px;
 }
 .library-main {
-  padding: 24px min(6vw, 40px) 60px;
+  padding: 28px 0 60px;
   display: grid;
   gap: 34px;
-  max-width: 1100px;
 }
 .library-phase h3 {
   font-size: 15px;
@@ -79,11 +55,6 @@
   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
 }
 @media (max-width: 580px) {
-  .library-top,
-  .library-main {
-    padding-left: 20px;
-    padding-right: 20px;
-  }
   .library-main .resource-list {
     grid-template-columns: 1fr;
   }

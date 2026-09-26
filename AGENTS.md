@@ -34,7 +34,12 @@ Para instalar dependências, use a mesma versão do lockfile: `npx pnpm@11.19.0 
 ```
 src/
   main.tsx                 monta <App/> e importa styles/index.css
-  App.tsx                  composição + estado de tela (área aberta, busca, filtro, toast)
+  App.tsx                  shell: tabela de rotas, sidebar, topbar, e as camadas globais (painel da área, toast,
+                           card compartilhável, progresso por link) que ficam por cima de qualquer página
+  router.ts                roteamento por hash (`#/caminho`): usePath, href, pathFromHash
+  pages/                   uma página por rota; todas recebem PageProps (types.ts)
+    HomePage.tsx           `/`: Hero, próximo passo, mapa (com o estado de busca e filtro) e conquistas
+    LibraryPage.tsx        `/biblioteca`: Biblioteca de materiais (B06)
   data/
     areas.ts               CONTEÚDO: as 60 áreas (tópicos, materiais, desafios). Tipado.
     roadmap.ts             fases + índices derivados (orderedAreas, areasByPhase, stepLabel, validTopicKeys,
@@ -74,7 +79,6 @@ src/
     ResourceCard.tsx       um material (metadados, "por que", marcar como lido) e TopicResources (materiais
                            de um tópico específico, atrás do link "Onde estudar"); usado por AreaDialog,
                            NextStep e Library
-    Library.tsx            Biblioteca (B06): todos os materiais, com busca e filtros, aberta por `#biblioteca`
     ShareCard.tsx          diálogo de compartilhamento (B05): pré-visualização do card em <canvas>,
                            formato (feed/stories), nome/@ opcional, compartilhar/baixar e copiar legenda
     share/drawCard.ts      desenha o ShareCardData num <canvas> 2D (fundo, título, constelação, anel de
@@ -98,7 +102,14 @@ tests/
   store.mjs                integridade do conteúdo + hidratação/migração do store
 ```
 
-**Fluxo:** o componente lê o estado com `useProgress(state => …)` ou `useMetrics()`, calcula a exibição com funções de `domain/` e dispara ações do store. O toast é o único estado de tela compartilhado: `App` passa `notify` para quem precisa.
+**Fluxo:** o componente lê o estado com `useProgress(state => …)` ou `useMetrics()`, calcula a exibição com funções de `domain/` e dispara ações do store. O estado de tela compartilhado (toast, painel da área, card compartilhável) mora no `App` e chega às páginas pelo `PageProps` (`notify`, `openArea`, `openShare`); estado de uma página só (ex.: busca e filtro do mapa) fica na própria página.
+
+**Rotas (`router.ts`):** hash no formato `#/caminho`, não caminho de URL, para funcionar em qualquer hospedagem estática e offline (PWA) sem configurar fallback. Só hash que começa com `#/` é rota; âncoras (`#fase-2`, `#inicio`) e o link de progresso (`#p=`) pertencem à página inicial (`pathFromHash` devolve `/`). Rota desconhecida cai na `/`. Ao trocar de rota, o `App` volta ao topo (ou rola até a âncora), leva o foco para o `<main>` e atualiza o título da aba e o breadcrumb com o `title` da rota.
+
+**Página nova:**
+1. `src/pages/NomePage.tsx`, exportando um componente que recebe `PageProps`.
+2. Uma linha na tabela `routes` do `App.tsx`: `'/caminho': { title: 'Título', Page: NomePage }`.
+3. Um link com `href('/caminho')` onde fizer sentido (a sidebar marca o ativo com `aria-current="page"`).
 
 **Onde colocar código novo:**
 - Regra de negócio → `src/domain/`, como função pura, **com teste** em `tests/domain.mjs`.
@@ -109,7 +120,7 @@ tests/
   - Peça de interface usada em mais de um lugar e que não conhece o domínio (não importa de `domain/` nem de
     `store/`) → `components/ui/`. Componente ligado a uma funcionalidade fica na raiz de `components/`.
 
-Não há Context, roteador, barrels (`index.ts`) nem biblioteca de UI. Não adicione sem necessidade real.
+Não há Context, biblioteca de roteamento (o `router.ts` tem ~20 linhas), barrels (`index.ts`) nem biblioteca de UI. Não adicione sem necessidade real: rota com parâmetro, por exemplo, cabe no `router.ts` antes de justificar uma dependência.
 
 ## Conteúdo (`src/data/areas.ts`)
 
@@ -204,7 +215,7 @@ Cada área tem os 4 materiais de sempre (Material, Curso, Vídeo, Livro), mas ag
 - **Marcar como lido:** cada material tem um botão "Marcar como lido"/"Lido" (`ResourceCard`). A chave é a **URL normalizada** (`normalizeResourceUrl`): sem barra final, sem parâmetros `utm_*`. Materiais não têm id próprio; **se a URL mudar na curadoria, o registro de "lido" se perde** (aceito). Um material citado em várias áreas (ex.: o mesmo livro) é uma chave só — marcar como lido em uma área marca em todas.
 - **XP de material:** `+5` por material lido (`MATERIAL_XP`), com teto de `4` por área (`MATERIAL_XP_CAP_PER_AREA`, `materialXp` em `domain/progress.ts`) para não virar farm marcando os 4 tipos genéricos. Um material citado em várias áreas conta o teto **em cada uma** (é crédito por área, não por material). O **nível** continua baseado só nos essenciais — ler material não pula nível.
 - **Marcar como lido não registra dia de estudo** — mesma lógica das notas (B03): ler não é a mesma coisa que estudar/concluir um tópico, e a ação já rende XP à parte.
-- **Biblioteca (`Library.tsx`):** todos os materiais do roadmap, agrupados por fase e área (ordem de `orderedAreas`), com busca (mesma regra de início de palavra da B01, `domain/filter.ts`) e filtros por tipo, nível, idioma, gratuito e lido/não lido. Aberta por hash **`#biblioteca`** (sem roteador), com entrada pela sidebar; fechar sempre limpa o hash (`history.replaceState`). Não conflita com `#fase-N` (`RoadmapMap`) nem com `#p=` (progresso por link): o `App` só reage ao hash exato `#biblioteca`. Cada material abre a área correspondente no mapa ("Abrir área").
+- **Biblioteca (`pages/LibraryPage.tsx`):** todos os materiais do roadmap, agrupados por fase e área (ordem de `orderedAreas`), com busca (mesma regra de início de palavra da B01, `domain/filter.ts`) e filtros por tipo, nível, idioma, gratuito e lido/não lido. É a rota **`#/biblioteca`**, uma página dentro da shell (a sidebar continua visível), com entrada pela sidebar. "Abrir área" abre o painel da área por cima da Biblioteca.
 - **Verificação de links:** `scripts/check-links.mjs` (`pnpm check-links`, fora do `pnpm test`) faz `HEAD` (e `GET` se o `HEAD` falhar) em cada URL única com limite de concorrência e timeout, e lista as que não respondem 2xx/3xx. Não conserta nada sozinho; alguns catálogos (ex.: `oreilly.com`) bloqueiam pedidos automatizados com 403 mesmo com a página existindo — trate isso como ruído conhecido, não prova de link quebrado.
 - **Testes:** `tests/store.mjs` cobre `topics[]` restrito a tópicos da mesma área, limites de `why`/`duration`, a migração v5 → v6 e `toggleResourceRead`. `tests/domain.mjs` cobre `normalizeResourceUrl`, `resourcesForTopic`, `resourceMeta` e o teto de `materialXp` (inclusive o crédito em mais de uma área para um material compartilhado).
 

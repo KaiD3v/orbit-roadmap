@@ -1,31 +1,37 @@
-import { useEffect, useState } from 'react'
-import type { Filter } from './domain/filter'
+import { useEffect, useRef, useState, type ComponentType } from 'react'
 import { decodeProgress } from './domain/share'
 import type { ShareCardData } from './domain/shareCard'
 import { AreaDialog } from './components/AreaDialog'
 import { BackupControls } from './components/BackupControls'
-import { Hero } from './components/Hero'
-import { Journey } from './components/Journey'
-import { Achievements } from './components/Achievements'
-import { Library } from './components/Library'
-import { NextStep } from './components/NextStep'
 import { ShareCard } from './components/ShareCard'
 import { Sidebar } from './components/Sidebar'
 import { Toast } from './components/Toast'
+import { HomePage } from './pages/HomePage'
+import { LibraryPage } from './pages/LibraryPage'
+import type { PageProps } from './pages/types'
+import { href, usePath } from './router'
 import { useProgress, type Notification } from './store/progress'
 import type { Area } from './types/content'
 
+// Página nova: um componente em `pages/` que recebe PageProps e uma linha aqui. Rota desconhecida cai na `/`.
+type Route = { title: string, Page: ComponentType<PageProps> }
+const home: Route = { title: 'Engenharia de Software com IA', Page: HomePage }
+const routes: Record<string, Route> = {
+  '/': home,
+  '/biblioteca': { title: 'Biblioteca de materiais', Page: LibraryPage },
+}
+
 const LINK_HASH_PREFIX = '#p='
-const LIBRARY_HASH = '#biblioteca'
 
 function App() {
+  const path = usePath()
+  const { title, Page } = routes[path] ?? home
   const [selected, setSelected] = useState<Area | null>(null)
   const [highlightTopicId, setHighlightTopicId] = useState<string | null>(null)
-  const [search, setSearch] = useState('')
-  const [filter, setFilter] = useState<Filter>('all')
   const [toast, setToast] = useState<Notification | null>(null)
   const [shareData, setShareData] = useState<ShareCardData | null>(null)
-  const [libraryOpen, setLibraryOpen] = useState(false)
+  const mainRef = useRef<HTMLElement>(null)
+  const firstRender = useRef(true)
 
   // Abre o painel da área; usado tanto pelos cliques normais (mapa, próximo passo) quanto pelo "Rever"
   // da revisão espaçada, que também destaca o tópico revisado dentro do painel.
@@ -39,30 +45,21 @@ function App() {
     setHighlightTopicId(null)
   }
 
-  function closeShare() {
-    setShareData(null)
-  }
-
-  // Biblioteca (B06): visão por hash, sem roteador. Não pode conflitar com `#fase-N` (RoadmapMap) nem
-  // com `#p=` (progresso por link, acima): só reage ao hash exato `#biblioteca`.
   useEffect(() => {
-    function checkHash() {
-      setLibraryOpen(location.hash === LIBRARY_HASH)
+    document.title = `Orbit · ${title}`
+  }, [title])
+
+  // Troca de página: âncora (`#fase-2`) rola até ela; rota nova volta ao topo e leva o foco para o conteúdo.
+  useEffect(() => {
+    if (firstRender.current) {
+      firstRender.current = false
+      return
     }
-    checkHash()
-    window.addEventListener('hashchange', checkHash)
-    return () => window.removeEventListener('hashchange', checkHash)
-  }, [])
-
-  function closeLibrary() {
-    if (location.hash === LIBRARY_HASH) history.replaceState(null, '', location.pathname + location.search)
-    setLibraryOpen(false)
-  }
-
-  function openAreaFromLibrary(area: Area) {
-    closeLibrary()
-    openArea(area)
-  }
+    const anchor = location.hash.startsWith('#/') ? null : document.getElementById(location.hash.slice(1))
+    if (anchor) anchor.scrollIntoView()
+    else window.scrollTo(0, 0)
+    mainRef.current?.focus({ preventScroll: true })
+  }, [path])
 
   // Progresso por link (F02): se o endereço trouxer `#p=…`, junta com o progresso local uma única vez.
   useEffect(() => {
@@ -85,31 +82,16 @@ function App() {
     })
   }, [])
 
-  function resetView() {
-    setFilter('all')
-    setSearch('')
-  }
-
   return (
     <>
       <div className="app-shell">
-        <Sidebar resetView={resetView} openShare={setShareData} />
-        <main id="inicio">
+        <Sidebar path={path} openShare={setShareData} />
+        <main id="inicio" ref={mainRef} tabIndex={-1}>
           <header className="topbar">
-            <div className="breadcrumb">Roadmap <span>/</span> Engenharia de Software com IA</div>
+            <div className="breadcrumb"><a href={href('/')}>Roadmap</a> <span>/</span> {title}</div>
             <BackupControls notify={setToast} />
           </header>
-          <Hero />
-          <NextStep notify={setToast} open={openArea} />
-          <Journey
-            search={search}
-            onSearch={setSearch}
-            filter={filter}
-            onFilter={setFilter}
-            open={openArea}
-            openShare={setShareData}
-          />
-          <Achievements openShare={setShareData} />
+          <Page notify={setToast} openArea={openArea} openShare={setShareData} />
           <footer>Feito para aprender construindo. Seu progresso é salvo neste navegador. <span>Orbit</span></footer>
         </main>
       </div>
@@ -120,9 +102,8 @@ function App() {
         highlightTopicId={highlightTopicId}
         openShare={setShareData}
       />
-      <Library open={libraryOpen} close={closeLibrary} openArea={openAreaFromLibrary} />
       <Toast message={toast} onHide={setToast} onShare={setShareData} />
-      <ShareCard data={shareData} close={closeShare} notify={setToast} />
+      <ShareCard data={shareData} close={() => setShareData(null)} notify={setToast} />
     </>
   )
 }

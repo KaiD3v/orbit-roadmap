@@ -554,6 +554,7 @@ assert.equal(
 assert.equal(resourceMeta({ type: 'Material', free: false }), 'Material · pago')
 assert.equal(resourceMeta({ type: 'Livro' }), 'Livro')
 
+
 // materialXp: +5 por material lido, com teto de 4 por área (não farma marcando o mesmo material várias vezes).
 // Área 46 (Docker) tem 5 materiais; 3 deles (multi-stage, get-started, get-started/resources) só existem
 // ali — abaixo do teto, XP soma normal. Um material citado em outra área (ex.: um livro repetido) conta o
@@ -570,9 +571,17 @@ assert.equal(materialXp({}), 0)
 // entra em `metrics`, sem afetar o nível (que só olha essenciais)
 assert.equal(metrics({}, [], {}, belowCapRead).xp, 3 * MATERIAL_XP)
 
+// Roteamento por hash: só `#/…` é rota; âncoras e o link de progresso ficam na página inicial
+const { pathFromHash } = await server.ssrLoadModule('/src/router.ts')
+assert.equal(pathFromHash('#/biblioteca'), '/biblioteca')
+assert.equal(pathFromHash(''), '/')
+assert.equal(pathFromHash('#fase-2'), '/')
+assert.equal(pathFromHash('#inicio'), '/')
+assert.equal(pathFromHash('#p=1~a~b~c'), '/')
+
 await server.close()
 console.log(
   'domain: percent, localDay, streak, matchesArea, toggleFeedback, nextTopic, phaseState, areaState, nextGoals, '
   + 'link de progresso (F02), revisão espaçada (F03), meta semanal (B02), notas por tópico (B03), '
-  + 'cards compartilháveis (B05) e materiais/XP de leitura (B06) OK',
+  + 'cards compartilháveis (B05), materiais/XP de leitura (B06) e rotas OK',
 )

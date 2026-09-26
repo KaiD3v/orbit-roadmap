@@ -1,10 +1,11 @@
-import { useEffect, useRef, useState } from 'react'
+import { useState } from 'react'
+import { ResourceCard } from '../components/ResourceCard'
 import { areasByPhase, phases } from '../data/roadmap'
 import { normalizeQuery, queryMatcher } from '../domain/filter'
 import { normalizeResourceUrl } from '../domain/resources'
 import { useProgress } from '../store/progress'
-import { ResourceCard } from './ResourceCard'
-import type { Area, Resource, ResourceLevel, ResourceType } from '../types/content'
+import type { Resource, ResourceLevel, ResourceType } from '../types/content'
+import type { PageProps } from './types'
 
 type TypeFilter = ResourceType | 'all'
 type LevelFilter = ResourceLevel | 'all'
@@ -14,12 +15,8 @@ type TriFilter = 'all' | 'yes' | 'no'
 const RESOURCE_TYPES: ResourceType[] = ['Material', 'Curso', 'Vídeo', 'Livro']
 
 // B06: Biblioteca — todos os materiais do roadmap, agrupados por fase e área, com busca e filtros.
-// Aberta por `#biblioteca` (App.tsx cuida do hash); fechar sempre limpa o hash.
-export function Library({ open, close, openArea }: {
-  open: boolean
-  close: () => void
-  openArea: (area: Area) => void
-}) {
+// Rota `#/biblioteca`.
+export function LibraryPage({ openArea }: PageProps) {
   const resourcesRead = useProgress(state => state.resourcesRead)
   const toggleResourceRead = useProgress(state => state.toggleResourceRead)
   const [search, setSearch] = useState('')
@@ -28,13 +25,6 @@ export function Library({ open, close, openArea }: {
   const [lang, setLang] = useState<LangFilter>('all')
   const [free, setFree] = useState<TriFilter>('all')
   const [read, setRead] = useState<TriFilter>('all')
-  const ref = useRef<HTMLDialogElement>(null)
-
-  useEffect(() => {
-    const dialog = ref.current
-    if (open && dialog && !dialog.open) dialog.showModal()
-    if (!open && dialog?.open) dialog.close()
-  }, [open])
 
   const matcher = queryMatcher(normalizeQuery(search))
   const filtering = matcher !== null || type !== 'all' || level !== 'all' || lang !== 'all' || free !== 'all' || read !== 'all'
@@ -64,16 +54,9 @@ export function Library({ open, close, openArea }: {
   )
 
   return (
-    <dialog
-      id="library-dialog"
-      ref={ref}
-      aria-labelledby="library-title"
-      onClose={close}
-      onClick={(event) => { if (event.target === event.currentTarget) close() }}
-    >
+    <section className="library-page" aria-labelledby="library-title">
       <div className="library-top">
-        <button className="detail-close" type="button" aria-label="Fechar biblioteca" onClick={close}>×</button>
-        <h2 id="library-title">Biblioteca de materiais</h2>
+        <h1 id="library-title">Biblioteca de materiais</h1>
         <p>Todo material do roadmap, num só lugar. Filtre pelo que importa agora e volte depois pelo resto.</p>
         <div className="toolbar">
           <label className="search-field">
@@ -159,6 +142,6 @@ export function Library({ open, close, openArea }: {
           </section>
         ))}
       </div>
-    </dialog>
+    </section>
   )
 }
