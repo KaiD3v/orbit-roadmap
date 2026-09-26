@@ -40,21 +40,24 @@ src/
                            validTopicKeys, legacyTopicKeys, areasWithChallenge)
   types/
     content.ts             Area, Topic, Resource, Challenge, ResourceType, PhaseNumber
-    progress.ts            Done, Challenges, ProgressData, ProgressBackup
+    progress.ts            Done, Challenges, DoneAt, Reviews, ReviewStep, ProgressData, ProgressBackup
   domain/                  REGRAS PURAS: sem React, sem DOM, sem localStorage
     progress.ts            XP, níveis, conquistas, metas, próximo passo, estados de fase/área, feedback
     filter.ts              busca e filtros do mapa
     backup.ts              validação, limpeza e migração de progresso (arquivo, localStorage, legado)
     share.ts               progresso por link: codifica/decodifica o hash e junta com o progresso local
+    review.ts              revisão espaçada: Leitner de 3 degraus (pickReview, answerReview, timeAgo)
   store/
-    progress.ts            Zustand + persist (localStorage) e hooks (useMetrics, useToggleTopic, useToggleChallenge)
+    progress.ts            Zustand + persist (localStorage) e hooks (useMetrics, useToggleTopic, useToggleChallenge);
+                           a ação `answerReview` é lida direto via `useProgress(state => state.answerReview)`
   components/              só exibição: leem o store e chamam o domínio
-    NextStep.tsx           card "Seu próximo passo" (o elemento principal da tela)
+    NextStep.tsx           card "Seu próximo passo" (o elemento principal da tela), com o bloco de revisão espaçada
     Hero.tsx               boas-vindas, só na primeira visita (depois vira um <h1> sr-only)
     Journey.tsx            seção do mapa: título, MapToolbar, RoadmapMap, lista vazia
     MapToolbar.tsx         busca, filtros e contagem de resultados
     RoadmapMap.tsx         fases (acordeão) e trilha em zigue-zague com caminho SVG
-    AreaDialog.tsx         painel lateral da área: passos, desafio, extras, materiais
+    AreaDialog.tsx         painel lateral da área: passos, desafio, extras, materiais; rola e destaca um tópico
+                           quando aberto pelo "Rever" da revisão espaçada
     Sidebar.tsx            navegação por fase (vira menu hambúrguer ≤820px) e nível
     Achievements.tsx, BackupControls.tsx, Toast.tsx, SectionHeading.tsx
   styles/                  CSS puro: base (tokens, fundo), dashboard, map, dialog; index.css importa todos
@@ -84,22 +87,28 @@ Não há Context, roteador, barrels (`index.ts`) nem biblioteca de UI. Não adic
 
 ## Regras de negócio
 
-### Progresso salvo (esquema v3)
+### Progresso salvo (esquema v4)
 
 ```ts
 ProgressData = {
-  done: Record<topicId, true>,          // tópicos concluídos
-  days: string[],                       // dias com estudo, 'YYYY-MM-DD' no fuso local
-  challenges: Record<areaId, string>,   // desafios concluídos → dia da conclusão
+  done: Record<topicId, true>,               // tópicos concluídos
+  days: string[],                            // dias com estudo, 'YYYY-MM-DD' no fuso local
+  challenges: Record<areaId, string>,        // desafios concluídos → dia da conclusão
+  doneAt: Record<topicId, string>,           // dia em que cada tópico concluído foi marcado
+  reviews: Record<topicId, {                 // última revisão espaçada de cada tópico
+    at: string, step: 0 | 1 | 2 | 3          // 3 = já revisto três vezes (graduado, fora do ciclo)
+  }>,
 }
 ```
 
-- Chave do `localStorage`: **`orbit-roadmap-react-v1`**, com `version: 3` no `persist` do Zustand. Não mude o nome da chave.
+- Chave do `localStorage`: **`orbit-roadmap-react-v1`**, com `version: 4` no `persist` do Zustand. Não mude o nome da chave.
 - Migração: tudo passa por `cleanProgress`, que descarta IDs inexistentes, datas inválidas e desafios de áreas sem desafio, e preenche campos ausentes com `{}` ou `[]`.
   - O v1 salvava os tópicos como `'{idDaÁrea}:{índice}'`; eles são convertidos para os IDs estáveis via `legacyTopicKeys`.
   - Progressos v2 não têm `challenges` e ganham `{}`.
+  - Progressos anteriores ao v4 não têm `doneAt`/`reviews`: cada tópico já concluído ganha `doneAt` = **dia da migração** (nunca a data real de conclusão, perdida), e `reviews` começa `{}`. Por isso ninguém recebe uma revisão no dia em que atualiza o app; elas só aparecem semanas depois. `cleanProgress` aceita um `today` opcional (default `localDay()`) para isso ser testável.
+  - Uma entrada de `reviews` só é aceita se o tópico correspondente estiver em `done`; senão é descartada (revisão de tópico não concluído não existe).
 - Na primeira execução, o progresso da versão HTML antiga é lido da chave `orbit-roadmap-v1`, se existir na mesma origem.
-- Backup: exporta `{ version: 3, ...ProgressData }` como `orbit-progresso.json`; importa versões **1, 2 e 3** e **substitui** o progresso atual (com confirmação).
+- Backup: exporta `{ version: 4, ...ProgressData }` como `orbit-progresso.json`; importa versões **1, 2, 3 e 4** e **substitui** o progresso atual (com confirmação).
 - **Toda mudança de formato:** sobe a versão (persist e backup), aceita as versões antigas e ganha teste de migração. Perder progresso de quem já usa é o pior bug possível aqui.
 
 ### Progresso por link (`domain/share.ts`)
@@ -115,6 +124,22 @@ Leva o progresso para outro aparelho sem arquivo: um link com tudo depois do `#`
 - **Gerar:** botão "Copiar link de progresso" (`BackupControls`). Com `navigator.share`, abre o compartilhamento nativo; senão, `navigator.clipboard.writeText` com toast; se o clipboard falhar, um `window.prompt` com o link para copiar à mão.
 - **Abrir:** ao montar o `App`, se `location.hash` começa com `#p=`, decodifica e **junta** com o progresso local (`mergeProgress`, união de `done`/`days`/`challenges` — nunca apaga nada, diferente de `importBackup`, que substitui e por isso pede confirmação). Toast "Progresso do link adicionado: +N tópicos" (ou "Este aparelho já tinha tudo desse link" se N = 0); em erro, "Esse link de progresso está incompleto ou é de outra versão" e o progresso local não é tocado. Nos dois casos o hash é limpo com `history.replaceState`, sem conflitar com as âncoras `#fase-N` do mapa.
 - **Testes em `tests/domain.mjs`:** ida e volta com progresso completo (o teste imprime o tamanho real do link), área/tópico inexistente e prefixo de versão inválido. `tests/store.mjs` cobre a ação `mergeProgress` do store.
+- **`doneAt`/`reviews` (F03) não viajam no link**, para ele continuar curto. Em `combineProgress`, um tópico que já existia no aparelho que recebe mantém seu `doneAt`; um tópico novo (que veio do link) ganha `doneAt` = hoje. `reviews` são só combinadas (união), já que o link nunca carrega revisões.
+
+### Revisão espaçada (`domain/review.ts`)
+
+Leitner de 3 degraus (sem lib de repetição espaçada: é resposta binária, algumas linhas de função pura resolvem; um FSRS pediria guardar um card inteiro — estabilidade, dificuldade, due, reps — por tópico, sem ganho aqui). De vez em quando, o card "Seu próximo passo" traz de volta um essencial concluído há semanas, para consolidar a memória em vez de deixar esquecer.
+
+- `REVIEW_INTERVALS = [14, 30, 90]` (dias, um por degrau). `pickReview(data, today)` devolve o tópico elegível mais atrasado, ou `null`.
+- **Elegível:** essencial concluído (`done[id]`) cuja última referência (`reviews[id].at` ou, se não houver, `doneAt[id]`) já passou de `REVIEW_INTERVALS[step]` dias. Extras nunca entram.
+- **Degrau (`step`):** `0` (ainda não revisto) → `1` (revisto uma vez) → `2` (revisto duas vezes, intervalo de 90 dias) → `3`, interno, "graduado": depois de uma revisão lembrada no degrau 2, o tópico sai do ciclo de revisão para sempre (o plano original descrevia só `0 | 1 | 2`; o quarto valor foi a forma mais simples de representar "já passou por uma revisão de 90 dias" sem um campo à parte — decisão registrada aqui por não estar no plano).
+- **No máximo uma revisão por dia:** se qualquer `reviews[*].at === today`, `pickReview` devolve `null` mesmo havendo outro tópico elegível.
+- **Desempate determinístico:** o mais atrasado (mais dias desde a referência); empatado, o de menor id de área e depois de tópico (não a ordem lexicográfica da string, que erraria "a10" antes de "a2").
+- **`answerReview(data, topicId, remembered, today)`:** "Lembro" avança o degrau (até o graduado); "Rever" volta ao degrau 0 — nunca desmarca o tópico, rever não é punição.
+- **`timeAgo(dias)`:** "há 2 semanas", "há 1 mês", "há 3 meses" etc., usado no texto do card.
+- **`toggleTopic`** grava `doneAt` ao marcar um tópico e remove `doneAt`/`reviews` ao desmarcar.
+- **Interface:** bloco secundário dentro do card "Seu próximo passo" (aparece também com a trilha completa), com um ponto com cauda em CSS (não o glifo ☄) e os botões "Lembro"/"Rever". "Rever" registra a resposta e abre o painel da área com o tópico rolado à vista e destacado por 2s (`AreaDialog`, via `id="topic-{id}"` nos rótulos e `highlightTopicId`).
+- **Testes em `tests/domain.mjs`:** elegibilidade em cada degrau, limite de uma revisão por dia, desempate, as duas respostas de `answerReview`, `timeAgo` e a migração que preenche `doneAt`. `tests/store.mjs` cobre `toggleTopic` e a ação `answerReview` do store, e a migração v3 → v4 via `safeProgress`.
 
 ### XP, níveis e sequência
 
@@ -190,5 +215,4 @@ Leva o progresso para outro aparelho sem arquivo: um link com tudo depois do `#`
 ## Onde está o quê além do código
 
 - [BACKLOG.md](BACKLOG.md): ideias avaliadas (notas por tópico, PWA, cards compartilháveis, recomendação de materiais mais completa, meta semanal) e o que foi descartado, com o motivo.
-- Implementada: **progresso por link** (F02, `domain/share.ts`, ver "Regras de negócio" acima).
-- Planejada e ainda não implementada: **revisão espaçada** (14, 30 e 90 dias). Os detalhes estão em `tasks/features_planner/`, quando a pasta existir.
+- Implementadas: **progresso por link** (F02, `domain/share.ts`) e **revisão espaçada** (F03, `domain/review.ts`), ver "Regras de negócio" acima.
