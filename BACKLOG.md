@@ -4,12 +4,6 @@ Ideias avaliadas e guardadas para depois. Não estão planejadas; entram quando 
 
 ## Vale depois
 
-### Notas por tópico
-Um campo curto para anotar o que aprendeu ou o link que ajudou. Faz do app um caderno de estudo.
-- Salvo no próprio progresso (`notes: Record<topicId, string>`), com limite de tamanho por nota.
-- Entra no backup em arquivo. **Não** entra no link de progresso, que precisa continuar curto.
-- Custo baixo.
-
 ### Instalar como app (PWA)
 Funciona offline e ganha ícone na tela inicial do celular. Combina com o fato de o app guardar tudo no aparelho.
 - `manifest.webmanifest` + service worker simples (cache dos arquivos do build), sem dependência.

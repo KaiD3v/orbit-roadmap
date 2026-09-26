@@ -19,6 +19,7 @@ Para a jornada não virar obrigação, o progresso é visual e recompensado: o m
 - **Card "Seu próximo passo":** mostra o próximo tópico essencial (ou o desafio pendente da área) e permite marcar como feito sem abrir nada.
 - **Mapa por fases:** só a fase atual fica aberta, como uma trilha. As outras mostram uma estrela por área.
 - **Painel da área:** mostra os essenciais como uma sequência de passos, os extras recolhidos, o desafio prático e os materiais de estudo, com um deles em destaque.
+- **Notas por tópico:** anote o que aprendeu ou um link que ajudou, direto no painel da área. A nota reaparece no bloco de revisão espaçada, para lembrar sem precisar reabrir o painel.
 - **Busca e filtros** por área ou tópico.
 - **Recompensas:** XP, níveis (Explorador, Construtor, Especialista, Arquiteto orbital), conquistas, sequência de dias, meta semanal (5 tópicos ou desafios por semana) e a meta mais próxima ("Falta 1 tópico para…").
 - **Revisão espaçada:** de vez em quando, um tópico essencial concluído há semanas volta no card "Seu próximo passo" para relembrar ("Ainda lembra de…?"), num ciclo de 14/30/90 dias.
@@ -29,6 +30,8 @@ Para a jornada não virar obrigação, o progresso é visual e recompensado: o m
 ## Privacidade
 
 Não há conta, servidor nem rastreamento. O progresso fica **só no seu navegador** (`localStorage`). Para levar o progresso para outro navegador ou aparelho, use **Baixar backup**/**Restaurar backup** ou **Copiar link de progresso**: o link carrega o progresso depois do `#`, uma parte do endereço que o navegador nunca envia a nenhum servidor.
+
+Suas **notas por tópico** ficam só no aparelho e no backup em arquivo: elas nunca entram no link de progresso, que precisa continuar curto e pode ser compartilhado por aí.
 
 ## Instalação
 
