@@ -22,11 +22,12 @@ Para a jornada não virar obrigação, o progresso é visual e recompensado: o m
 - **Busca e filtros** por área ou tópico.
 - **Recompensas:** XP, níveis (Explorador, Construtor, Especialista, Arquiteto orbital), conquistas, sequência de dias e a meta mais próxima ("Falta 1 tópico para…").
 - **Backup:** baixe e restaure o seu progresso em JSON.
+- **Progresso por link:** copie um link com o seu progresso e abra no outro aparelho para juntar (sem apagar o que já estava lá).
 - **Responsivo**, com menu hambúrguer no celular. As animações respeitam a preferência do sistema por menos movimento.
 
 ## Privacidade
 
-Não há conta, servidor nem rastreamento. O progresso fica **só no seu navegador** (`localStorage`). Para levar o progresso para outro navegador ou aparelho, use **Baixar backup** e **Restaurar backup**.
+Não há conta, servidor nem rastreamento. O progresso fica **só no seu navegador** (`localStorage`). Para levar o progresso para outro navegador ou aparelho, use **Baixar backup**/**Restaurar backup** ou **Copiar link de progresso**: o link carrega o progresso depois do `#`, uma parte do endereço que o navegador nunca envia a nenhum servidor.
 
 ## Instalação
 

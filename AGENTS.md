@@ -45,6 +45,7 @@ src/
     progress.ts            XP, níveis, conquistas, metas, próximo passo, estados de fase/área, feedback
     filter.ts              busca e filtros do mapa
     backup.ts              validação, limpeza e migração de progresso (arquivo, localStorage, legado)
+    share.ts               progresso por link: codifica/decodifica o hash e junta com o progresso local
   store/
     progress.ts            Zustand + persist (localStorage) e hooks (useMetrics, useToggleTopic, useToggleChallenge)
   components/              só exibição: leem o store e chamam o domínio
@@ -100,6 +101,20 @@ ProgressData = {
 - Na primeira execução, o progresso da versão HTML antiga é lido da chave `orbit-roadmap-v1`, se existir na mesma origem.
 - Backup: exporta `{ version: 3, ...ProgressData }` como `orbit-progresso.json`; importa versões **1, 2 e 3** e **substitui** o progresso atual (com confirmação).
 - **Toda mudança de formato:** sobe a versão (persist e backup), aceita as versões antigas e ganha teste de migração. Perder progresso de quem já usa é o pior bug possível aqui.
+
+### Progresso por link (`domain/share.ts`)
+
+Leva o progresso para outro aparelho sem arquivo: um link com tudo depois do `#`, parte do endereço que o navegador **nunca envia a um servidor** (privacidade de graça).
+
+- Formato: `#p=1~<áreas>~<dias>~<desafios>`.
+  - `1` é a versão do link. Essa é a primeira versão (a F02 foi implementada depois da F01, então já nasce com o campo de desafios; não existe link antigo sem esse campo para migrar).
+  - `<áreas>`: um segmento por área com algum tópico concluído, `<idDaÁrea>.<bits em base64url>`, separados por `,` (não por `_`: o alfabeto base64url já usa `_`, então `_` não serve de separador). O bit *k* corresponde ao tópico com sufixo `-t{k+1}` (`topicIndex` em `data/roadmap.ts`, a mesma função usada por `legacyTopicKeys` — não duplique esse regex). Área sem tópico concluído não entra no link.
+  - `<dias>`: bitset em base64url dos últimos 60 dias (bit 0 = hoje). Dias mais antigos não viajam no link; aceito, o bastante para preservar a sequência.
+  - `<desafios>`: lista de ids de área com desafio concluído, separados por `,`. A data de conclusão não viaja (não é lida em nenhuma tela); quem importa ganha "hoje" como data.
+- **Decodificação é tolerante:** área ou bit sem tópico correspondente é ignorado; um segmento adulterado (base64 ilegível) é descartado sem derrubar o resto do link. Só a forma geral do link (4 partes separadas por `~`, prefixo de versão reconhecido) lança erro — o resto sempre passa por `cleanProgress`.
+- **Gerar:** botão "Copiar link de progresso" (`BackupControls`). Com `navigator.share`, abre o compartilhamento nativo; senão, `navigator.clipboard.writeText` com toast; se o clipboard falhar, um `window.prompt` com o link para copiar à mão.
+- **Abrir:** ao montar o `App`, se `location.hash` começa com `#p=`, decodifica e **junta** com o progresso local (`mergeProgress`, união de `done`/`days`/`challenges` — nunca apaga nada, diferente de `importBackup`, que substitui e por isso pede confirmação). Toast "Progresso do link adicionado: +N tópicos" (ou "Este aparelho já tinha tudo desse link" se N = 0); em erro, "Esse link de progresso está incompleto ou é de outra versão" e o progresso local não é tocado. Nos dois casos o hash é limpo com `history.replaceState`, sem conflitar com as âncoras `#fase-N` do mapa.
+- **Testes em `tests/domain.mjs`:** ida e volta com progresso completo (o teste imprime o tamanho real do link), área/tópico inexistente e prefixo de versão inválido. `tests/store.mjs` cobre a ação `mergeProgress` do store.
 
 ### XP, níveis e sequência
 
@@ -175,4 +190,5 @@ ProgressData = {
 ## Onde está o quê além do código
 
 - [BACKLOG.md](BACKLOG.md): ideias avaliadas (notas por tópico, PWA, cards compartilháveis, recomendação de materiais mais completa, meta semanal) e o que foi descartado, com o motivo.
-- Planejadas e ainda não implementadas: **progresso por link** (o progresso vai depois do `#` do endereço, sem servidor) e **revisão espaçada** (14, 30 e 90 dias). Os detalhes estão em `tasks/features_planner/`, quando a pasta existir.
+- Implementada: **progresso por link** (F02, `domain/share.ts`, ver "Regras de negócio" acima).
+- Planejada e ainda não implementada: **revisão espaçada** (14, 30 e 90 dias). Os detalhes estão em `tasks/features_planner/`, quando a pasta existir.
