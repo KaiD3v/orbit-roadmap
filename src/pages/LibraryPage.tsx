@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, type CSSProperties } from 'react'
 import { LibrarySky } from '../components/LibrarySky'
 import { ResourceCard } from '../components/ResourceCard'
 import { areasByPhase, phases } from '../data/roadmap'
@@ -121,26 +121,43 @@ export function LibraryPage({ openArea }: PageProps) {
       <div className="library-main">
         {groups.length === 0 && <p className="empty-state">Nenhum material bate com esse filtro.</p>}
         {groups.map(({ phase, areaGroups }) => (
-          <section className="library-phase" key={phase.number}>
+          <section
+            className="library-phase"
+            style={{ '--phase-color': `var(--phase-${phase.number})` } as CSSProperties}
+            key={phase.number}
+          >
             <h3>Fase {phase.number}: {phase.name}</h3>
-            {areaGroups.map(({ area, resources }) => (
-              <div className="library-area" key={area.id}>
-                <div className="library-area-head">
-                  <h4>{area.title}</h4>
-                  <button className="text-button" type="button" onClick={() => openArea(area)}>Abrir área</button>
+            {areaGroups.map(({ area, resources }) => {
+              const readCount = resources.filter(r => resourcesRead[normalizeResourceUrl(r.url)]).length
+              return (
+                <div className="observatory-area" key={area.id}>
+                  <div className="observatory-area-head">
+                    <h4>{area.title}</h4>
+                    <span className="observatory-area-count">{readCount} de {resources.length} lidos</span>
+                    <button className="text-button" type="button" onClick={() => openArea(area)}>Abrir área</button>
+                  </div>
+                  <div className="constellation-scroll">
+                    <div className="constellation" role="list">
+                      {resources.map((resource, index) => (
+                        <div
+                          className={`constellation-item ${resourcesRead[normalizeResourceUrl(resource.url)] ? 'is-read' : ''}`}
+                          role="listitem"
+                          key={resource.url}
+                        >
+                          <ResourceCard
+                            resource={resource}
+                            resourcesRead={resourcesRead}
+                            onToggleRead={toggleResourceRead}
+                            featured={index === 0}
+                            variant="library"
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
                 </div>
-                <div className="resource-list">
-                  {resources.map(resource => (
-                    <ResourceCard
-                      resource={resource}
-                      resourcesRead={resourcesRead}
-                      onToggleRead={toggleResourceRead}
-                      key={resource.url}
-                    />
-                  ))}
-                </div>
-              </div>
-            ))}
+              )
+            })}
           </section>
         ))}
       </div>

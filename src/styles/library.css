@@ -140,30 +140,216 @@
   display: grid;
   gap: 34px;
 }
+/* L03: cada fase é uma seção na cor da fase, com um fio fino à esquerda do título, como no mapa */
+.library-phase {
+  --phase-color: var(--violet);
+  margin-bottom: 40px;
+}
 .library-phase h3 {
-  font-size: 15px;
-  color: var(--cyan);
-  margin: 0 0 16px;
+  position: relative;
+  padding-left: 14px;
+  font: 700 15px "Space Grotesk", sans-serif;
+  color: var(--phase-color);
+  margin: 0 0 22px;
 }
-.library-area + .library-area {
-  margin-top: 20px;
+.library-phase h3::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 1px;
+  bottom: 1px;
+  width: 2px;
+  border-radius: 2px;
+  background: var(--phase-color);
 }
-.library-area-head {
+.observatory-area + .observatory-area {
+  margin-top: 32px;
+}
+.observatory-area-head {
   display: flex;
   align-items: baseline;
-  justify-content: space-between;
-  gap: 10px;
-  margin-bottom: 10px;
+  gap: 12px;
+  margin-bottom: 4px;
 }
-.library-area-head h4 {
+.observatory-area-head h4 {
+  flex: 1;
+  min-width: 0;
   font-size: 14px;
   margin: 0;
 }
-.library-main .resource-list {
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+.observatory-area-count {
+  color: var(--muted);
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+/* Constelação: astros ligados por uma linha, na ordem sugerida (byLevel). Rola na horizontal quando
+   não cabe, em vez de quebrar em várias linhas e perder a leitura da ordem. */
+.constellation-scroll {
+  /* Fade discreto na borda direita, indicando que há mais para rolar */
+  -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 28px), transparent);
+  mask-image: linear-gradient(to right, #000 calc(100% - 28px), transparent);
+}
+.constellation {
+  --card-w: 240px;
+  --gap: 22px;
+  position: relative;
+  display: flex;
+  gap: var(--gap);
+  overflow-x: auto;
+  scroll-snap-type: x proximity;
+  padding: 30px 4px 6px;
+  margin: 0;
+  list-style: none;
+}
+/* Linha da constelação (backbone): liga o centro dos astros, atrás dos cards */
+.constellation::before {
+  content: "";
+  position: absolute;
+  left: calc(var(--card-w) / 2 + 4px);
+  right: calc(var(--card-w) / 2 + 4px);
+  top: 14px;
+  height: 1px;
+  background: color-mix(in srgb, var(--phase-color) 40%, transparent);
+}
+.constellation-item {
+  position: relative;
+  flex: none;
+  width: var(--card-w);
+  scroll-snap-align: start;
+}
+/* Trecho aceso: só entre dois astros lidos consecutivos (sem medir DOM em JS) */
+.constellation-item.is-read + .constellation-item.is-read::before {
+  content: "";
+  position: absolute;
+  top: 14px;
+  left: calc(-1 * var(--gap) - var(--card-w) / 2);
+  width: calc(var(--gap) + var(--card-w));
+  height: 2px;
+  background: var(--cyan);
+  box-shadow: 0 0 6px color-mix(in srgb, var(--cyan) 70%, transparent);
+}
+
+/* Cartão: vidro escuro, sem caixa cinza sólida. O astro fica preso ao topo, saindo pela borda. */
+.observatory-astro {
+  position: absolute;
+  top: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  padding: 3px;
+  border-radius: 50%;
+  background: var(--bg);
+}
+.observatory-card {
+  position: relative;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  margin-top: 20px;
+  padding: 18px 14px 14px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: color-mix(in srgb, #0d1430 55%, transparent);
+  backdrop-filter: blur(6px);
+  transition: border-color 0.15s;
+}
+.observatory-card.is-featured {
+  border-color: color-mix(in srgb, var(--phase-color) 55%, transparent);
+}
+.observatory-card.is-read {
+  border-color: color-mix(in srgb, var(--cyan) 45%, transparent);
+}
+.observatory-card:hover,
+.observatory-card:focus-within {
+  border-color: color-mix(in srgb, var(--phase-color) 75%, transparent);
+}
+.observatory-card:hover .resource-body,
+.observatory-card:focus-within .resource-body {
+  filter: brightness(1.3);
+}
+.observatory-card .resource-tag {
+  margin: 0 0 8px;
+}
+.observatory-card-link {
+  position: relative;
+  z-index: 1;
+  display: block;
+  text-decoration: none;
+  color: inherit;
+}
+/* O card inteiro abre o material (exceto o botão de lido, que fica por cima) */
+.observatory-card-link::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+}
+.observatory-card-title {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  font: 600 15px "Space Grotesk", sans-serif;
+  line-height: 1.32;
+}
+.observatory-card .resource-why {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  margin: 8px 0 0;
+}
+.observatory-card-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: auto;
+  padding-top: 12px;
+}
+.observatory-card-foot small {
+  color: var(--muted);
+  font-size: 10.5px;
+  line-height: 1.35;
+}
+.observatory-read-toggle {
+  position: relative;
+  z-index: 1;
+  flex: none;
+  width: 22px;
+  height: 22px;
+  display: grid;
+  place-items: center;
+  border: 1.5px solid var(--line);
+  border-radius: 50%;
+  background: none;
+}
+.observatory-read-toggle span {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: transparent;
+  transition: background 0.2s;
+}
+.observatory-read-toggle[aria-pressed="true"] {
+  border-color: var(--cyan);
+}
+.observatory-read-toggle[aria-pressed="true"] span {
+  background: var(--cyan);
+  box-shadow: 0 0 6px var(--cyan);
+}
+@media (max-width: 1100px) {
+  .constellation {
+    --card-w: 210px;
+  }
 }
 @media (max-width: 580px) {
-  .library-main .resource-list {
-    grid-template-columns: 1fr;
+  .observatory-area-head {
+    flex-wrap: wrap;
+  }
+  .observatory-card-title {
+    font-size: 14px;
   }
 }
