@@ -44,11 +44,6 @@ Hoje cada área tem 4 materiais fixos (Material, Curso, Vídeo e Livro), com um 
 - **Manutenção:** um script (fora dos testes normais, rodado de vez em quando) que confere se os links ainda respondem, porque curadoria com link quebrado perde a confiança rápido.
 - Custo: o código é médio; a **curadoria do conteúdo é a parte grande**. Vale começar pelos tópicos essenciais da fase 1.
 
-### Meta semanal
-"3 tópicos por semana" no lugar da sequência diária, ou junto com ela. Para quem trabalha, uma meta semanal desanima menos do que perder uma sequência de dias.
-- Os dados já existem (`days`). É uma regra nova em `domain/progress.ts` e uma linha no card de próximo passo.
-- Custo baixo.
-
 ## Pequenos ajustes anotados
 
 - **Busca por palavra inteira:** hoje "RAG" também encontra "sto*rag*e" e abre a fase 5. Avaliar busca por início de palavra.
