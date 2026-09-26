@@ -55,10 +55,35 @@ export const areas: Area[] = [
       { id: 'a1-t46', title: 'testes por camada', required: true },
     ],
     resources: [
-      { type: 'Material', title: 'Documentação e referência', url: 'https://martinfowler.com/architecture/' },
-      { type: 'Curso', title: 'Software Engineering at Google', url: 'https://abseil.io/resources/swe-book' },
-      { type: 'Vídeo', title: 'Full Stack Deep Learning · engenharia de produto', url: 'https://fullstackdeeplearning.com/course/2022/lecture-8-teams-and-pm/' },
-      { type: 'Livro', title: 'Software Engineering at Google', url: 'https://abseil.io/resources/swe-book' },
+      {
+        type: 'Material', title: 'Documentação e referência', url: 'https://martinfowler.com/architecture/',
+        level: 'intermediario', lang: 'en', free: true,
+        why: 'Artigos de referência sobre estilos de arquitetura e os trade-offs de cada um.',
+        topics: ['a1-t01', 'a1-t10', 'a1-t27', 'a1-t40'],
+      },
+      {
+        type: 'Curso', title: 'Software Engineering at Google', url: 'https://abseil.io/resources/swe-book',
+        level: 'avancado', lang: 'en', free: true,
+        why: 'Livro gratuito do Google sobre práticas de engenharia em escala: testes, revisão e decisões de arquitetura.',
+        topics: ['a1-t44', 'a1-t46'],
+      },
+      {
+        type: 'Vídeo', title: 'Full Stack Deep Learning · engenharia de produto', url: 'https://fullstackdeeplearning.com/course/2022/lecture-8-teams-and-pm/',
+        level: 'iniciante', lang: 'en', free: true,
+        why: 'Aula sobre como times de produto e IA se organizam; contexto útil, não é sobre arquitetura em si.',
+      },
+      {
+        type: 'Livro', title: 'Software Engineering at Google', url: 'https://abseil.io/resources/swe-book',
+        level: 'avancado', lang: 'en', free: true,
+        why: 'A versão em livro do mesmo conteúdo do Google, para ler em capítulos.',
+        topics: ['a1-t46'],
+      },
+      {
+        type: 'Material', title: 'Idempotency keys na prática', url: 'https://docs.stripe.com/api/idempotent_requests',
+        level: 'intermediario', lang: 'en', free: true,
+        why: 'Como uma chave de idempotência evita duplicar uma operação ao repetir uma requisição.',
+        topics: ['a1-t24', 'a1-t25'],
+      },
     ],
     challenge: {
       title: 'Refatore um CRUD simples em módulos com fronteiras claras e um diagrama de arquitetura',
@@ -108,10 +133,30 @@ export const areas: Area[] = [
       { id: 'a2-t28', title: 'graph traversal', required: false },
     ],
     resources: [
-      { type: 'Material', title: 'Documentação e referência', url: 'https://ocw.mit.edu/courses/6-006-introduction-to-algorithms-spring-2020/' },
-      { type: 'Curso', title: 'MIT 6.006 · algoritmos', url: 'https://ocw.mit.edu/courses/6-006-introduction-to-algorithms-spring-2020/' },
-      { type: 'Vídeo', title: 'MIT 6.006 · videoaulas', url: 'https://ocw.mit.edu/courses/6-006-introduction-to-algorithms-spring-2020/resources/lecture-videos/' },
-      { type: 'Livro', title: 'Open Data Structures', url: 'https://opendatastructures.org/' },
+      {
+        type: 'Material', title: 'Documentação e referência', url: 'https://ocw.mit.edu/courses/6-006-introduction-to-algorithms-spring-2020/',
+        level: 'intermediario', lang: 'en', free: true,
+        why: 'Ementário, notas de aula e exercícios do curso de estruturas de dados e algoritmos do MIT.',
+        topics: ['a2-t01', 'a2-t02'],
+      },
+      {
+        type: 'Curso', title: 'MIT 6.006 · algoritmos', url: 'https://ocw.mit.edu/courses/6-006-introduction-to-algorithms-spring-2020/',
+        level: 'intermediario', lang: 'en', free: true,
+        why: 'O curso completo do MIT, com as estruturas de dados usadas no dia a dia de um backend.',
+        topics: ['a2-t07', 'a2-t09'],
+      },
+      {
+        type: 'Vídeo', title: 'MIT 6.006 · videoaulas', url: 'https://ocw.mit.edu/courses/6-006-introduction-to-algorithms-spring-2020/resources/lecture-videos/',
+        level: 'intermediario', lang: 'en', free: true,
+        why: 'Videoaulas gravadas em sala, cobrindo busca em grafos (BFS/DFS) e busca em geral.',
+        topics: ['a2-t11', 'a2-t18'],
+      },
+      {
+        type: 'Livro', title: 'Open Data Structures', url: 'https://opendatastructures.org/',
+        level: 'intermediario', lang: 'en', free: true,
+        why: 'Livro-texto gratuito e enxuto, com implementações de estruturas de dados em pseudocódigo.',
+        topics: ['a2-t01', 'a2-t17'],
+      },
     ],
     challenge: {
       title: 'Construa um rate limiter e um autocomplete usando as estruturas certas',
@@ -158,10 +203,36 @@ export const areas: Area[] = [
       { id: 'a3-t25', title: 'awk', required: false },
     ],
     resources: [
-      { type: 'Material', title: 'Documentação e referência', url: 'https://pages.cs.wisc.edu/~remzi/OSTEP/' },
-      { type: 'Curso', title: 'IIT Bombay · sistemas operacionais', url: 'https://www.cse.iitb.ac.in/~mythili/os/' },
-      { type: 'Vídeo', title: 'IIT Bombay · aulas de sistemas operacionais', url: 'https://www.cse.iitb.ac.in/~mythili/os/' },
-      { type: 'Livro', title: 'Operating Systems: Three Easy Pieces', url: 'https://pages.cs.wisc.edu/~remzi/OSTEP/' },
+      {
+        type: 'Material', title: 'Documentação e referência', url: 'https://pages.cs.wisc.edu/~remzi/OSTEP/',
+        level: 'intermediario', lang: 'en', free: true,
+        why: 'Livro gratuito e completo sobre SOs: processos, memória virtual e concorrência do zero.',
+        topics: ['a3-t01', 'a3-t04'],
+      },
+      {
+        type: 'Curso', title: 'IIT Bombay · sistemas operacionais', url: 'https://www.cse.iitb.ac.in/~mythili/os/',
+        level: 'avancado', lang: 'en', free: true,
+        why: 'Curso universitário completo, com foco em concorrência, threads e sincronização.',
+        topics: ['a3-t02', 'a3-t11'],
+      },
+      {
+        type: 'Vídeo', title: 'IIT Bombay · aulas de sistemas operacionais', url: 'https://www.cse.iitb.ac.in/~mythili/os/',
+        level: 'avancado', lang: 'en', free: true,
+        why: 'Aulas gravadas do mesmo curso, incluindo race conditions e como evitá-las.',
+        topics: ['a3-t13'],
+      },
+      {
+        type: 'Livro', title: 'Operating Systems: Three Easy Pieces', url: 'https://pages.cs.wisc.edu/~remzi/OSTEP/',
+        level: 'intermediario', lang: 'en', free: true,
+        why: 'O mesmo livro, para consultar por capítulo: sockets, I/O e o resto do sistema operacional.',
+        topics: ['a3-t07'],
+      },
+      {
+        type: 'Livro', title: 'The Linux Command Line', url: 'https://linuxcommand.org/tlcl.php',
+        level: 'iniciante', lang: 'en', free: true, duration: '596 páginas',
+        why: 'Livro gratuito e prático sobre o terminal Linux: processos com ps, redirecionamento e scripts.',
+        topics: ['a3-t16'],
+      },
     ],
     challenge: {
       title: 'Diagnostique um processo lento usando as ferramentas de terminal',
@@ -198,10 +269,36 @@ export const areas: Area[] = [
       { id: 'a4-t15', title: 'firewalls', required: true },
     ],
     resources: [
-      { type: 'Material', title: 'Documentação e referência', url: 'https://developer.mozilla.org/en-US/docs/Web/HTTP/Overview' },
-      { type: 'Curso', title: 'Stanford CS144 · redes de computadores', url: 'https://cs144.github.io/' },
-      { type: 'Vídeo', title: 'Stanford CS144 · aulas de redes', url: 'https://cs144.github.io/' },
-      { type: 'Livro', title: 'Computer Networking: A Top-Down Approach', url: 'https://gaia.cs.umass.edu/kurose_ross/' },
+      {
+        type: 'Material', title: 'Documentação e referência', url: 'https://developer.mozilla.org/en-US/docs/Web/HTTP/Overview',
+        level: 'iniciante', lang: 'en', free: true,
+        why: 'Referência oficial de HTTP, incluindo Server-Sent Events e o modelo de requisição/resposta.',
+        topics: ['a4-t04', 'a4-t09'],
+      },
+      {
+        type: 'Curso', title: 'Stanford CS144 · redes de computadores', url: 'https://cs144.github.io/',
+        level: 'avancado', lang: 'en', free: true,
+        why: 'Curso de Stanford sobre redes: TCP/IP e TLS explicados com laboratórios práticos.',
+        topics: ['a4-t01', 'a4-t07'],
+      },
+      {
+        type: 'Vídeo', title: 'Stanford CS144 · aulas de redes', url: 'https://cs144.github.io/',
+        level: 'avancado', lang: 'en', free: true,
+        why: 'Aulas gravadas do mesmo curso, cobrindo DNS e a pilha de protocolos.',
+        topics: ['a4-t03'],
+      },
+      {
+        type: 'Livro', title: 'Computer Networking: A Top-Down Approach', url: 'https://gaia.cs.umass.edu/kurose_ross/',
+        level: 'intermediario', lang: 'en', free: true,
+        why: 'Livro-texto clássico de redes, do enlace físico até a camada de aplicação.',
+        topics: ['a4-t01', 'a4-t04'],
+      },
+      {
+        type: 'Material', title: 'nginx como reverse proxy', url: 'https://nginx.org/en/docs/http/ngx_http_proxy_module.html',
+        level: 'intermediario', lang: 'en', free: true,
+        why: 'Documentação oficial do nginx para configurar reverse proxy e balanceamento de carga na prática.',
+        topics: ['a4-t11', 'a4-t12'],
+      },
     ],
     challenge: {
       title: 'Suba um servidor HTTP atrás de um reverse proxy e capture o tráfego',
@@ -252,10 +349,35 @@ export const areas: Area[] = [
       { id: 'a5-t29', title: 'job recovery', required: false },
     ],
     resources: [
-      { type: 'Material', title: 'Documentação e referência', url: 'https://nodejs.org/en/learn' },
-      { type: 'Curso', title: 'Node.js · trilha de aprendizado', url: 'https://nodejs.org/en/learn' },
-      { type: 'Vídeo', title: 'Full Stack Deep Learning · infraestrutura', url: 'https://fullstackdeeplearning.com/course/2022/' },
-      { type: 'Livro', title: 'Designing Data-Intensive Applications', url: 'https://dataintensive.net/' },
+      {
+        type: 'Material', title: 'Documentação e referência', url: 'https://nodejs.org/en/learn',
+        level: 'intermediario', lang: 'en', free: true,
+        why: 'Trilha oficial do Node.js: async/await, promises e o funcionamento do event loop.',
+        topics: ['a5-t11', 'a5-t14'],
+      },
+      {
+        type: 'Curso', title: 'Node.js · trilha de aprendizado', url: 'https://nodejs.org/en/learn',
+        level: 'intermediario', lang: 'en', free: true,
+        why: 'A mesma trilha, com módulos sobre streams — a base de streaming e backpressure no Node.',
+        topics: ['a5-t17'],
+      },
+      {
+        type: 'Vídeo', title: 'Full Stack Deep Learning · infraestrutura', url: 'https://fullstackdeeplearning.com/course/2022/',
+        level: 'intermediario', lang: 'en', free: true,
+        why: 'Aula sobre infraestrutura de produtos de IA; contexto de sistema, não é sobre backend tradicional.',
+      },
+      {
+        type: 'Livro', title: 'Designing Data-Intensive Applications', url: 'https://dataintensive.net/',
+        level: 'avancado', lang: 'en', free: false,
+        why: 'Cobre streaming, backpressure e troca de mensagens entre serviços com profundidade.',
+        topics: ['a5-t16', 'a5-t17'],
+      },
+      {
+        type: 'Material', title: 'BullMQ · documentação', url: 'https://docs.bullmq.io/',
+        level: 'intermediario', lang: 'en', free: true,
+        why: 'Documentação oficial da fila usada no desafio: retries, backoff e jobs que falharam.',
+        topics: ['a5-t19', 'a5-t22', 'a5-t23', 'a5-t24'],
+      },
     ],
     challenge: {
       title: 'Construa uma fila de jobs com retry, backoff e dead-letter queue',
@@ -295,10 +417,36 @@ export const areas: Area[] = [
       { id: 'a6-t18', title: 'schemas multi-tenant', required: false },
     ],
     resources: [
-      { type: 'Material', title: 'Documentação e referência', url: 'https://www.postgresql.org/docs/current/' },
-      { type: 'Curso', title: 'CMU 15-445 · sistemas de banco de dados', url: 'https://15445.courses.cs.cmu.edu/spring2026/' },
-      { type: 'Vídeo', title: 'CMU 15-445 · aulas de banco de dados', url: 'https://15445.courses.cs.cmu.edu/spring2026/schedule.html' },
-      { type: 'Livro', title: 'Designing Data-Intensive Applications', url: 'https://dataintensive.net/' },
+      {
+        type: 'Material', title: 'Documentação e referência', url: 'https://www.postgresql.org/docs/current/',
+        level: 'intermediario', lang: 'en', free: true,
+        why: 'Documentação oficial do Postgres, com capítulos dedicados a EXPLAIN e ao planejador de consultas.',
+        topics: ['a6-t01', 'a6-t08', 'a6-t09'],
+      },
+      {
+        type: 'Curso', title: 'CMU 15-445 · sistemas de banco de dados', url: 'https://15445.courses.cs.cmu.edu/spring2026/',
+        level: 'avancado', lang: 'en', free: true,
+        why: 'Curso universitário completo sobre bancos de dados: transações, isolamento e locks a fundo.',
+        topics: ['a6-t10', 'a6-t11', 'a6-t12'],
+      },
+      {
+        type: 'Vídeo', title: 'CMU 15-445 · aulas de banco de dados', url: 'https://15445.courses.cs.cmu.edu/spring2026/schedule.html',
+        level: 'avancado', lang: 'en', free: true,
+        why: 'Aulas gravadas do mesmo curso, incluindo como o planejador decide o plano de execução.',
+        topics: ['a6-t07'],
+      },
+      {
+        type: 'Livro', title: 'Designing Data-Intensive Applications', url: 'https://dataintensive.net/',
+        level: 'avancado', lang: 'en', free: false,
+        why: 'Explica normalização, modelagem relacional e os trade-offs de cada abordagem.',
+        topics: ['a6-t15', 'a6-t17'],
+      },
+      {
+        type: 'Material', title: 'Use the Index, Luke', url: 'https://use-the-index-luke.com/',
+        level: 'intermediario', lang: 'en', free: true,
+        why: 'Site gratuito focado só em índices e planos de execução, com exemplos para vários bancos.',
+        topics: ['a6-t02', 'a6-t07', 'a6-t08', 'a6-t09'],
+      },
     ],
     challenge: {
       title: 'Otimize uma consulta lenta com EXPLAIN ANALYZE e prove o ganho com índice',
@@ -328,10 +476,35 @@ export const areas: Area[] = [
       { id: 'a7-t08', title: 'OpenSearch', required: false },
     ],
     resources: [
-      { type: 'Material', title: 'Documentação e referência', url: 'https://redis.io/docs/latest/' },
-      { type: 'Curso', title: 'Redis University · cursos de NoSQL', url: 'https://university.redis.io/' },
-      { type: 'Vídeo', title: 'Redis · vídeos para desenvolvedores', url: 'https://redis.io/dev/' },
-      { type: 'Livro', title: 'Designing Data-Intensive Applications', url: 'https://dataintensive.net/' },
+      {
+        type: 'Material', title: 'Documentação e referência', url: 'https://redis.io/docs/latest/',
+        level: 'iniciante', lang: 'en', free: true,
+        why: 'Documentação oficial do Redis: estruturas de dados, cache e filas simples com listas.',
+        topics: ['a7-t01', 'a7-t02'],
+      },
+      {
+        type: 'Curso', title: 'Redis University · cursos de NoSQL', url: 'https://university.redis.io/',
+        level: 'intermediario', lang: 'en', free: true,
+        why: 'Cursos gratuitos oficiais do Redis, do básico ao uso avançado como fila e pub/sub.',
+        topics: ['a7-t01'],
+      },
+      {
+        type: 'Vídeo', title: 'Redis · vídeos para desenvolvedores', url: 'https://redis.io/dev/',
+        level: 'iniciante', lang: 'en', free: true,
+        why: 'Vídeos oficiais para desenvolvedores, com exemplos práticos de uso do Redis.',
+      },
+      {
+        type: 'Livro', title: 'Designing Data-Intensive Applications', url: 'https://dataintensive.net/',
+        level: 'avancado', lang: 'en', free: false,
+        why: 'Explica quando cache, fila e pub/sub resolvem (e quando não resolvem) um problema de dados.',
+        topics: ['a7-t01'],
+      },
+      {
+        type: 'Material', title: 'Redis · rate limiting na prática', url: 'https://redis.io/learn/howtos/ratelimiting',
+        level: 'avancado', lang: 'en', free: true,
+        why: 'Tutorial oficial do Redis com vários algoritmos de rate limiting implementados e comparados.',
+        topics: ['a7-t06'],
+      },
     ],
     challenge: {
       title: 'Use Redis como cache e como pub/sub na mesma aplicação',
@@ -367,10 +540,36 @@ export const areas: Area[] = [
       { id: 'a8-t14', title: 'idempotência', required: true },
     ],
     resources: [
-      { type: 'Material', title: 'Documentação e referência', url: 'https://aws.amazon.com/builders-library/' },
-      { type: 'Curso', title: 'MIT 6.5840 · sistemas distribuídos', url: 'https://pdos.csail.mit.edu/6.824/' },
-      { type: 'Vídeo', title: 'MIT 6.5840 · aulas e laboratórios', url: 'https://pdos.csail.mit.edu/6.824/schedule.html' },
-      { type: 'Livro', title: 'Designing Data-Intensive Applications', url: 'https://dataintensive.net/' },
+      {
+        type: 'Material', title: 'Documentação e referência', url: 'https://aws.amazon.com/builders-library/',
+        level: 'avancado', lang: 'en', free: true,
+        why: 'Artigos da AWS sobre como sistemas reais lidam com timeout, retry e relógios distribuídos.',
+        topics: ['a8-t12', 'a8-t13'],
+      },
+      {
+        type: 'Curso', title: 'MIT 6.5840 · sistemas distribuídos', url: 'https://pdos.csail.mit.edu/6.824/',
+        level: 'avancado', lang: 'en', free: true,
+        why: 'Curso do MIT com os papers e laboratórios clássicos de sistemas distribuídos (Raft, MapReduce).',
+        topics: ['a8-t01'],
+      },
+      {
+        type: 'Vídeo', title: 'MIT 6.5840 · aulas e laboratórios', url: 'https://pdos.csail.mit.edu/6.824/schedule.html',
+        level: 'avancado', lang: 'en', free: true,
+        why: 'Aulas gravadas do mesmo curso, incluindo os modelos de consistência.',
+        topics: ['a8-t02'],
+      },
+      {
+        type: 'Livro', title: 'Designing Data-Intensive Applications', url: 'https://dataintensive.net/',
+        level: 'avancado', lang: 'en', free: false,
+        why: 'O capítulo sobre consistência é a referência mais citada do assunto.',
+        topics: ['a8-t02', 'a8-t05'],
+      },
+      {
+        type: 'Material', title: 'Eventually Consistent', url: 'https://www.allthingsdistributed.com/2008/12/eventually_consistent.html',
+        level: 'intermediario', lang: 'en', free: true,
+        why: 'Artigo clássico de um dos criadores do DynamoDB explicando consistência eventual na prática.',
+        topics: ['a8-t01', 'a8-t05'],
+      },
     ],
     challenge: {
       title: 'Simule dois serviços com consistência eventual e prove que retries não duplicam efeito',
@@ -1184,10 +1383,35 @@ export const areas: Area[] = [
       { id: 'a46-t07', title: 'Docker Compose', required: true },
     ],
     resources: [
-      { type: 'Material', title: 'Documentação e referência', url: 'https://docs.docker.com/build/building/multi-stage/' },
-      { type: 'Curso', title: 'Docker · getting started', url: 'https://docs.docker.com/get-started/' },
-      { type: 'Vídeo', title: 'Docker · treinamentos', url: 'https://www.docker.com/trainings/' },
-      { type: 'Livro', title: 'Docker · recursos de estudo', url: 'https://docs.docker.com/get-started/resources/' },
+      {
+        type: 'Material', title: 'Documentação e referência', url: 'https://docs.docker.com/build/building/multi-stage/',
+        level: 'intermediario', lang: 'en', free: true,
+        why: 'Guia oficial de build multi-stage: como separar a etapa de build da imagem final.',
+        topics: ['a46-t01'],
+      },
+      {
+        type: 'Curso', title: 'Docker · getting started', url: 'https://docs.docker.com/get-started/',
+        level: 'iniciante', lang: 'en', free: true,
+        why: 'Tutorial oficial do zero, incluindo como configurar health checks nos containers.',
+        topics: ['a46-t02'],
+      },
+      {
+        type: 'Vídeo', title: 'Docker · treinamentos', url: 'https://www.docker.com/trainings/',
+        level: 'iniciante', lang: 'en',
+        why: 'Página oficial de treinamentos da Docker, com opções gratuitas e pagas.',
+      },
+      {
+        type: 'Livro', title: 'Docker · recursos de estudo', url: 'https://docs.docker.com/get-started/resources/',
+        level: 'intermediario', lang: 'en', free: true,
+        why: 'Lista oficial de materiais de estudo, incluindo limites de recursos e boas práticas de produção.',
+        topics: ['a46-t05'],
+      },
+      {
+        type: 'Material', title: 'Docker Compose · documentação', url: 'https://docs.docker.com/compose/',
+        level: 'iniciante', lang: 'en', free: true,
+        why: 'Documentação oficial do Compose: como subir vários serviços juntos com um arquivo YAML.',
+        topics: ['a46-t07'],
+      },
     ],
     challenge: {
       title: 'Empacote uma aplicação com build multi-stage e suba o ambiente completo com Compose',
@@ -1266,10 +1490,35 @@ export const areas: Area[] = [
       { id: 'a49-t08', title: 'deploy', required: true },
     ],
     resources: [
-      { type: 'Material', title: 'Documentação e referência', url: 'https://docs.github.com/en/actions' },
-      { type: 'Curso', title: 'GitHub Actions · tutoriais', url: 'https://docs.github.com/en/actions/tutorials' },
-      { type: 'Vídeo', title: 'GitHub Actions · vídeos de aprendizado', url: 'https://www.youtube.com/@GitHub' },
-      { type: 'Livro', title: 'Software Engineering at Google', url: 'https://abseil.io/resources/swe-book' },
+      {
+        type: 'Material', title: 'Documentação e referência', url: 'https://docs.github.com/en/actions',
+        level: 'intermediario', lang: 'en', free: true,
+        why: 'Documentação oficial do GitHub Actions: como montar um workflow com build e deploy.',
+        topics: ['a49-t07', 'a49-t08'],
+      },
+      {
+        type: 'Curso', title: 'GitHub Actions · tutoriais', url: 'https://docs.github.com/en/actions/tutorials',
+        level: 'iniciante', lang: 'en', free: true,
+        why: 'Tutoriais oficiais passo a passo, incluindo lint e testes automatizados a cada push.',
+        topics: ['a49-t02', 'a49-t04'],
+      },
+      {
+        type: 'Vídeo', title: 'GitHub Actions · vídeos de aprendizado', url: 'https://www.youtube.com/@GitHub',
+        level: 'iniciante', lang: 'en', free: true,
+        why: 'Canal oficial do GitHub, com exemplos de pipelines reais.',
+      },
+      {
+        type: 'Livro', title: 'Software Engineering at Google', url: 'https://abseil.io/resources/swe-book',
+        level: 'avancado', lang: 'en', free: true,
+        why: 'Capítulos sobre integração contínua e testes em escala dentro do Google.',
+        topics: ['a49-t05'],
+      },
+      {
+        type: 'Material', title: 'promptfoo · documentação', url: 'https://www.promptfoo.dev/docs/intro/',
+        level: 'iniciante', lang: 'en', free: true,
+        why: 'Ferramenta open source para rodar avaliações de IA generativa dentro do pipeline de CI.',
+        topics: ['a49-t06'],
+      },
     ],
     challenge: {
       title: 'Monte um pipeline de CI que barra o merge se lint, testes ou build falharem',
@@ -1299,10 +1548,35 @@ export const areas: Area[] = [
       { id: 'a50-t08', title: 'probabilistic evals', required: true },
     ],
     resources: [
-      { type: 'Material', title: 'Documentação e referência', url: 'https://martinfowler.com/testing/' },
-      { type: 'Curso', title: 'Software Engineering at Google · testes', url: 'https://abseil.io/resources/swe-book/html/ch11.html' },
-      { type: 'Vídeo', title: 'Full Stack Deep Learning · engenharia de produto', url: 'https://fullstackdeeplearning.com/course/2022/lecture-8-teams-and-pm/' },
-      { type: 'Livro', title: 'Software Engineering at Google', url: 'https://abseil.io/resources/swe-book' },
+      {
+        type: 'Material', title: 'Documentação e referência', url: 'https://martinfowler.com/testing/',
+        level: 'intermediario', lang: 'en', free: true,
+        why: 'Artigos de referência sobre a pirâmide de testes e onde cada tipo compensa o esforço.',
+        topics: ['a50-t01', 'a50-t02'],
+      },
+      {
+        type: 'Curso', title: 'Software Engineering at Google · testes', url: 'https://abseil.io/resources/swe-book/html/ch11.html',
+        level: 'intermediario', lang: 'en', free: true,
+        why: 'Capítulo do livro do Google dedicado inteiramente a testes determinísticos e confiáveis.',
+        topics: ['a50-t01', 'a50-t07'],
+      },
+      {
+        type: 'Vídeo', title: 'Full Stack Deep Learning · engenharia de produto', url: 'https://fullstackdeeplearning.com/course/2022/lecture-8-teams-and-pm/',
+        level: 'intermediario', lang: 'en', free: true,
+        why: 'Aula sobre processo de produto e time, com um bloco sobre avaliar sistemas de IA.',
+      },
+      {
+        type: 'Livro', title: 'Software Engineering at Google', url: 'https://abseil.io/resources/swe-book',
+        level: 'avancado', lang: 'en', free: true,
+        why: 'O livro completo, incluindo testes de integração e ponta a ponta em sistemas grandes.',
+        topics: ['a50-t03'],
+      },
+      {
+        type: 'Material', title: 'OpenAI Evals', url: 'https://github.com/openai/evals',
+        level: 'avancado', lang: 'en', free: true,
+        why: 'Framework open source para avaliar respostas de IA por critério, não por igualdade exata.',
+        topics: ['a50-t08'],
+      },
     ],
     challenge: {
       title: 'Cubra uma funcionalidade com três camadas de teste e um eval não-determinístico',
@@ -1329,10 +1603,29 @@ export const areas: Area[] = [
       { id: 'a51-t05', title: 'Jaeger', required: false },
     ],
     resources: [
-      { type: 'Material', title: 'Documentação e referência', url: 'https://opentelemetry.io/docs/' },
-      { type: 'Curso', title: 'OpenTelemetry · documentação e guias', url: 'https://opentelemetry.io/docs/' },
-      { type: 'Vídeo', title: 'OpenTelemetry · demonstrações', url: 'https://www.youtube.com/@OpenTelemetry' },
-      { type: 'Livro', title: 'Observability Engineering', url: 'https://www.oreilly.com/library/view/observability-engineering-2nd/9781098179915/' },
+      {
+        type: 'Material', title: 'Documentação e referência', url: 'https://opentelemetry.io/docs/',
+        level: 'intermediario', lang: 'en', free: true,
+        why: 'Documentação oficial do OpenTelemetry: como instrumentar logs, métricas e traces.',
+        topics: ['a51-t01'],
+      },
+      {
+        type: 'Curso', title: 'OpenTelemetry · documentação e guias', url: 'https://opentelemetry.io/docs/',
+        level: 'intermediario', lang: 'en', free: true,
+        why: 'Os mesmos guias oficiais, organizados como um percurso de estudo por linguagem.',
+        topics: ['a51-t01'],
+      },
+      {
+        type: 'Vídeo', title: 'OpenTelemetry · demonstrações', url: 'https://www.youtube.com/@OpenTelemetry',
+        level: 'intermediario', lang: 'en', free: true,
+        why: 'Canal oficial com demonstrações de instrumentação em projetos reais.',
+      },
+      {
+        type: 'Livro', title: 'Observability Engineering', url: 'https://www.oreilly.com/library/view/observability-engineering-2nd/9781098179915/',
+        level: 'avancado', lang: 'en', free: false,
+        why: 'Livro sobre os três pilares de observabilidade e por que eles sozinhos não bastam.',
+        topics: ['a51-t01'],
+      },
     ],
     challenge: {
       title: 'Instrumente uma aplicação com logs estruturados, métricas e um trace distribuído',
@@ -1362,10 +1655,32 @@ export const areas: Area[] = [
       { id: 'a52-t08', title: 'customer-support agent', required: true },
     ],
     resources: [
-      { type: 'Material', title: 'Documentação e referência', url: 'https://github.com/donnemartin/system-design-primer' },
-      { type: 'Curso', title: 'System Design Primer', url: 'https://github.com/donnemartin/system-design-primer' },
-      { type: 'Vídeo', title: 'Full Stack Deep Learning · engenharia de produto', url: 'https://fullstackdeeplearning.com/course/2022/lecture-8-teams-and-pm/' },
-      { type: 'Livro', title: 'Designing Data-Intensive Applications', url: 'https://dataintensive.net/' },
+      {
+        type: 'Material', title: 'Documentação e referência', url: 'https://github.com/donnemartin/system-design-primer',
+        level: 'intermediario', lang: 'en', free: true,
+        why: 'Repositório de referência com os fundamentos de system design: cache, banco, fila e balanceamento.',
+      },
+      {
+        type: 'Curso', title: 'System Design Primer', url: 'https://github.com/donnemartin/system-design-primer',
+        level: 'intermediario', lang: 'en', free: true,
+        why: 'O mesmo conteúdo do primer, organizado como percurso com exercícios de desenho de sistemas.',
+      },
+      {
+        type: 'Vídeo', title: 'Full Stack Deep Learning · engenharia de produto', url: 'https://fullstackdeeplearning.com/course/2022/lecture-8-teams-and-pm/',
+        level: 'intermediario', lang: 'en', free: true,
+        why: 'Aula sobre como times de produto de IA decidem o que construir; complementa o desenho técnico.',
+      },
+      {
+        type: 'Livro', title: 'Designing Data-Intensive Applications', url: 'https://dataintensive.net/',
+        level: 'avancado', lang: 'en', free: false,
+        why: 'Base teórica de dados para justificar qualquer trade-off de desenho de sistema.',
+      },
+      {
+        type: 'Material', title: 'Patterns for Building LLM-based Systems', url: 'https://eugeneyan.com/writing/llm-patterns/',
+        level: 'avancado', lang: 'en', free: true,
+        why: 'Ensaio longo com padrões reais para buscar, rankear e avaliar sistemas com IA generativa.',
+        topics: ['a52-t06'],
+      },
     ],
     challenge: {
       title: 'Desenhe no papel um motor de busca semântica e um agente de suporte, com trade-offs explícitos',
@@ -1397,10 +1712,35 @@ export const areas: Area[] = [
       { id: 'a53-t10', title: 'dbt', required: false },
     ],
     resources: [
-      { type: 'Material', title: 'Documentação e referência', url: 'https://airflow.apache.org/docs/' },
-      { type: 'Curso', title: 'Data Engineering Zoomcamp', url: 'https://github.com/DataTalksClub/data-engineering-zoomcamp' },
-      { type: 'Vídeo', title: 'Data Engineering Zoomcamp · videoaulas', url: 'https://github.com/DataTalksClub/data-engineering-zoomcamp' },
-      { type: 'Livro', title: 'Fundamentals of Data Engineering', url: 'https://www.oreilly.com/library/view/fundamentals-of-data/9781098108298/' },
+      {
+        type: 'Material', title: 'Documentação e referência', url: 'https://airflow.apache.org/docs/',
+        level: 'intermediario', lang: 'en', free: true,
+        why: 'Documentação oficial do orquestrador mais usado para pipelines de dados em batch.',
+        topics: ['a53-t05'],
+      },
+      {
+        type: 'Curso', title: 'Data Engineering Zoomcamp', url: 'https://github.com/DataTalksClub/data-engineering-zoomcamp',
+        level: 'iniciante', lang: 'en', free: true,
+        why: 'Curso gratuito e prático, do zero até um pipeline ETL completo rodando.',
+        topics: ['a53-t01', 'a53-t03'],
+      },
+      {
+        type: 'Vídeo', title: 'Data Engineering Zoomcamp · videoaulas', url: 'https://github.com/DataTalksClub/data-engineering-zoomcamp',
+        level: 'iniciante', lang: 'en', free: true,
+        why: 'As videoaulas do mesmo curso, gravadas junto com o material escrito.',
+      },
+      {
+        type: 'Livro', title: 'Fundamentals of Data Engineering', url: 'https://www.oreilly.com/library/view/fundamentals-of-data/9781098108298/',
+        level: 'intermediario', lang: 'en', free: false,
+        why: 'Visão completa da área, do armazenamento à governança de dados.',
+        topics: ['a53-t01'],
+      },
+      {
+        type: 'Material', title: 'Great Expectations · documentação', url: 'https://docs.greatexpectations.io/docs/',
+        level: 'intermediario', lang: 'en', free: true,
+        why: 'Ferramenta open source para validar a qualidade dos dados antes de carregar no destino.',
+        topics: ['a53-t06'],
+      },
     ],
     challenge: {
       title: 'Construa um pipeline que extrai, transforma e valida a qualidade dos dados antes de carregar',
