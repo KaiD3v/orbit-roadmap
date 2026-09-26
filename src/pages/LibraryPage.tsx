@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { ResourceCard } from '../components/ResourceCard'
 import { areasByPhase, phases } from '../data/roadmap'
 import { normalizeQuery, queryMatcher } from '../domain/filter'
-import { normalizeResourceUrl } from '../domain/resources'
+import { byLevel, normalizeResourceUrl } from '../domain/resources'
 import { useProgress } from '../store/progress'
 import type { Resource, ResourceLevel, ResourceType } from '../types/content'
 import type { PageProps } from './types'
@@ -44,7 +44,7 @@ export function LibraryPage({ openArea }: PageProps) {
 
   const groups = phases.flatMap((phase) => {
     const areaGroups = (areasByPhase.get(phase.number) ?? []).flatMap((area) => {
-      const resources = area.resources.filter(matches)
+      const resources = byLevel(area.resources.filter(matches))
       return resources.length ? [{ area, resources }] : []
     })
     return areaGroups.length ? [{ phase, areaGroups }] : []

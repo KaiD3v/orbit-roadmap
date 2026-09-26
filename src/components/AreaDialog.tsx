@@ -4,9 +4,10 @@ import { NOTE_MAX } from '../domain/backup'
 import {
   CHALLENGE_XP, countDone, isChallengeUnlocked, percent, PHASE_XP, priorityProgress, TOPIC_XP, type Feedback,
 } from '../domain/progress'
+import { byLevel } from '../domain/resources'
 import { challengeCard, type ShareCardData } from '../domain/shareCard'
-import { PencilIcon } from './icons/PencilIcon'
 import { useProgress, useToggleChallenge, useToggleTopic } from '../store/progress'
+import { PencilIcon } from './icons/PencilIcon'
 import { ResourceCard, TopicResources } from './ResourceCard'
 import type { Area, Resource } from '../types/content'
 import type { Challenges, Done, Notes, ResourcesRead } from '../types/progress'
@@ -261,7 +262,7 @@ function ResourceHighlight({ resources, resourcesRead, onToggleRead }: {
   resourcesRead: ResourcesRead
   onToggleRead: (url: string) => void
 }) {
-  const [first, ...rest] = resources
+  const [first, ...rest] = byLevel(resources)
   if (!first) return null
   return (
     <div className="resource-highlight">

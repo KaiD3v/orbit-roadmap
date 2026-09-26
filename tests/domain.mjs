@@ -10,7 +10,7 @@ const {
 } = await server.ssrLoadModule('/src/domain/progress.ts')
 const { matchesArea, normalizeQuery, queryMatcher } = await server.ssrLoadModule('/src/domain/filter.ts')
 const { cleanProgress, NOTE_MAX, parseBackup } = await server.ssrLoadModule('/src/domain/backup.ts')
-const { normalizeResourceUrl, resourceMeta, resourcesForTopic } = await server.ssrLoadModule('/src/domain/resources.ts')
+const { byLevel, normalizeResourceUrl, resourceMeta, resourcesForTopic } = await server.ssrLoadModule('/src/domain/resources.ts')
 const {
   combineProgress, decodeProgress, encodeProgress, newTopicsCount,
 } = await server.ssrLoadModule('/src/domain/share.ts')
@@ -554,6 +554,31 @@ assert.equal(
 assert.equal(resourceMeta({ type: 'Material', free: false }), 'Material · pago')
 assert.equal(resourceMeta({ type: 'Livro' }), 'Livro')
 
+// byLevel: ordena iniciante → intermediário → avançado → sem nível por último, sem mutar o array recebido
+// e mantendo a ordem da curadoria dentro do mesmo nível (sort estável).
+const mixedLevels = [
+  { type: 'Curso', title: 'avançado 1', url: 'https://exemplo.com/a', level: 'avancado' },
+  { type: 'Material', title: 'sem nível 1', url: 'https://exemplo.com/b' },
+  { type: 'Vídeo', title: 'iniciante 1', url: 'https://exemplo.com/c', level: 'iniciante' },
+  { type: 'Livro', title: 'intermediário 1', url: 'https://exemplo.com/d', level: 'intermediario' },
+  { type: 'Curso', title: 'avançado 2', url: 'https://exemplo.com/e', level: 'avancado' },
+  { type: 'Material', title: 'iniciante 2', url: 'https://exemplo.com/f', level: 'iniciante' },
+  { type: 'Vídeo', title: 'sem nível 2', url: 'https://exemplo.com/g' },
+]
+const sortedLevels = byLevel(mixedLevels)
+assert.deepEqual(
+  sortedLevels.map(r => r.title),
+  ['iniciante 1', 'iniciante 2', 'intermediário 1', 'avançado 1', 'avançado 2', 'sem nível 1', 'sem nível 2'],
+)
+assert.deepEqual(mixedLevels.map(r => r.title), [ // não muta o array original
+  'avançado 1', 'sem nível 1', 'iniciante 1', 'intermediário 1', 'avançado 2', 'iniciante 2', 'sem nível 2',
+])
+assert.notEqual(sortedLevels, mixedLevels) // cópia, não o mesmo array
+
+// Área sem nenhum `level` (fora da curadoria da fase 1): byLevel não reordena nada
+const area9 = areas.find(area => area.id === 9)
+assert(area9.resources.every(resource => resource.level === undefined))
+assert.deepEqual(byLevel(area9.resources), area9.resources)
 
 // materialXp: +5 por material lido, com teto de 4 por área (não farma marcando o mesmo material várias vezes).
 // Área 46 (Docker) tem 5 materiais; 3 deles (multi-stage, get-started, get-started/resources) só existem
@@ -583,5 +608,5 @@ await server.close()
 console.log(
   'domain: percent, localDay, streak, matchesArea, toggleFeedback, nextTopic, phaseState, areaState, nextGoals, '
   + 'link de progresso (F02), revisão espaçada (F03), meta semanal (B02), notas por tópico (B03), '
-  + 'cards compartilháveis (B05), materiais/XP de leitura (B06) e rotas OK',
+  + 'cards compartilháveis (B05), materiais/XP de leitura (B06), ordenação por nível (byLevel) e rotas OK',
 )

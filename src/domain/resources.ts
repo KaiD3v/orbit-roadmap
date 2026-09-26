@@ -17,9 +17,25 @@ export function normalizeResourceUrl(url: string): string {
   }
 }
 
+const LEVEL_ORDER: Record<NonNullable<Resource['level']>, number> = {
+  iniciante: 0,
+  intermediario: 1,
+  avancado: 2,
+}
+
+// Ordena por nível (iniciante → intermediário → avançado → sem nível por último), mantendo a ordem da
+// curadoria dentro do mesmo nível (sort é estável no JS moderno). Cópia: não muta o array recebido.
+export function byLevel(resources: Resource[]): Resource[] {
+  return [...resources].sort((a, b) => {
+    const orderA = a.level ? LEVEL_ORDER[a.level] : 3
+    const orderB = b.level ? LEVEL_ORDER[b.level] : 3
+    return orderA - orderB
+  })
+}
+
 // Materiais da área que cobrem um tópico específico (campo opcional `topics` do Resource).
 export function resourcesForTopic(area: Area, topicId: string): Resource[] {
-  return area.resources.filter(resource => resource.topics?.includes(topicId))
+  return byLevel(area.resources.filter(resource => resource.topics?.includes(topicId)))
 }
 
 export const LEVEL_LABEL: Record<NonNullable<Resource['level']>, string> = {

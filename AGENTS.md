@@ -58,7 +58,7 @@ src/
     shareCard.ts           cards compartilháveis (B05): monta os DADOS do card (challengeCard, phaseCard),
                            não desenha nada
     resources.ts           materiais (B06): normalizeResourceUrl (chave estável), resourcesForTopic,
-                           resourceMeta (metadados discretos), LEVEL_LABEL
+                           resourceMeta (metadados discretos), LEVEL_LABEL, byLevel (ordena por nível)
   store/
     progress.ts            Zustand + persist (localStorage) e hooks (useMetrics, useWeek, useToggleTopic,
                            useToggleChallenge); `answerReview`/`setNote`/`toggleResourceRead` são lidas
@@ -128,7 +128,7 @@ Não há Context, biblioteca de roteamento (o `router.ts` tem ~20 linhas), barre
 - `Topic`: `id` no formato `a{área}-t{NN}` (ex.: `a1-t07`), `title`, `required` (essencial = `true`, extra = `false`).
 - `Resource`: `type` ∈ `Material | Curso | Vídeo | Livro`, `title` e `url`, que **precisa** começar com `https://`. Os três quebram o `tsc` se estiverem errados. Toda área tem **pelo menos** os 4 tipos (verificado em `tests/store.mjs`); nada impede mais de um do mesmo tipo.
   - Campos opcionais (B06), todos undefined em materiais antigos sem curadoria: `level?: 'iniciante' | 'intermediario' | 'avancado'`, `lang?: 'pt' | 'en'`, `free?: boolean`, `duration?: string` (texto curto: `"2h"`, `"40 min"`, `"300 páginas"` — **não invente**; sem confirmação, omita), `why?: string` (uma frase, até ~140 caracteres, o que dá para fazer depois), `topics?: string[]` (ids de tópico **da mesma área**, verificado em `tests/store.mjs`).
-  - **Ordem sugerida:** a ordem do array é a ordem de estudo (o primeiro é "Comece por este"). Um item com `why` some como "depois, este" — sinaliza sequência sem numeração decorativa; sem `why`, aparece como hoje, sem selo.
+  - **Ordem de exibição:** por nível (iniciante, intermediário, avançado, sem `level` por último) e, dentro do mesmo nível, a ordem do array (`byLevel` em `domain/resources.ts`, aplicada na exibição, sem reescrever os dados). O primeiro depois dessa ordenação é "Comece por este". Um item com `why` some como "depois, este" — sinaliza sequência sem numeração decorativa; sem `why`, aparece como hoje, sem selo.
 - `Challenge` (opcional): `title` (imperativo, uma frase), `brief` (2–3 frases: contexto e escopo mínimo) e `done` (3–5 critérios objetivos de pronto). Por enquanto só as 14 áreas da fase 1 têm desafio.
 - **Nunca renomeie nem reutilize IDs de tópico ou de área.** O progresso salvo e os backups dependem deles. Para adicionar um tópico, use o próximo número livre da área.
 - A ordem de exibição é por fase e, dentro da fase, pela ordem do array (`orderedAreas`). O número da etapa ("Etapa 07") vem dessa ordem, não do `id`.
@@ -211,13 +211,14 @@ Um campo curto para anotar o que aprendeu ou um link que ajudou, por tópico. N�
 Cada área tem os 4 materiais de sempre (Material, Curso, Vídeo, Livro), mas agora podem ganhar contexto e se ligar a tópicos específicos; a curadoria de metadados e a ligação a tópicos, por ora, só cobre a **fase 1** (14 áreas) — o resto do roadmap continua com os 4 materiais "crus", que funcionam igual.
 
 - **Metadados discretos:** `resourceMeta` (`domain/resources.ts`) monta uma linha só com os campos preenchidos — "Vídeo · Intermediário · EN · grátis · 40 min". Sem nenhum campo, sobra só o tipo (visual idêntico ao anterior à B06).
+- **Ordenação por nível:** `byLevel` (`domain/resources.ts`) ordena uma lista de materiais por nível (iniciante → intermediário → avançado → sem `level` por último), mantendo a ordem da curadoria dentro do mesmo nível. Ordena só na exibição (painel da área, "Onde estudar" e Biblioteca), nunca reescreve `data/areas.ts`.
 - **Onde estudar:** um tópico com pelo menos um material cujo `topics` o inclui ganha um botão discreto "Onde estudar" (`TopicResources`, em `AreaDialog.tsx`) que expande a lista desses materiais. Não aparece no card "Seu próximo passo", que fica só com "Já estudei" e "Ver área" (os materiais estão a um clique, no painel).
 - **Marcar como lido:** cada material tem um botão "Marcar como lido"/"Lido" (`ResourceCard`). A chave é a **URL normalizada** (`normalizeResourceUrl`): sem barra final, sem parâmetros `utm_*`. Materiais não têm id próprio; **se a URL mudar na curadoria, o registro de "lido" se perde** (aceito). Um material citado em várias áreas (ex.: o mesmo livro) é uma chave só — marcar como lido em uma área marca em todas.
 - **XP de material:** `+5` por material lido (`MATERIAL_XP`), com teto de `4` por área (`MATERIAL_XP_CAP_PER_AREA`, `materialXp` em `domain/progress.ts`) para não virar farm marcando os 4 tipos genéricos. Um material citado em várias áreas conta o teto **em cada uma** (é crédito por área, não por material). O **nível** continua baseado só nos essenciais — ler material não pula nível.
 - **Marcar como lido não registra dia de estudo** — mesma lógica das notas (B03): ler não é a mesma coisa que estudar/concluir um tópico, e a ação já rende XP à parte.
 - **Biblioteca (`pages/LibraryPage.tsx`):** todos os materiais do roadmap, agrupados por fase e área (ordem de `orderedAreas`), com busca (mesma regra de início de palavra da B01, `domain/filter.ts`) e filtros por tipo, nível, idioma, gratuito e lido/não lido. É a rota **`#/biblioteca`**, uma página dentro da shell (a sidebar continua visível), com entrada pela sidebar. "Abrir área" abre o painel da área por cima da Biblioteca.
 - **Verificação de links:** `scripts/check-links.mjs` (`pnpm check-links`, fora do `pnpm test`) faz `HEAD` (e `GET` se o `HEAD` falhar) em cada URL única com limite de concorrência e timeout, e lista as que não respondem 2xx/3xx. Não conserta nada sozinho; alguns catálogos (ex.: `oreilly.com`) bloqueiam pedidos automatizados com 403 mesmo com a página existindo — trate isso como ruído conhecido, não prova de link quebrado.
-- **Testes:** `tests/store.mjs` cobre `topics[]` restrito a tópicos da mesma área, limites de `why`/`duration`, a migração v5 → v6 e `toggleResourceRead`. `tests/domain.mjs` cobre `normalizeResourceUrl`, `resourcesForTopic`, `resourceMeta` e o teto de `materialXp` (inclusive o crédito em mais de uma área para um material compartilhado).
+- **Testes:** `tests/store.mjs` cobre `topics[]` restrito a tópicos da mesma área, limites de `why`/`duration`, a migração v5 → v6 e `toggleResourceRead`. `tests/domain.mjs` cobre `normalizeResourceUrl`, `resourcesForTopic`, `resourceMeta`, `byLevel` (ordem, estabilidade, sem nível por último, sem mutação) e o teto de `materialXp` (inclusive o crédito em mais de uma área para um material compartilhado).
 
 ### XP, níveis e sequência
 
