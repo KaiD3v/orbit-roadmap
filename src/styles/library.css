@@ -1,5 +1,13 @@
 /* B06/L02: Biblioteca de materiais ("observatório"), rota #/biblioteca (página dentro da shell) */
 
+/* L05: em telas bem largas, `main` (max-width: 1600px) deixaria a constelação esticar demais; um teto
+   próprio e centralizado (sem efeito em larguras normais, onde o conteúdo já é mais estreito que isso) */
+.library-page {
+  position: relative;
+  max-width: 1180px;
+  margin: 0 auto;
+}
+
 /* L01: o céu da Home (--sky-stars) + duas nebulosas próprias (violeta atrás do cabeçalho, ciano fraca
    no rodapé) e as figuras de estudo. `position: fixed` + `z-index: -1`: pinta atrás do conteúdo normal
    (não posicionado) sem cobrir a sidebar, que é `position: sticky` e por isso empilha acima. */
@@ -502,11 +510,56 @@
     --card-w: 210px;
   }
 }
+/* L05: abaixo de 820px a constelação vira vertical — astros numa coluna à esquerda, ligados por uma
+   linha vertical (como a trilha do mapa no mobile), cada card ocupando a largura toda. Sem rolagem
+   horizontal da área. */
+@media (max-width: 820px) {
+  .constellation-scroll {
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+  .constellation {
+    --gap: 28px;
+    flex-direction: column;
+    overflow: visible;
+    padding: 6px 0 6px 38px;
+  }
+  .constellation-item {
+    width: 100%;
+  }
+  .constellation::before {
+    left: 12px;
+    right: auto;
+    top: 6px;
+    bottom: 6px;
+    width: 1px;
+    height: auto;
+  }
+  .constellation-item.is-read + .constellation-item.is-read::before {
+    left: 12px;
+    top: calc(-1 * var(--gap));
+    width: 2px;
+    height: var(--gap);
+  }
+  .observatory-astro {
+    top: 16px;
+    left: -38px;
+    transform: none;
+  }
+  .observatory-card {
+    margin-top: 0;
+  }
+}
 @media (max-width: 580px) {
   .observatory-area-head {
     flex-wrap: wrap;
   }
   .observatory-card-title {
     font-size: 14px;
+  }
+  /* Gutter de 16px (o padding padrão do app nessa largura é 22px) */
+  .library-page {
+    margin: 0 -6px;
+    padding: 0 6px;
   }
 }

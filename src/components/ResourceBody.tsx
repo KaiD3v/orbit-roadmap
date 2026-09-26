@@ -24,7 +24,7 @@ export function ResourceBody({ type, read, featured, size = 44 }: {
     featured ? 'is-featured' : '',
   ].filter(Boolean).join(' ')
   return (
-    <span className={className}>
+    <span className={className} aria-hidden="true">
       <svg viewBox="0 0 48 48" width={size} height={size} aria-hidden="true">
         {type === 'Livro' && (
           <g transform="rotate(-18 24 24)">
