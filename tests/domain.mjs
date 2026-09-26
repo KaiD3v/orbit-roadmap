@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import { createServer } from 'vite'
 
 const server = await createServer({ server: { middlewareMode: true }, appType: 'custom' })
-const { areas, areasByPhase } = await server.ssrLoadModule('/src/data/roadmap.ts')
+const { areas, areasByPhase, orderedAreas } = await server.ssrLoadModule('/src/data/roadmap.ts')
 const {
   areaState, badges, CHALLENGE_XP, goalsLine, isChallengeUnlocked, levelFor, localDay, materialXp, MATERIAL_XP,
   MATERIAL_XP_CAP_PER_AREA, metrics, nextGoals, nextTopic, percent, phaseState, PHASE_XP, streak,
@@ -509,6 +509,30 @@ assert.deepEqual(jCardFull.stars, { lit: areas.length, total: areas.length })
 assert.equal(jCardFull.stats.topics, areas.reduce((sum, area) => sum + area.topics.length, 0))
 assert.equal(jCardFull.stats.xp, metrics(allDone, [], allChallengesDone).xp)
 assert(jCardFull.caption.startsWith(`${areas.length} áreas concluídas de ${areas.length}`))
+
+// B08: `trail` alimenta a constelação ligada (drawCard.ts) — uma entrada por área, na ordem da trilha.
+const pTrail = pCard.trail
+assert.equal(pTrail.length, phase1Areas.length)
+assert(pTrail.every(entry => entry.lit === true && entry.phase === 1))
+
+const jTrailEmpty = jCardEmpty.trail
+assert.equal(jTrailEmpty.length, orderedAreas.length)
+assert.equal(jTrailEmpty.filter(entry => entry.lit).length, 0)
+assert.deepEqual(jTrailEmpty.map(entry => entry.phase), orderedAreas.map(area => area.phase))
+
+// Só a área 1 completa: só `trail[0]` aceso.
+const jTrailOne = jCardOne.trail
+assert.equal(jTrailOne[0].lit, true)
+assert(jTrailOne.slice(1).every(entry => entry.lit === false))
+
+// Área do meio (não a primeira) com essenciais completos: a estrela acesa é a dela — o teste da
+// correção do bug `i < lit`, que antes acendia sempre as N primeiras áreas da trilha.
+const middleArea = orderedAreas[10]
+const middleEssentials = middleArea.topics.filter(topic => topic.required)
+const middleDone = Object.fromEntries(middleEssentials.map(topic => [topic.id, true]))
+const middleIndex = orderedAreas.indexOf(middleArea)
+const jTrailMiddle = journeyCard(middleDone, {}, '2026-01-05').trail
+assert(jTrailMiddle.every((entry, i) => entry.lit === (i === middleIndex)))
 
 // Migração (esquema v5 -> v6, B06): progresso sem `resourcesRead` ganha objeto vazio, sem perder nada
 const migratedV5 = cleanProgress({ done: { [area1FirstEssential.id]: true }, days: [], challenges: {}, notes: {} })

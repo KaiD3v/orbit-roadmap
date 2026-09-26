@@ -24,6 +24,9 @@ export type ShareCardData = {
   caption: string
   // Glifo da conquista (só no card `badge`; o mesmo usado em `Achievements.tsx`/BADGES).
   icon?: string
+  // Uma entrada por área, na ordem da trilha (B08): alimenta a constelação ligada em `drawCard.ts`.
+  // Só `phase` e `journey` preenchem; sem o campo, o desenho trata como as `stars.lit` primeiras acesas.
+  trail?: { lit: boolean, phase: number }[]
 }
 
 // Formata 'YYYY-MM-DD' (mesmo formato de `localDay`) em algo como "25 set 2026", sem depender do locale
@@ -69,6 +72,7 @@ export function phaseCard(phase: Phase, done: Done, challenges: Challenges, day:
     stars: { lit: areaCount, total: areaCount },
     date: formatCardDate(day),
     caption: `Completei a Fase ${phase.number}: "${phase.name}" (${pluralize(areaCount, 'área', 'áreas')}) na ${TAGLINE}.`,
+    trail: areas.map(() => ({ lit: true, phase: phase.number })),
   }
 }
 
@@ -106,7 +110,8 @@ export function badgeCard(badge: BadgeInfo, metrics: Metrics, day: string): Shar
 // essenciais completos), não `isAreaDone` (que exigiria também os extras).
 export function journeyCard(done: Done, challenges: Challenges, day: string): ShareCardData {
   const nextId = nextArea(done).id
-  const doneAreas = orderedAreas.filter(area => areaState(area, done, nextId) === 'done').length
+  const trail = orderedAreas.map(area => ({ lit: areaState(area, done, nextId) === 'done', phase: area.phase }))
+  const doneAreas = trail.filter(entry => entry.lit).length
   const totalAreas = orderedAreas.length
   const completedTopics = orderedAreas.reduce((sum, area) => sum + countDone(area, done), 0)
   return {
@@ -118,5 +123,6 @@ export function journeyCard(done: Done, challenges: Challenges, day: string): Sh
     stars: { lit: doneAreas, total: totalAreas },
     date: formatCardDate(day),
     caption: `${pluralize(doneAreas, 'área concluída', 'áreas concluídas')} de ${totalAreas} na ${TAGLINE}.`,
+    trail,
   }
 }
