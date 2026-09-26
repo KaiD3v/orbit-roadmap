@@ -1,9 +1,11 @@
+import type { ReactNode } from 'react'
 import { useState, type CSSProperties } from 'react'
 import { LibrarySky } from '../components/LibrarySky'
+import { ResourceBody } from '../components/ResourceBody'
 import { ResourceCard } from '../components/ResourceCard'
-import { areasByPhase, phases } from '../data/roadmap'
+import { areasByPhase, phases, resourceEntries } from '../data/roadmap'
 import { normalizeQuery, queryMatcher } from '../domain/filter'
-import { byLevel, normalizeResourceUrl } from '../domain/resources'
+import { byLevel, LEVEL_LABEL, normalizeResourceUrl } from '../domain/resources'
 import { useProgress } from '../store/progress'
 import type { Resource, ResourceLevel, ResourceType } from '../types/content'
 import type { PageProps } from './types'
@@ -14,6 +16,17 @@ type LangFilter = 'pt' | 'en' | 'all'
 type TriFilter = 'all' | 'yes' | 'no'
 
 const RESOURCE_TYPES: ResourceType[] = ['Material', 'Curso', 'Vídeo', 'Livro']
+const LEVELS: ResourceLevel[] = ['iniciante', 'intermediario', 'avancado']
+const REDUCED_MOTION = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches
+
+// L04: um chip de filtro (botão pressed/not-pressed), no mesmo estilo do `.filter-group` do mapa.
+function Chip({ active, onClick, children }: { active: boolean, onClick: () => void, children: ReactNode }) {
+  return (
+    <button type="button" className={`filter ${active ? 'active' : ''}`} aria-pressed={active} onClick={onClick}>
+      {children}
+    </button>
+  )
+}
 
 // B06: Biblioteca — todos os materiais do roadmap, agrupados por fase e área, com busca e filtros.
 // Rota `#/biblioteca`.
@@ -29,6 +42,21 @@ export function LibraryPage({ openArea }: PageProps) {
 
   const matcher = queryMatcher(normalizeQuery(search))
   const filtering = matcher !== null || type !== 'all' || level !== 'all' || lang !== 'all' || free !== 'all' || read !== 'all'
+  const extraActive = [level !== 'all', lang !== 'all', free !== 'all', read !== 'all'].filter(Boolean).length
+
+  function clearFilters() {
+    setSearch('')
+    setType('all')
+    setLevel('all')
+    setLang('all')
+    setFree('all')
+    setRead('all')
+  }
+
+  function scrollToPhase(number: number) {
+    document.getElementById(`library-phase-${number}`)
+      ?.scrollIntoView({ behavior: REDUCED_MOTION() ? 'auto' : 'smooth', block: 'start' })
+  }
 
   function matches(resource: Resource) {
     if (type !== 'all' && resource.type !== type) return false
@@ -53,76 +81,112 @@ export function LibraryPage({ openArea }: PageProps) {
   const totalMatches = groups.reduce(
     (sum, group) => sum + group.areaGroups.reduce((areaSum, g) => areaSum + g.resources.length, 0), 0,
   )
+  const matchedPhases = new Set(groups.map(group => group.phase.number))
+  const totalRead = resourceEntries.filter(({ resource }) => resourcesRead[normalizeResourceUrl(resource.url)]).length
+  const totalAll = resourceEntries.length
+  const readPercent = totalAll ? Math.round((totalRead / totalAll) * 100) : 0
 
   return (
     <section className="library-page" aria-labelledby="library-title">
       <LibrarySky />
       <div className="library-top">
-        <h1 id="library-title">Biblioteca de materiais</h1>
-        <p>Todo material do roadmap, num só lugar. Filtre pelo que importa agora e volte depois pelo resto.</p>
-        <div className="toolbar">
-          <label className="search-field">
-            <span aria-hidden="true">⌕</span>
-            <input
-              type="search"
-              placeholder="Buscar material pelo título"
-              aria-label="Buscar material pelo título"
-              value={search}
-              onChange={event => setSearch(event.target.value)}
-            />
-          </label>
+        <div className="library-top-head">
+          <div>
+            <h1 id="library-title">Biblioteca</h1>
+            <p>Os materiais de cada área, ligados na ordem em que vale estudar.</p>
+          </div>
+          <div className="library-read-total">
+            <span>{totalRead} de {totalAll} materiais lidos</span>
+            <div
+              className="phase-bar"
+              role="progressbar"
+              aria-label="Materiais lidos"
+              aria-valuenow={readPercent}
+              aria-valuemin={0}
+              aria-valuemax={100}
+            >
+              <span style={{ width: `${readPercent}%` }} />
+            </div>
+          </div>
         </div>
-        <div className="library-filters">
-          <label className="library-filter">
-            <span className="sr-only">Tipo de material</span>
-            <select value={type} onChange={event => setType(event.target.value as TypeFilter)}>
-              <option value="all">Todos os tipos</option>
-              {RESOURCE_TYPES.map(value => <option value={value} key={value}>{value}</option>)}
-            </select>
-          </label>
-          <label className="library-filter">
-            <span className="sr-only">Nível</span>
-            <select value={level} onChange={event => setLevel(event.target.value as LevelFilter)}>
-              <option value="all">Todos os níveis</option>
-              <option value="iniciante">Iniciante</option>
-              <option value="intermediario">Intermediário</option>
-              <option value="avancado">Avançado</option>
-            </select>
-          </label>
-          <label className="library-filter">
-            <span className="sr-only">Idioma</span>
-            <select value={lang} onChange={event => setLang(event.target.value as LangFilter)}>
-              <option value="all">Português e inglês</option>
-              <option value="pt">Só em português</option>
-              <option value="en">Só em inglês</option>
-            </select>
-          </label>
-          <label className="library-filter">
-            <span className="sr-only">Custo</span>
-            <select value={free} onChange={event => setFree(event.target.value as TriFilter)}>
-              <option value="all">Grátis e pagos</option>
-              <option value="yes">Só grátis</option>
-              <option value="no">Só pagos</option>
-            </select>
-          </label>
-          <label className="library-filter">
-            <span className="sr-only">Lido</span>
-            <select value={read} onChange={event => setRead(event.target.value as TriFilter)}>
-              <option value="all">Lidos e não lidos</option>
-              <option value="yes">Só lidos</option>
-              <option value="no">Só não lidos</option>
-            </select>
-          </label>
+      </div>
+      <div className="library-filter-bar">
+        <label className="search-field">
+          <span aria-hidden="true">⌕</span>
+          <input
+            type="search"
+            placeholder="Buscar material"
+            aria-label="Buscar material pelo título"
+            value={search}
+            onChange={event => setSearch(event.target.value)}
+          />
+        </label>
+        <div className="library-chip-row">
+          <div className="filter-group" role="group" aria-label="Filtrar por tipo de material">
+            <Chip active={type === 'all'} onClick={() => setType('all')}>Todos</Chip>
+            {RESOURCE_TYPES.map(value => (
+              <Chip active={type === value} onClick={() => setType(value)} key={value}>
+                <ResourceBody type={value} read={false} size={16} />{value}
+              </Chip>
+            ))}
+          </div>
+          <details className="library-more-filters">
+            <summary>Mais filtros{extraActive > 0 && ` (${extraActive})`}</summary>
+            <div className="library-more-filters-body">
+              <div className="filter-group" role="group" aria-label="Filtrar por nível">
+                {LEVELS.map(value => (
+                  <Chip active={level === value} onClick={() => setLevel(level === value ? 'all' : value)} key={value}>
+                    {LEVEL_LABEL[value]}
+                  </Chip>
+                ))}
+              </div>
+              <div className="filter-group" role="group" aria-label="Filtrar por idioma">
+                <Chip active={lang === 'pt'} onClick={() => setLang(lang === 'pt' ? 'all' : 'pt')}>PT</Chip>
+                <Chip active={lang === 'en'} onClick={() => setLang(lang === 'en' ? 'all' : 'en')}>EN</Chip>
+              </div>
+              <div className="filter-group" role="group" aria-label="Filtrar por custo">
+                <Chip active={free === 'yes'} onClick={() => setFree(free === 'yes' ? 'all' : 'yes')}>Grátis</Chip>
+              </div>
+              <div className="filter-group" role="group" aria-label="Filtrar por lido">
+                <Chip active={read === 'no'} onClick={() => setRead(read === 'no' ? 'all' : 'no')}>Não lidos</Chip>
+              </div>
+            </div>
+          </details>
+          {filtering && <button className="text-button library-clear" type="button" onClick={clearFilters}>Limpar filtros</button>}
         </div>
         {filtering && (
-          <p className="toolbar-count">{totalMatches} {totalMatches === 1 ? 'material encontrado' : 'materiais encontrados'}</p>
+          <p className="toolbar-count library-match-count">
+            {totalMatches} {totalMatches === 1 ? 'material encontrado' : 'materiais encontrados'}
+          </p>
         )}
       </div>
+      <nav className="library-phase-index" aria-label="Ir para a fase">
+        {phases.map(phase => (
+          <button
+            type="button"
+            className="library-phase-dot"
+            style={{ '--phase-color': `var(--phase-${phase.number})` } as CSSProperties}
+            disabled={!matchedPhases.has(phase.number)}
+            onClick={() => scrollToPhase(phase.number)}
+            key={phase.number}
+          >
+            <span aria-hidden="true" />
+            Fase {phase.number}
+          </button>
+        ))}
+      </nav>
       <div className="library-main">
-        {groups.length === 0 && <p className="empty-state">Nenhum material bate com esse filtro.</p>}
+        {groups.length === 0 && (
+          <div className="library-empty">
+            <span className="library-empty-astro"><ResourceBody type="Material" read={false} size={56} /></span>
+            <p>Nenhum material com esses filtros.</p>
+            <button className="ghost-button" type="button" onClick={clearFilters}>Limpar filtros</button>
+          </div>
+        )}
         {groups.map(({ phase, areaGroups }) => (
           <section
             className="library-phase"
+            id={`library-phase-${phase.number}`}
             style={{ '--phase-color': `var(--phase-${phase.number})` } as CSSProperties}
             key={phase.number}
           >

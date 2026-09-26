@@ -107,34 +107,174 @@
   z-index: -1;
 }
 
+/* L04: cabeçalho numa linha só (título/frase + total lido), sem o parágrafo longo de antes */
 .library-top {
-  padding: 36px 0 18px;
-  border-bottom: 1px solid var(--line);
+  padding: 32px 0 20px;
+}
+.library-top-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  flex-wrap: wrap;
 }
 .library-top h1 {
-  font-size: clamp(26px, 3vw, 34px);
-  margin: 0 0 6px;
+  font-size: clamp(28px, 3vw, 40px);
+  letter-spacing: -0.045em;
+  margin: 0 0 8px;
 }
-.library-top > p {
+.library-top-head > div:first-child p {
   color: var(--muted);
-  font-size: 13px;
-  max-width: 560px;
-  margin: 0 0 18px;
+  font-size: 14px;
+  max-width: 52ch;
+  margin: 0;
 }
-.library-filters {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 10px;
-}
-.library-filter select {
-  background: #0d1430b3;
-  border: 1px solid var(--line);
-  border-radius: 10px;
-  color: var(--text);
-  padding: 9px 10px;
+.library-read-total {
+  min-width: 220px;
+  color: var(--muted);
   font-size: 12px;
 }
+.library-read-total span {
+  display: block;
+  margin-bottom: 6px;
+  white-space: nowrap;
+}
+.library-read-total .phase-bar {
+  width: 100%;
+}
+
+/* Faixa sticky de filtros: fica visível ao rolar, para a busca estar sempre à mão */
+.library-filter-bar {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 16px;
+  padding: 14px 0;
+  background: color-mix(in srgb, var(--bg) 82%, transparent);
+  backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--line);
+}
+.library-filter-bar .search-field {
+  width: min(300px, 100%);
+}
+.library-chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+}
+.observatory-type-chip svg {
+  margin-right: 6px;
+  vertical-align: -4px;
+}
+.library-more-filters summary {
+  list-style: none;
+  cursor: pointer;
+  color: var(--muted);
+  font-size: 12px;
+  padding: 8px 14px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+}
+.library-more-filters summary::-webkit-details-marker {
+  display: none;
+}
+.library-more-filters summary:hover,
+.library-more-filters[open] summary {
+  color: var(--text);
+  border-color: #6174a3;
+}
+.library-more-filters-body {
+  display: none;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+.library-more-filters[open] .library-more-filters-body {
+  display: flex;
+}
+.library-clear {
+  padding: 8px 4px;
+}
+.library-match-count {
+  width: 100%;
+  margin: 0;
+}
+@media (min-width: 821px) {
+  /* Acima de 820px "Mais filtros" some: os grupos ficam sempre visíveis na faixa de filtros */
+  .library-more-filters summary {
+    display: none;
+  }
+  .library-more-filters-body {
+    display: flex !important;
+  }
+  .library-match-count {
+    width: auto;
+    margin-left: auto;
+  }
+}
+
+/* Índice de fases: rola até a seção sem tocar no hash (reservado a #fase-N do mapa e #p= do link) */
+.library-phase-index {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 18px;
+  overflow-x: auto;
+  padding: 16px 2px;
+  margin-bottom: 8px;
+}
+.library-phase-dot {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  background: none;
+  border: 0;
+  color: var(--muted);
+  font-size: 12px;
+  white-space: nowrap;
+  padding: 4px 2px;
+}
+.library-phase-dot span {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--phase-color);
+}
+.library-phase-dot:hover:not(:disabled) {
+  color: var(--text);
+}
+.library-phase-dot:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+@media (min-width: 821px) {
+  .library-phase-index {
+    overflow: visible;
+    flex-wrap: wrap;
+  }
+}
+
+.library-empty {
+  display: grid;
+  justify-items: center;
+  gap: 14px;
+  padding: 60px 20px;
+  text-align: center;
+  color: var(--muted);
+}
+.library-empty-astro {
+  opacity: 0.4;
+}
+.library-empty p {
+  margin: 0;
+  font-size: 14px;
+}
+
 .library-main {
   padding: 28px 0 60px;
   display: grid;
@@ -143,7 +283,12 @@
 /* L03: cada fase é uma seção na cor da fase, com um fio fino à esquerda do título, como no mapa */
 .library-phase {
   --phase-color: var(--violet);
+  /* Item de grid: sem isso, o min-width automático deixa a constelação empurrar a página inteira
+     para o lado em vez de rolar só ela (`.constellation` tem `overflow-x: auto`). */
+  min-width: 0;
   margin-bottom: 40px;
+  /* Índice de fases rola até aqui; sem isso o título ficaria escondido atrás da faixa sticky */
+  scroll-margin-top: 76px;
 }
 .library-phase h3 {
   position: relative;
@@ -198,9 +343,21 @@
   gap: var(--gap);
   overflow-x: auto;
   scroll-snap-type: x proximity;
-  padding: 30px 4px 6px;
+  padding: 30px 4px 10px;
   margin: 0;
   list-style: none;
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--phase-color) 50%, transparent) transparent;
+}
+.constellation::-webkit-scrollbar {
+  height: 6px;
+}
+.constellation::-webkit-scrollbar-track {
+  background: transparent;
+}
+.constellation::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--phase-color) 45%, transparent);
+  border-radius: 99px;
 }
 /* Linha da constelação (backbone): liga o centro dos astros, atrás dos cards */
 .constellation::before {
