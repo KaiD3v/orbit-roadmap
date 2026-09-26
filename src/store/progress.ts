@@ -1,12 +1,20 @@
 import { useMemo } from 'react'
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import { areasWithChallenge, validTopicKeys } from '../data/roadmap'
+import { areas, areasWithChallenge, validTopicKeys } from '../data/roadmap'
 import { cleanProgress, NOTE_MAX, parseBackup, safeProgress } from '../domain/backup'
-import { localDay, metrics, toggleChallengeFeedback, toggleFeedback, weekProgress, type Feedback } from '../domain/progress'
+import {
+  finishedPhase, levelFor, localDay, metrics, toggleChallengeFeedback, toggleFeedback, weekProgress,
+  type Feedback,
+} from '../domain/progress'
 import { answerReview as answerReviewData } from '../domain/review'
 import { combineProgress, newTopicsCount } from '../domain/share'
+import { challengeCard, levelCard, phaseCard, type ShareCardData } from '../domain/shareCard'
 import type { ProgressData } from '../types/progress'
+
+// Toast com um card pronto para compartilhar (B05): só existe nas transições de desafio e fase
+// concluídos, então o botão "Compartilhar" do toast grande não precisa refazer essa conta.
+export type Notification = Feedback & { share?: ShareCardData }
 
 type ProgressStore = ProgressData & {
   toggleTopic: (key: string) => void
@@ -112,7 +120,7 @@ export function useWeek() {
   return useMemo(() => weekProgress(doneAt, challenges, localDay()), [doneAt, challenges])
 }
 
-export function useToggleTopic(notify: (feedback: Feedback) => void) {
+export function useToggleTopic(notify: (feedback: Notification) => void) {
   const done = useProgress(state => state.done)
   const doneAt = useProgress(state => state.doneAt)
   const challenges = useProgress(state => state.challenges)
@@ -122,16 +130,35 @@ export function useToggleTopic(notify: (feedback: Feedback) => void) {
     // Meta da semana antes/depois deste tópico, só para o aviso de transição (nunca ao recarregar).
     const before = weekProgress(doneAt, challenges, today)
     const after = done[key] ? before : weekProgress({ ...doneAt, [key]: today }, challenges, today)
-    notify(toggleFeedback(done, key, { before: before.done, after: after.done, goal: before.goal }))
+    const feedback: Notification = toggleFeedback(
+      done, key, { before: before.done, after: after.done, goal: before.goal },
+    )
+    // Toast de fase e de nível concluídos (B05): card pronto para compartilhar já no toast, sem
+    // estado extra armazenado à parte.
+    const afterDone = { ...done, [key]: true as const }
+    if (feedback.kind === 'phase') {
+      const phase = finishedPhase(done, afterDone)
+      if (phase) feedback.share = phaseCard(phase, afterDone, challenges, today)
+    } else if (feedback.kind === 'level') {
+      const afterMetrics = metrics(afterDone, [])
+      feedback.share = levelCard(levelFor(afterMetrics.percent), afterMetrics, today)
+    }
+    notify(feedback)
     toggleTopic(key)
   }
 }
 
-export function useToggleChallenge(notify: (feedback: Feedback) => void) {
+export function useToggleChallenge(notify: (feedback: Notification) => void) {
   const challenges = useProgress(state => state.challenges)
   const toggleChallenge = useProgress(state => state.toggleChallenge)
   return (areaId: string) => {
-    notify(toggleChallengeFeedback(challenges, areaId))
+    const today = localDay()
+    const feedback: Notification = toggleChallengeFeedback(challenges, areaId)
+    if (feedback.kind === 'challenge') {
+      const area = areas.find(candidate => String(candidate.id) === areaId)
+      if (area?.challenge) feedback.share = challengeCard(area, today)
+    }
+    notify(feedback)
     toggleChallenge(areaId)
   }
 }

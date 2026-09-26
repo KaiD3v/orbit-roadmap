@@ -1,16 +1,17 @@
 import { useEffect, useState } from 'react'
 import type { Filter } from './domain/filter'
-import type { Feedback } from './domain/progress'
 import { decodeProgress } from './domain/share'
+import type { ShareCardData } from './domain/shareCard'
 import { AreaDialog } from './components/AreaDialog'
 import { BackupControls } from './components/BackupControls'
 import { Hero } from './components/Hero'
 import { Journey } from './components/Journey'
 import { Achievements } from './components/Achievements'
 import { NextStep } from './components/NextStep'
+import { ShareCard } from './components/ShareCard'
 import { Sidebar } from './components/Sidebar'
 import { Toast } from './components/Toast'
-import { useProgress } from './store/progress'
+import { useProgress, type Notification } from './store/progress'
 import type { Area } from './types/content'
 
 const LINK_HASH_PREFIX = '#p='
@@ -20,7 +21,8 @@ function App() {
   const [highlightTopicId, setHighlightTopicId] = useState<string | null>(null)
   const [search, setSearch] = useState('')
   const [filter, setFilter] = useState<Filter>('all')
-  const [toast, setToast] = useState<Feedback | null>(null)
+  const [toast, setToast] = useState<Notification | null>(null)
+  const [shareData, setShareData] = useState<ShareCardData | null>(null)
 
   // Abre o painel da área; usado tanto pelos cliques normais (mapa, próximo passo) quanto pelo "Rever"
   // da revisão espaçada, que também destaca o tópico revisado dentro do painel.
@@ -32,6 +34,10 @@ function App() {
   function closeArea() {
     setSelected(null)
     setHighlightTopicId(null)
+  }
+
+  function closeShare() {
+    setShareData(null)
   }
 
   // Progresso por link (F02): se o endereço trouxer `#p=…`, junta com o progresso local uma única vez.
@@ -63,7 +69,7 @@ function App() {
   return (
     <>
       <div className="app-shell">
-        <Sidebar resetView={resetView} />
+        <Sidebar resetView={resetView} openShare={setShareData} />
         <main id="inicio">
           <header className="topbar">
             <div className="breadcrumb">Roadmap <span>/</span> Engenharia de Software com IA</div>
@@ -71,13 +77,27 @@ function App() {
           </header>
           <Hero />
           <NextStep notify={setToast} open={openArea} />
-          <Journey search={search} onSearch={setSearch} filter={filter} onFilter={setFilter} open={openArea} />
-          <Achievements />
+          <Journey
+            search={search}
+            onSearch={setSearch}
+            filter={filter}
+            onFilter={setFilter}
+            open={openArea}
+            openShare={setShareData}
+          />
+          <Achievements openShare={setShareData} />
           <footer>Feito para aprender construindo. Seu progresso é salvo neste navegador. <span>Orbit</span></footer>
         </main>
       </div>
-      <AreaDialog area={selected} notify={setToast} close={closeArea} highlightTopicId={highlightTopicId} />
-      <Toast message={toast} onHide={setToast} />
+      <AreaDialog
+        area={selected}
+        notify={setToast}
+        close={closeArea}
+        highlightTopicId={highlightTopicId}
+        openShare={setShareData}
+      />
+      <Toast message={toast} onHide={setToast} onShare={setShareData} />
+      <ShareCard data={shareData} close={closeShare} notify={setToast} />
     </>
   )
 }

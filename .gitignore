@@ -25,3 +25,6 @@ dist-ssr
 
 # Planejamento local (fora do versionamento)
 tasks/
+
+# Worktrees temporários de agentes
+.claude/worktrees/

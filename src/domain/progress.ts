@@ -126,6 +126,17 @@ export function countFinishedPhases(done: Done) {
   }).length
 }
 
+// Qual fase acabou de fechar (todos os tópicos, extras incluídos) nesta transição de `before` para
+// `after` — usado pelo card compartilhável de fase (B05), que precisa saber qual fase, não só que
+// alguma fechou (o que `countFinishedPhases` já dizia).
+export function finishedPhase(before: Done, after: Done) {
+  return phases.find((phase) => {
+    const [beforeDone, beforeTotal] = phaseProgress(phase.number, before)
+    const [afterDone, afterTotal] = phaseProgress(phase.number, after)
+    return afterDone === afterTotal && beforeDone < beforeTotal
+  })
+}
+
 export function metrics(done: Done, days: string[], challenges: Challenges = {}) {
   const total = areas.reduce((sum, area) => sum + area.topics.length, 0)
   const completed = areas.reduce((sum, area) => sum + countDone(area, done), 0)
@@ -229,7 +240,9 @@ const BADGES: Badge[] = [
   { icon: '✳', title: 'Órbita completa', description: 'Conclua todo o roadmap', earned: progress => progress.completed === progress.total },
 ]
 
-export function badges(progress: Metrics) {
+export type BadgeInfo = { icon: string, title: string, description: string, target?: number, unlocked: boolean }
+
+export function badges(progress: Metrics): BadgeInfo[] {
   return BADGES.map(({ earned, ...badge }) => ({ ...badge, unlocked: earned(progress) }))
 }
 

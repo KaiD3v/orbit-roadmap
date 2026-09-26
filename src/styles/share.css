@@ -1,0 +1,103 @@
+/* Diálogo de compartilhamento (B05): pré-visualização do card em <canvas> + controles. Mesma base
+   visual do #detail-dialog, num tamanho menor e centralizado (não é um painel lateral). */
+#share-dialog {
+  position: fixed;
+  inset: 0;
+  margin: auto;
+  width: min(560px, calc(100% - 32px));
+  max-width: none;
+  height: max-content;
+  max-height: min(90vh, 780px);
+  border: 1px solid #a889ff33;
+  border-radius: 20px;
+  background: radial-gradient(500px 260px at 100% 0%, #a889ff1f, transparent 70%), #0a1030;
+  color: var(--text);
+  padding: 0;
+  box-shadow: 0 30px 80px #000a;
+  overflow-y: auto;
+}
+#share-dialog::backdrop {
+  background: #050a1ccc;
+  backdrop-filter: blur(4px);
+}
+.share-top {
+  padding: 22px 24px 0;
+}
+.share-top h2 {
+  font-size: 20px;
+  margin: 16px 0 4px;
+}
+.share-body {
+  display: flex;
+  gap: 22px;
+  padding: 16px 24px 26px;
+}
+.share-preview {
+  flex: none;
+  display: grid;
+  place-items: start center;
+}
+.share-preview canvas {
+  border-radius: 14px;
+  box-shadow: 0 12px 30px #0007;
+}
+.share-controls {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+  gap: 12px;
+  align-content: start;
+}
+.share-format {
+  display: flex;
+  gap: 8px;
+}
+.share-format .ghost-button {
+  flex: 1;
+  padding: 10px 8px;
+  font-size: 12px;
+  text-align: center;
+}
+.share-format .ghost-button.is-active {
+  border-color: var(--cyan);
+  background: #65e1ec14;
+  color: var(--cyan);
+}
+.share-name-field {
+  display: grid;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--muted);
+}
+.share-name-field input {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #131b3b;
+  color: var(--text);
+  padding: 10px 12px;
+  font-size: 13px;
+}
+.share-main-action {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  border-color: var(--violet);
+}
+.share-caption-preview {
+  margin: 4px 0 0;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #101a38;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.6;
+}
+@media (max-width: 580px) {
+  .share-body {
+    flex-direction: column;
+  }
+  .share-preview {
+    justify-self: center;
+  }
+}
