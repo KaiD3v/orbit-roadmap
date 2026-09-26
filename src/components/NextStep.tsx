@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import { areas, stepLabel } from '../data/roadmap'
 import { goalsLine, levelFor, localDay, nextTopic, priorityProgress, type Feedback } from '../domain/progress'
 import { pickReview, reviewElapsedDays, timeAgo } from '../domain/review'
-import { useMetrics, useProgress, useToggleTopic } from '../store/progress'
+import { useMetrics, useProgress, useToggleTopic, useWeek } from '../store/progress'
 import type { Area } from '../types/content'
 
 function useXpPulse(xp: number) {
@@ -31,6 +31,7 @@ export function NextStep({ notify, open }: {
   const reviews = useProgress(state => state.reviews)
   const answerReview = useProgress(state => state.answerReview)
   const progress = useMetrics()
+  const week = useWeek()
   const toggle = useToggleTopic(notify)
   const next = nextTopic(done, challenges)
   const xpPulsing = useXpPulse(progress.xp)
@@ -68,11 +69,20 @@ export function NextStep({ notify, open }: {
   )
 
   const goals = goalsLine(progress)
+  const weekLit = Math.min(week.done, week.goal)
+  const weekHit = week.done >= week.goal
   const meta = (
     <footer className="next-step-meta">
       <span>Nível <strong>{levelFor(progress.percent)}</strong></span>
       <span><strong className={`xp-value ${xpPulsing ? 'is-pulsing' : ''}`}>{progress.xp}</strong> XP</span>
       <span><strong>{progress.streak}</strong> {progress.streak === 1 ? 'dia seguido' : 'dias seguidos'}</span>
+      <span className="next-step-week">
+        <span><strong>{week.done}</strong> de {week.goal} nesta semana</span>
+        {weekHit && <span className="week-hit">· Meta da semana batida</span>}
+        <span className="week-dots" aria-hidden="true">
+          {Array.from({ length: week.goal }, (_, i) => <i key={i} className={i < weekLit ? 'is-done' : ''} />)}
+        </span>
+      </span>
       {goals && <span className="next-step-goal">{goals}</span>}
     </footer>
   )

@@ -523,6 +523,33 @@ h1 .no-break {
   margin-left: auto;
   color: #c4b3ff;
 }
+/* Meta semanal (B02): pontos acesos em ciano, sem animação contínua (a lua do mapa é a única) */
+.next-step-week {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 8px;
+}
+.next-step-week > span {
+  white-space: nowrap;
+}
+.week-hit {
+  color: var(--cyan);
+}
+.week-dots {
+  display: inline-flex;
+  gap: 4px;
+}
+.week-dots i {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #2a3561;
+}
+.week-dots i.is-done {
+  background: var(--cyan);
+  box-shadow: 0 0 6px var(--cyan);
+}
 .xp-value {
   display: inline-block;
 }

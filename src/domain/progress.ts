@@ -1,6 +1,6 @@
 import { areas, areasByPhase, orderedAreas, phases } from '../data/roadmap'
 import type { Area, Challenge, Topic } from '../types/content'
-import type { Challenges, Done } from '../types/progress'
+import type { Challenges, Done, DoneAt } from '../types/progress'
 
 export const TOPIC_XP = 10
 export const PHASE_XP = 100
@@ -97,6 +97,28 @@ export function streak(days: string[]) {
   return count
 }
 
+// Meta semanal (B02): medida de constância mais tolerante que a sequência diária — quem estuda três
+// vezes por semana não "perde" nada. Fixa em 5 nesta versão; configurar a meta pediria campo novo no esquema.
+export const WEEKLY_GOAL = 5
+
+// Segunda-feira da semana do dia informado. Em UTC a partir da string (mesma técnica de `isDay`, em
+// `domain/backup.ts`), para não depender do fuso horário de quem roda a função.
+export function weekStart(day: string): string {
+  const date = new Date(`${day}T00:00:00Z`)
+  const sinceMonday = (date.getUTCDay() + 6) % 7 // domingo (getUTCDay() 0) fica 6 dias depois da segunda
+  date.setUTCDate(date.getUTCDate() - sinceMonday)
+  return `${date.getUTCFullYear()}-${String(date.getUTCMonth() + 1).padStart(2, '0')}-${String(date.getUTCDate()).padStart(2, '0')}`
+}
+
+// Tópicos marcados nesta semana (por `doneAt`) + desafios concluídos nesta semana (por `challenges`,
+// 1 cada). Revisões não contam. Comparação de string funciona: as datas são 'YYYY-MM-DD' (ordem = ISO).
+export function weekProgress(doneAt: DoneAt, challenges: Challenges, today: string): { done: number, goal: number } {
+  const start = weekStart(today)
+  const inWeek = (day: string) => day >= start && day <= today
+  const done = Object.values(doneAt).filter(inWeek).length + Object.values(challenges).filter(inWeek).length
+  return { done, goal: WEEKLY_GOAL }
+}
+
 export function countFinishedPhases(done: Done) {
   return phases.filter((phase) => {
     const [current, count] = phaseProgress(phase.number, done)
@@ -144,15 +166,19 @@ function justCompletedArea(area: Area, before: Done, after: Done) {
   return isAreaDone(area, after) && !isAreaDone(area, before)
 }
 
-export type Feedback = { message: string, kind: 'undo' | 'topic' | 'area' | 'level' | 'phase' | 'info' | 'challenge' }
+export type Feedback = { message: string, kind: 'undo' | 'topic' | 'area' | 'level' | 'phase' | 'info' | 'challenge' | 'week' }
 
 export function toggleChallengeFeedback(challenges: Challenges, areaId: string): Feedback {
   if (challenges[areaId]) return { message: 'Desafio desmarcado', kind: 'undo' }
   return { message: `Desafio concluído! +${CHALLENGE_XP} XP`, kind: 'challenge' }
 }
 
-// Prioridade da maior para a menor conquista: fase > nível > área > tópico > desmarcar.
-export function toggleFeedback(done: Done, key: string): Feedback {
+// Prioridade da maior para a menor conquista: fase > nível > área > meta da semana > tópico > desmarcar.
+// `week` é opcional (antes/depois de marcar este tópico) para o aviso "Meta da semana batida" aparecer
+// só na transição (4 -> 5), nunca de novo enquanto a meta continuar batida.
+export function toggleFeedback(
+  done: Done, key: string, week?: { before: number, after: number, goal: number },
+): Feedback {
   if (done[key]) return { message: 'Tópico desmarcado', kind: 'undo' }
   const after = { ...done, [key]: true as const }
 
@@ -169,6 +195,10 @@ export function toggleFeedback(done: Done, key: string): Feedback {
   const area = areas.find(candidate => candidate.topics.some(topic => topic.id === key))
   if (area && justCompletedArea(area, done, after)) {
     return { message: `Área concluída! Próxima: ${nextArea(after).title}`, kind: 'area' }
+  }
+
+  if (week && week.before < week.goal && week.after >= week.goal) {
+    return { message: `Meta da semana batida! +${TOPIC_XP} XP`, kind: 'week' }
   }
 
   return { message: `+${TOPIC_XP} XP · Tópico concluído!`, kind: 'topic' }

@@ -6,6 +6,7 @@ const { areas, areasByPhase } = await server.ssrLoadModule('/src/data/roadmap.ts
 const {
   areaState, badges, CHALLENGE_XP, goalsLine, isChallengeUnlocked, levelFor, localDay, metrics, nextGoals,
   nextTopic, percent, phaseState, PHASE_XP, streak, toggleChallengeFeedback, toggleFeedback, TOPIC_XP,
+  weekProgress, weekStart, WEEKLY_GOAL,
 } = await server.ssrLoadModule('/src/domain/progress.ts')
 const { matchesArea, normalizeQuery } = await server.ssrLoadModule('/src/domain/filter.ts')
 const { cleanProgress, parseBackup } = await server.ssrLoadModule('/src/domain/backup.ts')
@@ -34,6 +35,22 @@ const dayBeforeYesterday = new Date(today)
 dayBeforeYesterday.setDate(dayBeforeYesterday.getDate() - 2)
 assert.equal(streak([localDay(today), localDay(yesterday)]), 2)
 assert.equal(streak([localDay(dayBeforeYesterday)]), 0)
+
+// Meta semanal (B02): weekStart numa segunda (fica nela mesma), num domingo (volta pra segunda) e na
+// virada de ano (2026-01-01 é quinta; a segunda da semana é 2025-12-29, no ano anterior).
+assert.equal(weekStart('2026-01-05'), '2026-01-05')
+assert.equal(weekStart('2026-01-11'), '2026-01-05')
+assert.equal(weekStart('2026-01-01'), '2025-12-29')
+
+// weekProgress: conta tópicos (doneAt) e desafios (challenges) desta semana, ignora a semana passada
+const weekToday = '2026-01-11' // domingo, semana de 2026-01-05 a 2026-01-11
+const weekDoneAt = {
+  a1: '2026-01-06', a2: '2026-01-10', // nesta semana
+  a3: '2025-12-30', a4: '2025-12-31', a5: '2026-01-01', // semana passada: ignorados
+}
+const weekChallenges = { 1: '2026-01-07', 2: '2025-12-29' } // um nesta semana, um na passada
+assert.deepEqual(weekProgress(weekDoneAt, weekChallenges, weekToday), { done: 3, goal: WEEKLY_GOAL })
+assert.deepEqual(weekProgress({}, {}, weekToday), { done: 0, goal: WEEKLY_GOAL })
 
 const ragArea = areas.find(area => area.id === 18)
 assert(matchesArea(ragArea, {}, normalizeQuery('rag'), 'all'))
@@ -163,6 +180,17 @@ const area2Last = area2Essentials[area2Essentials.length - 1]
 const areaFeedback = toggleFeedback(area2AlmostDone, area2Last.id)
 assert.equal(areaFeedback.kind, 'area')
 assert(areaFeedback.message.startsWith('Área concluída! Próxima:'))
+
+// toggleFeedback + meta semanal: aviso só na transição (4 -> 5), nunca antes nem depois de já batida
+const weekHit = toggleFeedback({}, someTopic.id, { before: 4, after: 5, goal: 5 })
+assert.deepEqual(weekHit, { message: `Meta da semana batida! +${TOPIC_XP} XP`, kind: 'week' })
+const weekNotYet = toggleFeedback({}, someTopic.id, { before: 3, after: 4, goal: 5 })
+assert.equal(weekNotYet.kind, 'topic')
+const weekAlreadyHit = toggleFeedback({}, someTopic.id, { before: 5, after: 6, goal: 5 })
+assert.equal(weekAlreadyHit.kind, 'topic')
+// prioridade: área concluída continua ganhando da meta semanal batida no mesmo toggle
+const areaAndWeek = toggleFeedback(area2AlmostDone, area2Last.id, { before: 4, after: 5, goal: 5 })
+assert.equal(areaAndWeek.kind, 'area')
 
 // F02: link de progresso - ida e volta com tudo concluído (557 tópicos + 60 dias + 14 desafios)
 const allTopicsDoneLink = Object.fromEntries(areas.flatMap(area => area.topics).map(topic => [topic.id, true]))
@@ -347,5 +375,5 @@ assert.deepEqual(dirtyReviews.reviews, { [area1FirstEssential.id]: { at: '2026-0
 await server.close()
 console.log(
   'domain: percent, localDay, streak, matchesArea, toggleFeedback, nextTopic, phaseState, areaState, nextGoals, '
-  + 'link de progresso (F02) e revisão espaçada (F03) OK',
+  + 'link de progresso (F02), revisão espaçada (F03) e meta semanal (B02) OK',
 )
