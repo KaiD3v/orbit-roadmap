@@ -1,9 +1,28 @@
 import type { ChangeEvent } from 'react'
 import { createBackup } from '../domain/backup'
 import type { Feedback } from '../domain/progress'
+import { encodeProgress } from '../domain/share'
 import { useProgress } from '../store/progress'
 
 export function BackupControls({ notify }: { notify: (feedback: Feedback) => void }) {
+  async function shareLink() {
+    const url = `${location.origin}${location.pathname}#p=${encodeProgress(useProgress.getState())}`
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: 'Meu progresso no Orbit', url })
+      } catch {
+        // cancelou o compartilhamento nativo; não é um erro
+      }
+      return
+    }
+    try {
+      await navigator.clipboard.writeText(url)
+      notify({ message: 'Link copiado. Abra no outro aparelho.', kind: 'info' })
+    } catch {
+      window.prompt('Copie o link do seu progresso:', url)
+    }
+  }
+
   function exportBackup() {
     const backup = createBackup(useProgress.getState())
     const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' })
@@ -34,6 +53,7 @@ export function BackupControls({ notify }: { notify: (feedback: Feedback) => voi
 
   return (
     <div className="top-actions">
+      <button className="text-button" type="button" onClick={shareLink}>Copiar link de progresso</button>
       <button className="text-button" type="button" onClick={exportBackup}>Baixar backup</button>
       <label className="import-button">
         Restaurar backup <input type="file" accept="application/json,.json" onChange={loadBackup} />

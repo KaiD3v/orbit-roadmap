@@ -4,12 +4,14 @@ import { persist } from 'zustand/middleware'
 import { areasWithChallenge, validTopicKeys } from '../data/roadmap'
 import { cleanProgress, parseBackup, safeProgress } from '../domain/backup'
 import { localDay, metrics, toggleChallengeFeedback, toggleFeedback, type Feedback } from '../domain/progress'
+import { combineProgress, newTopicsCount } from '../domain/share'
 import type { ProgressData } from '../types/progress'
 
 type ProgressStore = ProgressData & {
   toggleTopic: (key: string) => void
   toggleChallenge: (areaId: string) => void
   importBackup: (input: unknown) => void
+  mergeProgress: (incoming: ProgressData) => number
 }
 
 function legacyProgress(): ProgressData {
@@ -23,7 +25,7 @@ function legacyProgress(): ProgressData {
 
 export const useProgress = create<ProgressStore>()(
   persist(
-    set => ({
+    (set, get) => ({
       ...legacyProgress(),
       toggleTopic: (key) => {
         if (!validTopicKeys.has(key)) return
@@ -54,6 +56,11 @@ export const useProgress = create<ProgressStore>()(
         })
       },
       importBackup: input => set(parseBackup(input)),
+      mergeProgress: (incoming) => {
+        const added = newTopicsCount(get().done, incoming.done)
+        set(state => combineProgress(state, incoming))
+        return added
+      },
     }),
     {
       name: 'orbit-roadmap-react-v1',

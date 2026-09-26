@@ -20,7 +20,10 @@ export const displayNumber = new Map(orderedAreas.map((area, index) => [area.id,
 export const stepLabel = (area: Area) => String(displayNumber.get(area.id)).padStart(2, '0')
 export const validTopicKeys = new Set(areas.flatMap(area => area.topics.map(topic => topic.id)))
 export const areasWithChallenge = new Set(areas.filter(area => area.challenge).map(area => String(area.id)))
+// Índice 0-based do sufixo `-t{NN}` do id (a1-t01 -> 0). Usado no id legado (`{área}:{índice}`)
+// e no link de progresso (F02), cujo bit k corresponde a esse mesmo índice.
+export const topicIndex = (topicId: string) => Number(topicId.match(/-t(\d+)$/)?.[1]) - 1
 export const legacyTopicKeys = new Map<string, string>(areas.flatMap(area => area.topics.flatMap((topic) => {
-  const originalIndex = Number(topic.id.match(/-t(\d+)$/)?.[1]) - 1
+  const originalIndex = topicIndex(topic.id)
   return Number.isInteger(originalIndex) ? [[`${area.id}:${originalIndex}`, topic.id] as const] : []
 })))

@@ -67,6 +67,16 @@ assert.equal(useProgress.getState().challenges['1'], undefined)
 useProgress.getState().toggleChallenge('999')
 assert.equal(useProgress.getState().challenges['999'], undefined)
 
+// mergeProgress (F02, progresso por link): soma sem apagar o que já existe, e devolve quantos tópicos são novos
+const secondTopicId = areas.find(area => area.id === 1).topics[1].id
+useProgress.setState({ done: { [firstTopicId]: true }, days: ['2026-09-20'], challenges: {} })
+const added = useProgress.getState().mergeProgress({
+  done: { [secondTopicId]: true, [firstTopicId]: true }, days: ['2026-09-21'], challenges: {},
+})
+assert.equal(added, 1)
+assert.deepEqual(useProgress.getState().done, { [firstTopicId]: true, [secondTopicId]: true })
+assert.deepEqual(new Set(useProgress.getState().days), new Set(['2026-09-20', '2026-09-21']))
+
 await server.close()
 
 assert.deepEqual(cleaned.done, { [firstTopicId]: true })

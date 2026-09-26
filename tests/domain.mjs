@@ -9,6 +9,9 @@ const {
 } = await server.ssrLoadModule('/src/domain/progress.ts')
 const { matchesArea, normalizeQuery } = await server.ssrLoadModule('/src/domain/filter.ts')
 const { parseBackup } = await server.ssrLoadModule('/src/domain/backup.ts')
+const {
+  combineProgress, decodeProgress, encodeProgress, newTopicsCount,
+} = await server.ssrLoadModule('/src/domain/share.ts')
 
 assert.equal(percent(0, 0), 0)
 assert.equal(percent(1, 3), 33)
@@ -146,5 +149,57 @@ const areaFeedback = toggleFeedback(area2AlmostDone, area2Last.id)
 assert.equal(areaFeedback.kind, 'area')
 assert(areaFeedback.message.startsWith('Área concluída! Próxima:'))
 
+// F02: link de progresso - ida e volta com tudo concluído (557 tópicos + 60 dias + 14 desafios)
+const allTopicsDoneLink = Object.fromEntries(areas.flatMap(area => area.topics).map(topic => [topic.id, true]))
+const allChallengesDoneLink = Object.fromEntries(
+  areas.filter(area => area.challenge).map(area => [String(area.id), localDay()]),
+)
+const last60Days = Array.from({ length: 60 }, (_, i) => {
+  const date = new Date()
+  date.setDate(date.getDate() - i)
+  return localDay(date)
+})
+const fullProgress = { done: allTopicsDoneLink, days: last60Days, challenges: allChallengesDoneLink }
+const fullLink = encodeProgress(fullProgress)
+console.log(`domain: link de progresso completo tem ${fullLink.length} caracteres`)
+assert(fullLink.length < 1500)
+const roundTrip = decodeProgress(fullLink)
+assert.deepEqual(roundTrip.done, allTopicsDoneLink)
+assert.deepEqual(new Set(roundTrip.days), new Set(last60Days))
+assert.deepEqual(roundTrip.challenges, allChallengesDoneLink)
+
+// Ida e volta com progresso vazio
+const emptyRoundTrip = decodeProgress(encodeProgress({ done: {}, days: [], challenges: {} }))
+assert.deepEqual(emptyRoundTrip, { done: {}, days: [], challenges: {} })
+
+// Link com segmento de área inexistente: ignora o segmento ruim, mantém o resto
+const area1FirstEssential = area1.topics.find(topic => topic.required)
+const oneTopicLink = encodeProgress({ done: { [area1FirstEssential.id]: true }, days: [], challenges: {} })
+const [, areaSegment, daysSegment, challengesSegment] = oneTopicLink.split('~')
+const withUnknownArea = decodeProgress(`1~9999.${areaSegment.split('.')[1]},${areaSegment}~${daysSegment}~${challengesSegment}`)
+assert.deepEqual(withUnknownArea.done, { [area1FirstEssential.id]: true })
+
+// Link com bits além dos tópicos reais da área: nunca inventa um id de tópico inexistente
+const overflowBits = decodeProgress('1~2._w~~')
+assert(Object.keys(overflowBits.done).every(id => area2.topics.some(topic => topic.id === id)))
+
+// Segmento de área adulterado (bits ilegíveis): ignora e não quebra o link inteiro
+const garbledLink = decodeProgress('1~2.####~~')
+assert.deepEqual(garbledLink.done, {})
+
+// Prefixo de versão inválido ou link sem a forma esperada lança erro
+assert.throws(() => decodeProgress('2~~~'))
+assert.throws(() => decodeProgress('lixo'))
+
+// combineProgress: união nunca desmarca o que já existia localmente
+const localState = { done: { [area1FirstEssential.id]: true }, days: ['2026-09-20'], challenges: {} }
+const area2FirstEssential = area2.topics.find(topic => topic.required)
+const incoming = { done: { [area2FirstEssential.id]: true }, days: ['2026-09-21'], challenges: {} }
+assert.equal(newTopicsCount(localState.done, incoming.done), 1)
+assert.equal(newTopicsCount(localState.done, localState.done), 0)
+const combined = combineProgress(localState, incoming)
+assert.deepEqual(combined.done, { [area1FirstEssential.id]: true, [area2FirstEssential.id]: true })
+assert.deepEqual(new Set(combined.days), new Set(['2026-09-20', '2026-09-21']))
+
 await server.close()
-console.log('domain: percent, localDay, streak, matchesArea, toggleFeedback, nextTopic, phaseState, areaState e nextGoals OK')
+console.log('domain: percent, localDay, streak, matchesArea, toggleFeedback, nextTopic, phaseState, areaState, nextGoals e link de progresso (F02) OK')
