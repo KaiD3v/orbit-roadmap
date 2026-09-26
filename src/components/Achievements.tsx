@@ -1,7 +1,7 @@
 import { badges, goalsLine, localDay } from '../domain/progress'
 import { badgeCard, journeyCard, type ShareCardData } from '../domain/shareCard'
 import { useMetrics, useProgress } from '../store/progress'
-import { SectionHeading } from './SectionHeading'
+import { SectionHeading } from './ui/SectionHeading'
 
 export function Achievements({ openShare }: { openShare: (data: ShareCardData) => void }) {
   const done = useProgress(state => state.done)

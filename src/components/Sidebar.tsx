@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { phases } from '../data/roadmap'
 import { levelFor, localDay, phaseState } from '../domain/progress'
 import { levelCard, type ShareCardData } from '../domain/shareCard'
-import { BookIcon } from './ResourceCard'
+import { BookIcon } from './icons/BookIcon'
 import { useMetrics, useProgress } from '../store/progress'
 
 // Só "concluída" usa glifo; atual e a seguir são desenhados no CSS (.nav-state)

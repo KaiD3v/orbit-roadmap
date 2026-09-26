@@ -5,7 +5,7 @@ import type { ShareCardData } from '../domain/shareCard'
 import { useProgress } from '../store/progress'
 import { MapToolbar } from './MapToolbar'
 import { RoadmapMap } from './RoadmapMap'
-import { SectionHeading } from './SectionHeading'
+import { SectionHeading } from './ui/SectionHeading'
 import type { Area } from '../types/content'
 
 export function Journey({ search, onSearch, filter, onFilter, open, openShare }: {

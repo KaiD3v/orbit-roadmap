@@ -83,7 +83,10 @@ src/
                            entrada da Biblioteca
     Achievements.tsx       conquistas (cada uma desbloqueada ganha "Compartilhar") e "Compartilhar minha
                            trilha até aqui"
-    BackupControls.tsx, Toast.tsx, SectionHeading.tsx
+    BackupControls.tsx, Toast.tsx
+    icons/                 ícones SVG desenhados à mão, um por arquivo (BookIcon, PencilIcon); `currentColor`,
+                           14px, `aria-hidden`
+    ui/                    componentes de interface genéricos, sem regra do app (SectionHeading)
   styles/                  CSS puro: base (tokens, fundo), dashboard, map, dialog, share, library; index.css importa todos
 public/                    servidos como estão, sem passar pelo build (ver "PWA" abaixo)
   favicon.svg, icon-192.png, icon-512.png, icon-maskable-512.png
@@ -102,6 +105,9 @@ tests/
 - Mudança no formato do progresso → `types/progress.ts` + `domain/backup.ts` + `store/progress.ts`, com teste de migração em `tests/store.mjs`.
 - Conteúdo → `src/data/areas.ts`.
 - Componente → só apresentação; se tiver um `if` de regra de negócio, ele provavelmente pertence ao domínio.
+  - Ícone SVG → `components/icons/`, um arquivo por ícone, importado direto (sem `index.ts`).
+  - Peça de interface usada em mais de um lugar e que não conhece o domínio (não importa de `domain/` nem de
+    `store/`) → `components/ui/`. Componente ligado a uma funcionalidade fica na raiz de `components/`.
 
 Não há Context, roteador, barrels (`index.ts`) nem biblioteca de UI. Não adicione sem necessidade real.
 

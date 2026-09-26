@@ -5,6 +5,7 @@ import {
   CHALLENGE_XP, countDone, isChallengeUnlocked, percent, PHASE_XP, priorityProgress, TOPIC_XP, type Feedback,
 } from '../domain/progress'
 import { challengeCard, type ShareCardData } from '../domain/shareCard'
+import { PencilIcon } from './icons/PencilIcon'
 import { useProgress, useToggleChallenge, useToggleTopic } from '../store/progress'
 import { ResourceCard, TopicResources } from './ResourceCard'
 import type { Area, Resource } from '../types/content'
@@ -61,26 +62,6 @@ function TopicNoteEditor({ topicId, note, setNote, onClose }: {
         <button className="text-button" type="button" onClick={finish}>Pronto</button>
       </div>
     </div>
-  )
-}
-
-// Pílula pequena (ícone + texto); lápis à mão, sem depender de nenhuma lib de ícones.
-function PencilIcon() {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      width="14"
-      height="14"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-    >
-      <path d="M12 20h9" />
-      <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z" />
-    </svg>
   )
 }
 
