@@ -19,6 +19,8 @@ Para a jornada não virar obrigação, o progresso é visual e recompensado: o m
 - **Card "Seu próximo passo":** mostra o próximo tópico essencial (ou o desafio pendente da área) e permite marcar como feito sem abrir nada.
 - **Mapa por fases:** só a fase atual fica aberta, como uma trilha. As outras mostram uma estrela por área.
 - **Painel da área:** mostra os essenciais como uma sequência de passos, os extras recolhidos, o desafio prático e os materiais de estudo, com um deles em destaque.
+- **Materiais com contexto:** nível, idioma, gratuito ou pago, duração e uma frase de "por que este" (quando a curadoria tiver esse dado). Um tópico com material ligado a ele ganha um link "Onde estudar" (ou "Onde estudar isto" no card de próximo passo); marcar como lido rende XP, até um teto por área.
+- **Biblioteca de materiais:** todos os materiais do roadmap numa só tela, com busca e filtros por tipo, nível, idioma, gratuito e lido/não lido, entrando pela sidebar.
 - **Notas por tópico:** anote o que aprendeu ou um link que ajudou, direto no painel da área. A nota reaparece no bloco de revisão espaçada, para lembrar sem precisar reabrir o painel.
 - **Busca e filtros** por área ou tópico.
 - **Recompensas:** XP, níveis (Explorador, Construtor, Especialista, Arquiteto orbital), conquistas, sequência de dias, meta semanal (5 tópicos ou desafios por semana) e a meta mais próxima ("Falta 1 tópico para…").
@@ -42,7 +44,7 @@ Uma vez aberto ao menos uma vez, o app carrega e funciona **sem internet** (o pr
 
 Não há conta, servidor nem rastreamento. O progresso fica **só no seu navegador** (`localStorage`). Para levar o progresso para outro navegador ou aparelho, use **Baixar backup**/**Restaurar backup** ou **Copiar link de progresso**: o link carrega o progresso depois do `#`, uma parte do endereço que o navegador nunca envia a nenhum servidor.
 
-Suas **notas por tópico** ficam só no aparelho e no backup em arquivo: elas nunca entram no link de progresso, que precisa continuar curto e pode ser compartilhado por aí.
+Suas **notas por tópico** e os **materiais marcados como lidos** ficam só no aparelho e no backup em arquivo: eles nunca entram no link de progresso, que precisa continuar curto e pode ser compartilhado por aí.
 
 ## Instalação
 
@@ -67,6 +69,7 @@ O Vite mostra o endereço local no terminal (por padrão, http://localhost:5173)
 | `pnpm preview` | Serve o build de produção localmente |
 | `pnpm lint` | ESLint, incluindo a formatação (`pnpm lint --fix` corrige) |
 | `pnpm test` | Testes das regras de progresso, da integridade do conteúdo e das migrações |
+| `pnpm check-links` | Confere se as URLs dos materiais ainda respondem (fora do `pnpm test`, roda de vez em quando) |
 
 O resultado de `pnpm build` é um site estático (HTML, CSS e JS). Pode ser publicado em qualquer hospedagem estática (GitHub Pages, Netlify, Vercel, Cloudflare Pages).
 

@@ -16,10 +16,11 @@ Princípios que guiam as decisões:
 
 ```bash
 pnpm install
-pnpm dev        # Vite
-pnpm lint       # ESLint + formatação (@stylistic); `pnpm lint --fix` corrige
-pnpm test       # node tests/domain.mjs && node tests/store.mjs
-pnpm build      # tsc -b + vite build
+pnpm dev          # Vite
+pnpm lint         # ESLint + formatação (@stylistic); `pnpm lint --fix` corrige
+pnpm test         # node tests/domain.mjs && node tests/store.mjs
+pnpm build        # tsc -b + vite build
+pnpm check-links  # confere se as URLs dos materiais respondem 2xx/3xx; fora do `pnpm test`, roda de vez em quando
 ```
 
 **Validação completa antes de concluir qualquer mudança:** `pnpm lint && pnpm build && pnpm test`.
@@ -36,35 +37,47 @@ src/
   App.tsx                  composição + estado de tela (área aberta, busca, filtro, toast)
   data/
     areas.ts               CONTEÚDO: as 60 áreas (tópicos, materiais, desafios). Tipado.
-    roadmap.ts             fases + índices derivados (orderedAreas, areasByPhase, stepLabel,
-                           validTopicKeys, legacyTopicKeys, areasWithChallenge)
+    roadmap.ts             fases + índices derivados (orderedAreas, areasByPhase, stepLabel, validTopicKeys,
+                           legacyTopicKeys, areasWithChallenge, resourceEntries, validResourceKeys)
   types/
-    content.ts             Area, Topic, Resource, Challenge, ResourceType, PhaseNumber
-    progress.ts            Done, Challenges, DoneAt, Reviews, ReviewStep, Notes, ProgressData, ProgressBackup
+    content.ts             Area, Topic, Resource (+ ResourceLevel), Challenge, ResourceType, PhaseNumber
+    progress.ts            Done, Challenges, DoneAt, Reviews, ReviewStep, Notes, ResourcesRead, ProgressData,
+                           ProgressBackup
   domain/                  REGRAS PURAS: sem React, sem DOM, sem localStorage
-    progress.ts            XP, níveis, conquistas, metas, meta semanal, próximo passo, estados de fase/área, feedback
+    progress.ts            XP (+ materialXp), níveis, conquistas, metas, meta semanal, próximo passo,
+                           estados de fase/área, feedback
     filter.ts              busca e filtros do mapa
     backup.ts              validação, limpeza e migração de progresso (arquivo, localStorage, legado)
     share.ts               progresso por link: codifica/decodifica o hash e junta com o progresso local
     review.ts              revisão espaçada: Leitner de 3 degraus (pickReview, answerReview, timeAgo)
+    resources.ts           materiais (B06): normalizeResourceUrl (chave estável), resourcesForTopic,
+                           resourceMeta (metadados discretos), LEVEL_LABEL
   store/
-    progress.ts            Zustand + persist (localStorage) e hooks (useMetrics, useWeek, useToggleTopic, useToggleChallenge);
-                           a ação `answerReview` é lida direto via `useProgress(state => state.answerReview)`
+    progress.ts            Zustand + persist (localStorage) e hooks (useMetrics, useWeek, useToggleTopic,
+                           useToggleChallenge); `answerReview`/`setNote`/`toggleResourceRead` são lidas
+                           direto via `useProgress(state => state.acao)`
   components/              só exibição: leem o store e chamam o domínio
-    NextStep.tsx           card "Seu próximo passo" (o elemento principal da tela), com o bloco de revisão espaçada
-                           e a meta semanal no rodapé
+    NextStep.tsx           card "Seu próximo passo" (o elemento principal da tela), com o bloco de revisão espaçada,
+                           a meta semanal no rodapé e "Onde estudar isto" quando o tópico atual tem material ligado
     Hero.tsx               boas-vindas, só na primeira visita (depois vira um <h1> sr-only)
     Journey.tsx            seção do mapa: título, MapToolbar, RoadmapMap, lista vazia
     MapToolbar.tsx         busca, filtros e contagem de resultados
     RoadmapMap.tsx         fases (acordeão) e trilha em zigue-zague com caminho SVG
     AreaDialog.tsx         painel lateral da área: passos, desafio, extras, materiais; rola e destaca um tópico
-                           quando aberto pelo "Rever" da revisão espaçada; cada tópico tem uma nota (B03)
-    Sidebar.tsx            navegação por fase (vira menu hambúrguer ≤820px) e nível
+                           quando aberto pelo "Rever" da revisão espaçada; cada tópico tem uma nota (B03) e,
+                           se tiver material ligado, um "Onde estudar" (B06)
+    ResourceCard.tsx       um material (metadados, "por que", marcar como lido) e TopicResources (materiais
+                           de um tópico específico, atrás do link "Onde estudar"); usado por AreaDialog,
+                           NextStep e Library
+    Library.tsx            Biblioteca (B06): todos os materiais, com busca e filtros, aberta por `#biblioteca`
+    Sidebar.tsx            navegação por fase (vira menu hambúrguer ≤820px), nível e entrada da Biblioteca
     Achievements.tsx, BackupControls.tsx, Toast.tsx, SectionHeading.tsx
-  styles/                  CSS puro: base (tokens, fundo), dashboard, map, dialog; index.css importa todos
+  styles/                  CSS puro: base (tokens, fundo), dashboard, map, dialog, library; index.css importa todos
 public/                    servidos como estão, sem passar pelo build (ver "PWA" abaixo)
   favicon.svg, icon-192.png, icon-512.png, icon-maskable-512.png
   manifest.webmanifest, sw.js
+scripts/
+  check-links.mjs          confere as URLs dos materiais (HEAD, GET de reserva); `pnpm check-links`, fora do teste
 tests/
   domain.mjs               regras puras
   store.mjs                integridade do conteúdo + hidratação/migração do store
@@ -84,14 +97,16 @@ Não há Context, roteador, barrels (`index.ts`) nem biblioteca de UI. Não adic
 
 - `Area`: `id` (número estável), `title`, `phase` (1–6), `description`, `topics`, `resources`, `challenge?`.
 - `Topic`: `id` no formato `a{área}-t{NN}` (ex.: `a1-t07`), `title`, `required` (essencial = `true`, extra = `false`).
-- `Resource`: `type` ∈ `Material | Curso | Vídeo | Livro`, `title` e `url`, que **precisa** começar com `https://`. Os três quebram o `tsc` se estiverem errados. Toda área tem os 4 tipos (verificado em `tests/store.mjs`).
+- `Resource`: `type` ∈ `Material | Curso | Vídeo | Livro`, `title` e `url`, que **precisa** começar com `https://`. Os três quebram o `tsc` se estiverem errados. Toda área tem **pelo menos** os 4 tipos (verificado em `tests/store.mjs`); nada impede mais de um do mesmo tipo.
+  - Campos opcionais (B06), todos undefined em materiais antigos sem curadoria: `level?: 'iniciante' | 'intermediario' | 'avancado'`, `lang?: 'pt' | 'en'`, `free?: boolean`, `duration?: string` (texto curto: `"2h"`, `"40 min"`, `"300 páginas"` — **não invente**; sem confirmação, omita), `why?: string` (uma frase, até ~140 caracteres, o que dá para fazer depois), `topics?: string[]` (ids de tópico **da mesma área**, verificado em `tests/store.mjs`).
+  - **Ordem sugerida:** a ordem do array é a ordem de estudo (o primeiro é "Comece por este"). Um item com `why` some como "depois, este" — sinaliza sequência sem numeração decorativa; sem `why`, aparece como hoje, sem selo.
 - `Challenge` (opcional): `title` (imperativo, uma frase), `brief` (2–3 frases: contexto e escopo mínimo) e `done` (3–5 critérios objetivos de pronto). Por enquanto só as 14 áreas da fase 1 têm desafio.
 - **Nunca renomeie nem reutilize IDs de tópico ou de área.** O progresso salvo e os backups dependem deles. Para adicionar um tópico, use o próximo número livre da área.
 - A ordem de exibição é por fase e, dentro da fase, pela ordem do array (`orderedAreas`). O número da etapa ("Etapa 07") vem dessa ordem, não do `id`.
 
 ## Regras de negócio
 
-### Progresso salvo (esquema v5)
+### Progresso salvo (esquema v6)
 
 ```ts
 ProgressData = {
@@ -103,18 +118,20 @@ ProgressData = {
     at: string, step: 0 | 1 | 2 | 3          // 3 = já revisto três vezes (graduado, fora do ciclo)
   }>,
   notes: Record<topicId, string>,            // nota curta por tópico (B03), até NOTE_MAX caracteres
+  resourcesRead: Record<resourceKey, string>, // material lido (B06) → dia em que marcou; ver seção abaixo
 }
 ```
 
-- Chave do `localStorage`: **`orbit-roadmap-react-v1`**, com `version: 5` no `persist` do Zustand. Não mude o nome da chave.
+- Chave do `localStorage`: **`orbit-roadmap-react-v1`**, com `version: 6` no `persist` do Zustand. Não mude o nome da chave.
 - Migração: tudo passa por `cleanProgress`, que descarta IDs inexistentes, datas inválidas e desafios de áreas sem desafio, e preenche campos ausentes com `{}` ou `[]`.
   - O v1 salvava os tópicos como `'{idDaÁrea}:{índice}'`; eles são convertidos para os IDs estáveis via `legacyTopicKeys`.
   - Progressos v2 não têm `challenges` e ganham `{}`.
   - Progressos anteriores ao v4 não têm `doneAt`/`reviews`: cada tópico já concluído ganha `doneAt` = **dia da migração** (nunca a data real de conclusão, perdida), e `reviews` começa `{}`. Por isso ninguém recebe uma revisão no dia em que atualiza o app; elas só aparecem semanas depois. `cleanProgress` aceita um `today` opcional (default `localDay()`) para isso ser testável.
   - Uma entrada de `reviews` só é aceita se o tópico correspondente estiver em `done`; senão é descartada (revisão de tópico não concluído não existe).
   - Progressos anteriores ao v5 não têm `notes` e ganham `{}`.
+  - Progressos anteriores ao v6 não têm `resourcesRead` e ganham `{}`; chaves que não correspondem a nenhum material atual (`validResourceKeys`) são descartadas.
 - Na primeira execução, o progresso da versão HTML antiga é lido da chave `orbit-roadmap-v1`, se existir na mesma origem.
-- Backup: exporta `{ version: 5, ...ProgressData }` como `orbit-progresso.json`; importa versões **1 a 5** e **substitui** o progresso atual (com confirmação).
+- Backup: exporta `{ version: 6, ...ProgressData }` como `orbit-progresso.json`; importa versões **1 a 6** e **substitui** o progresso atual (com confirmação).
 - **Toda mudança de formato:** sobe a versão (persist e backup), aceita as versões antigas e ganha teste de migração. Perder progresso de quem já usa é o pior bug possível aqui.
 
 ### Progresso por link (`domain/share.ts`)
@@ -131,7 +148,7 @@ Leva o progresso para outro aparelho sem arquivo: um link com tudo depois do `#`
 - **Abrir:** ao montar o `App`, se `location.hash` começa com `#p=`, decodifica e **junta** com o progresso local (`mergeProgress`, união de `done`/`days`/`challenges` — nunca apaga nada, diferente de `importBackup`, que substitui e por isso pede confirmação). Toast "Progresso do link adicionado: +N tópicos" (ou "Este aparelho já tinha tudo desse link" se N = 0); em erro, "Esse link de progresso está incompleto ou é de outra versão" e o progresso local não é tocado. Nos dois casos o hash é limpo com `history.replaceState`, sem conflitar com as âncoras `#fase-N` do mapa.
 - **Testes em `tests/domain.mjs`:** ida e volta com progresso completo (o teste imprime o tamanho real do link), área/tópico inexistente e prefixo de versão inválido. `tests/store.mjs` cobre a ação `mergeProgress` do store.
 - **`doneAt`/`reviews` (F03) não viajam no link**, para ele continuar curto. Em `combineProgress`, um tópico que já existia no aparelho que recebe mantém seu `doneAt`; um tópico novo (que veio do link) ganha `doneAt` = hoje. `reviews` são só combinadas (união), já que o link nunca carrega revisões.
-- **`notes` (B03) também não viaja no link** — o link precisa continuar curto e a nota pode ter algo pessoal. `combineProgress` sempre fica com as notas do aparelho atual (`current.notes`), nunca com as de `incoming` (que de todo modo nunca tem nenhuma).
+- **`notes` (B03) e `resourcesRead` (B06) também não viajam no link** — o link precisa continuar curto e ambos podem ter algo pessoal. `combineProgress` sempre fica com os do aparelho atual (`current.notes`/`current.resourcesRead`), nunca com os de `incoming` (que de todo modo nunca tem nenhum).
 
 ### Revisão espaçada (`domain/review.ts`)
 
@@ -160,9 +177,22 @@ Um campo curto para anotar o que aprendeu ou um link que ajudou, por tópico. N�
 - **Link (F02) não carrega notas** — ver a regra em "Progresso por link" acima.
 - **Testes:** `tests/domain.mjs` cobre a limpeza de notas em `cleanProgress` (id inexistente, valor não-string, corte no limite, vazia descartada, independente de `done`) e `combineProgress` preservando as notas locais. `tests/store.mjs` cobre a migração v4 → v5, `setNote` (salva/corta/remove) e que desmarcar o tópico não apaga a nota.
 
+### Materiais de estudo (B06)
+
+Cada área tem os 4 materiais de sempre (Material, Curso, Vídeo, Livro), mas agora podem ganhar contexto e se ligar a tópicos específicos; a curadoria de metadados e a ligação a tópicos, por ora, só cobre a **fase 1** (14 áreas) — o resto do roadmap continua com os 4 materiais "crus", que funcionam igual.
+
+- **Metadados discretos:** `resourceMeta` (`domain/resources.ts`) monta uma linha só com os campos preenchidos — "Vídeo · Intermediário · EN · grátis · 40 min". Sem nenhum campo, sobra só o tipo (visual idêntico ao anterior à B06).
+- **Onde estudar:** um tópico com pelo menos um material cujo `topics` o inclui ganha um botão discreto "Onde estudar" (`TopicResources`, em `AreaDialog.tsx`) que expande a lista desses materiais. O card "Seu próximo passo" mostra o mesmo componente como "Onde estudar isto", abaixo das ações (nunca competindo com "Já estudei").
+- **Marcar como lido:** cada material tem um botão "Marcar como lido"/"Lido" (`ResourceCard`). A chave é a **URL normalizada** (`normalizeResourceUrl`): sem barra final, sem parâmetros `utm_*`. Materiais não têm id próprio; **se a URL mudar na curadoria, o registro de "lido" se perde** (aceito). Um material citado em várias áreas (ex.: o mesmo livro) é uma chave só — marcar como lido em uma área marca em todas.
+- **XP de material:** `+5` por material lido (`MATERIAL_XP`), com teto de `4` por área (`MATERIAL_XP_CAP_PER_AREA`, `materialXp` em `domain/progress.ts`) para não virar farm marcando os 4 tipos genéricos. Um material citado em várias áreas conta o teto **em cada uma** (é crédito por área, não por material). O **nível** continua baseado só nos essenciais — ler material não pula nível.
+- **Marcar como lido não registra dia de estudo** — mesma lógica das notas (B03): ler não é a mesma coisa que estudar/concluir um tópico, e a ação já rende XP à parte.
+- **Biblioteca (`Library.tsx`):** todos os materiais do roadmap, agrupados por fase e área (ordem de `orderedAreas`), com busca (mesma regra de início de palavra da B01, `domain/filter.ts`) e filtros por tipo, nível, idioma, gratuito e lido/não lido. Aberta por hash **`#biblioteca`** (sem roteador), com entrada pela sidebar; fechar sempre limpa o hash (`history.replaceState`). Não conflita com `#fase-N` (`RoadmapMap`) nem com `#p=` (progresso por link): o `App` só reage ao hash exato `#biblioteca`. Cada material abre a área correspondente no mapa ("Abrir área").
+- **Verificação de links:** `scripts/check-links.mjs` (`pnpm check-links`, fora do `pnpm test`) faz `HEAD` (e `GET` se o `HEAD` falhar) em cada URL única com limite de concorrência e timeout, e lista as que não respondem 2xx/3xx. Não conserta nada sozinho; alguns catálogos (ex.: `oreilly.com`) bloqueiam pedidos automatizados com 403 mesmo com a página existindo — trate isso como ruído conhecido, não prova de link quebrado.
+- **Testes:** `tests/store.mjs` cobre `topics[]` restrito a tópicos da mesma área, limites de `why`/`duration`, a migração v5 → v6 e `toggleResourceRead`. `tests/domain.mjs` cobre `normalizeResourceUrl`, `resourcesForTopic`, `resourceMeta` e o teto de `materialXp` (inclusive o crédito em mais de uma área para um material compartilhado).
+
 ### XP, níveis e sequência
 
-- **XP** = tópicos concluídos × **10** + fases 100% concluídas × **100** + desafios concluídos × **50**.
+- **XP** = tópicos concluídos × **10** + fases 100% concluídas × **100** + desafios concluídos × **50** + materiais lidos × **5** (com teto por área, ver "Materiais de estudo" acima).
 - **Nível**, pelo percentual de **essenciais** concluídos: Explorador (<25%), Construtor (≥25%), Especialista (≥60%), Arquiteto orbital (100%).
 - **Sequência:** dias consecutivos em `days` terminando hoje ou ontem (estudar hoje não é obrigatório para manter a sequência até o fim do dia). Marcar um tópico ou um desafio registra o dia.
 - **Meta semanal (B02):** `weekProgress` (`domain/progress.ts`) conta, na semana de segunda a domingo (`weekStart`, fuso local), os tópicos concluídos (por `doneAt`) mais os desafios concluídos (por `challenges`, 1 cada) contra a meta fixa `WEEKLY_GOAL = 5`. Revisões não contam. Não depende de campo novo no esquema; configurar a meta fica para depois. O card "Seu próximo passo" mostra "**N** de 5 nesta semana" com 5 pontos (acesos em ciano); ao bater a meta no ato de marcar um tópico (transição 4 → 5), `toggleFeedback` devolve um toast "Meta da semana batida! +10 XP" — só nessa transição, nunca ao recarregar a página, e com prioridade abaixo de fase/nível/área concluídos.
@@ -248,5 +278,5 @@ Um campo curto para anotar o que aprendeu ou um link que ajudou, por tópico. N�
 
 ## Onde está o quê além do código
 
-- [BACKLOG.md](BACKLOG.md): ideias avaliadas (cards compartilháveis, recomendação de materiais mais completa) e o que foi descartado, com o motivo.
-- Implementadas: **progresso por link** (F02, `domain/share.ts`), **revisão espaçada** (F03, `domain/review.ts`), **meta semanal** (B02, `weekProgress`/`weekStart` em `domain/progress.ts`), **notas por tópico** (B03, `domain/backup.ts` + `AreaDialog.tsx`) e **PWA/offline** (B04, ver "PWA" acima), ver "Regras de negócio" acima.
+- [BACKLOG.md](BACKLOG.md): ideias avaliadas (cards compartilháveis) e o que foi descartado, com o motivo.
+- Implementadas: **progresso por link** (F02, `domain/share.ts`), **revisão espaçada** (F03, `domain/review.ts`), **meta semanal** (B02, `weekProgress`/`weekStart` em `domain/progress.ts`), **notas por tópico** (B03, `domain/backup.ts` + `AreaDialog.tsx`), **PWA/offline** (B04, ver "PWA" acima) e **materiais de estudo/Biblioteca** (B06, ver "Materiais de estudo" acima), ver "Regras de negócio" acima.
