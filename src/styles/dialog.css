@@ -75,7 +75,7 @@
   grid-template-columns: 1fr;
   gap: 7px;
 }
-.detail-main .topic {
+.detail-main .topic-entry {
   font-size: 12px;
   padding: 11px;
 }
@@ -123,7 +123,7 @@
   font-size: 11px;
   line-height: 1.5;
 }
-.topic-section.deepening .topic {
+.topic-section.deepening .topic-entry {
   border-style: dashed;
 }
 /* Desafio prático: um cartão violeta (ação) que vira ciano (concluído) dentro da seção padrão */
@@ -184,10 +184,7 @@
   display: grid;
   gap: 7px;
 }
-.essential-steps .topic {
-  align-items: center;
-}
-.essential-steps li.is-next .topic {
+.essential-steps li.is-next .topic-entry {
   border-color: var(--violet);
   background: color-mix(in srgb, var(--violet) 14%, #10182f);
 }
@@ -272,30 +269,49 @@
     grid-template-columns: 1fr;
   }
 }
-/* B03: nota curta por tópico. O botão fica fora do <label> do checkbox, para não competir com ele. */
-.topic-entry {
-  display: flex;
-  flex-direction: column;
-}
+/* B03/B06: as ações (Anotar/Ver nota, Onde estudar) ficam fora do <label> do checkbox, para não
+   competir com ele; entram como pílulas na mesma linha do título (ver `.topic-entry` em dashboard.css). */
 .topic-grid .topic-entry.note-open {
   grid-column: 1 / -1;
 }
-.topic-note-toggle {
-  align-self: flex-start;
-  margin: 4px 0 0 3px;
-  font-size: 11px;
+.topic-note-toggle,
+.topic-resources-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  flex: none;
+  padding: 4px 10px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: none;
+  color: color-mix(in srgb, var(--text) 80%, transparent);
+  font: 12px "DM Sans", sans-serif;
+  white-space: nowrap;
+}
+.topic-note-toggle:hover,
+.topic-note-toggle:focus-visible,
+.topic-resources-toggle:hover,
+.topic-resources-toggle:focus-visible {
+  border-color: var(--violet);
+  color: var(--violet);
+}
+.topic-note-toggle.has-note {
+  background: #65e1ec14;
 }
 .note-dot {
   display: inline-block;
   width: 6px;
   height: 6px;
-  margin-right: 6px;
   border-radius: 50%;
   background: var(--muted);
-  vertical-align: middle;
+  flex: none;
+}
+.topic-note-toggle .note-dot {
+  background: var(--cyan);
 }
 .topic-note-open {
-  margin-top: 6px;
+  width: 100%;
+  margin-top: 2px;
 }
 .topic-note-textarea {
   width: 100%;
@@ -320,15 +336,15 @@
   font-size: 11px;
   color: var(--muted);
 }
-/* B06: "Onde estudar" por tópico, ao lado do botão de nota */
+/* B06: "Onde estudar" por tópico, pílula ao lado da de nota; aberta, a lista some para a linha de baixo */
 .topic-resources {
-  display: inline-block;
+  flex: none;
 }
-.topic-resources-toggle {
-  margin: 4px 0 0 3px;
-  font-size: 11px;
+.topic-resources.is-open {
+  flex: 1 1 100%;
 }
 .topic-resources .resource-list {
   grid-template-columns: 1fr;
   margin-top: 8px;
+  width: 100%;
 }

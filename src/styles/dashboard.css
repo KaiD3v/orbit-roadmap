@@ -89,10 +89,6 @@
   font-family: "Space Grotesk";
   font-size: 11px;
 }
-.nav-link span:last-child {
-  margin-left: auto;
-  font-size: 11px;
-}
 /* Estado da fase: estrela acesa (concluída), planeta com anel (atual), ponto apagado (a seguir) */
 .nav-state {
   display: grid;
@@ -101,8 +97,7 @@
   width: 18px;
   height: 18px;
   border-radius: 50%;
-}
-.nav-link span.nav-state {
+  margin-left: auto;
   font-size: 11px;
 }
 .nav-state.is-done {
@@ -122,10 +117,11 @@
   margin-right: 5px;
   border: 1.5px solid #3b4670;
 }
-.nav-library {
-  margin-top: 6px;
-  border-top: 1px solid var(--line);
-  padding-top: 18px;
+/* Divisória reta antes da Biblioteca: elemento à parte, para não seguir o border-radius do link */
+.nav-divider {
+  height: 1px;
+  margin: 12px 0;
+  background: var(--line);
 }
 .sidebar-bottom {
   margin-top: auto;
@@ -745,20 +741,30 @@ h1 .no-break {
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 8px;
 }
-.topic {
+/* B03/B06: o card do tópico é o `.topic-entry` (envolve o <label> e as ações de "Anotar"/"Onde
+   estudar"), para elas ficarem na mesma linha, dentro do card, sem entrar no <label> do checkbox. */
+.topic-entry {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 12px;
+  gap: 6px 10px;
   padding: 9px 11px;
   border: 1px solid var(--line);
   border-radius: 12px;
   background: #10182f;
   font-size: 12px;
+}
+.topic-entry:hover {
+  border-color: #6174a3;
+}
+.topic {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1 1 0;
+  min-width: 120px;
   line-height: 1.4;
   cursor: pointer;
-}
-.topic:hover {
-  border-color: #6174a3;
 }
 /* Checkbox redondo: vira uma estrela acesa (ciano) ao marcar, como no mapa */
 .topic input {
@@ -797,13 +803,13 @@ h1 .no-break {
   outline: 2px solid var(--cyan);
   outline-offset: 2px;
 }
-.topic.checked {
+.topic-entry.checked {
   color: #9fb0cf;
   background: #0f1d3a;
   border-color: #28496a;
 }
 /* Destaque breve (2s, removido via JS) do tópico aberto pelo "Rever" da revisão espaçada (F03) */
-.topic.is-highlighted {
+.topic-entry.is-highlighted {
   border-color: var(--violet);
   box-shadow: 0 0 0 3px #a889ff40, 0 0 20px #a889ff40;
   transition: border-color 0.6s ease, box-shadow 0.6s ease;
@@ -1235,6 +1241,18 @@ footer {
   }
   .topic-grid {
     grid-template-columns: 1fr;
+  }
+  /* Pílulas descem para uma linha abaixo do título, alinhadas com o texto (depois do checkbox) */
+  .topic {
+    flex-basis: 100%;
+  }
+  .topic-note-toggle,
+  .topic-resources {
+    margin-left: 32px;
+  }
+  .topic-note-toggle,
+  .topic-resources-toggle {
+    min-height: 32px;
   }
   footer {
     display: block;

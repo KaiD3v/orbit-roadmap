@@ -3,6 +3,26 @@ import { normalizeResourceUrl, resourceMeta, resourcesForTopic } from '../domain
 import type { Area, Resource } from '../types/content'
 import type { ResourcesRead } from '../types/progress'
 
+// Livro aberto: pílula de "Onde estudar" (aqui e na Biblioteca da sidebar, mesmo ícone).
+export function BookIcon() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      width="14"
+      height="14"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M2 4h6a4 4 0 0 1 4 4v12a3 3 0 0 0-3-3H2Z" />
+      <path d="M22 4h-6a4 4 0 0 0-4 4v12a3 3 0 0 1 3-3h7Z" />
+    </svg>
+  )
+}
+
 // B06: um material, com metadados discretos ("Vídeo · Intermediário · EN · grátis · 40 min"), o
 // "porquê" (o que dá para fazer depois) e o controle de "lido". `featured` é só o primeiro da área
 // ("Comece por este"); os demais mostram "depois, este" quando têm `why` (sequência sem numeração).
@@ -50,9 +70,9 @@ export function TopicResources({ area, topicId, resourcesRead, onToggleRead, lab
   const [open, setOpen] = useState(false)
   if (!resources.length) return null
   return (
-    <div className="topic-resources">
-      <button className="text-button topic-resources-toggle" type="button" onClick={() => setOpen(!open)}>
-        {open ? 'Ocultar' : label}
+    <div className={`topic-resources ${open ? 'is-open' : ''}`}>
+      <button className="topic-resources-toggle" type="button" onClick={() => setOpen(!open)}>
+        <BookIcon />{open ? 'Ocultar' : label}
       </button>
       {open && (
         <div className="resource-list">

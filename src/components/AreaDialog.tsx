@@ -64,12 +64,36 @@ function TopicNoteEditor({ topicId, note, setNote, onClose }: {
   )
 }
 
+// Pílula pequena (ícone + texto); lápis à mão, sem depender de nenhuma lib de ícones.
+function PencilIcon() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      width="14"
+      height="14"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M12 20h9" />
+      <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z" />
+    </svg>
+  )
+}
+
 function TopicNote({ topicId, notes, setNote, openNoteId, onOpenNote, onCloseNote }: NoteProps) {
   const note = notes[topicId]
   if (openNoteId !== topicId) {
     return (
-      <button className="text-button topic-note-toggle" type="button" onClick={() => onOpenNote(topicId)}>
-        {note ? <><span className="note-dot" aria-hidden="true" />Ver nota</> : 'Anotar'}
+      <button
+        className={`topic-note-toggle ${note ? 'has-note' : ''}`}
+        type="button"
+        onClick={() => onOpenNote(topicId)}
+      >
+        {note ? <><span className="note-dot" aria-hidden="true" />Ver nota</> : <><PencilIcon />Anotar</>}
       </button>
     )
   }
@@ -112,20 +136,25 @@ function EssentialSteps({ area, done, toggle, highlightTopicId, noteProps, resou
             <ol className="essential-steps">
               {visible.map((topic, index) => (
                 <li className={index === 0 ? 'is-next' : ''} key={topic.id}>
-                  <label className="topic" id={`topic-${topic.id}`}>
-                    <input type="checkbox" checked={Boolean(done[topic.id])} onChange={() => toggle(topic.id)} />
-                    <span>
-                      {index === 0 && <span className="step-tag">Próximo</span>}
-                      <span className="step-title">{topic.title}</span>
-                    </span>
-                  </label>
-                  <TopicNote topicId={topic.id} {...noteProps} />
-                  <TopicResources
-                    area={area}
-                    topicId={topic.id}
-                    resourcesRead={resourcesRead}
-                    onToggleRead={onToggleRead}
-                  />
+                  <div
+                    className={`topic-entry ${noteProps.openNoteId === topic.id ? 'note-open' : ''}`}
+                    id={`topic-${topic.id}`}
+                  >
+                    <label className="topic">
+                      <input type="checkbox" checked={Boolean(done[topic.id])} onChange={() => toggle(topic.id)} />
+                      <span>
+                        {index === 0 && <span className="step-tag">Próximo</span>}
+                        <span className="step-title">{topic.title}</span>
+                      </span>
+                    </label>
+                    <TopicNote topicId={topic.id} {...noteProps} />
+                    <TopicResources
+                      area={area}
+                      topicId={topic.id}
+                      resourcesRead={resourcesRead}
+                      onToggleRead={onToggleRead}
+                    />
+                  </div>
                 </li>
               ))}
             </ol>
@@ -140,8 +169,12 @@ function EssentialSteps({ area, done, toggle, highlightTopicId, noteProps, resou
           <summary>✓ {completed.length} feitos</summary>
           <div className="topic-grid">
             {completed.map(topic => (
-              <div className={`topic-entry ${noteProps.openNoteId === topic.id ? 'note-open' : ''}`} key={topic.id}>
-                <label className="topic checked" id={`topic-${topic.id}`}>
+              <div
+                className={`topic-entry checked ${noteProps.openNoteId === topic.id ? 'note-open' : ''}`}
+                id={`topic-${topic.id}`}
+                key={topic.id}
+              >
+                <label className="topic">
                   <input type="checkbox" checked onChange={() => toggle(topic.id)} />
                   <span>{topic.title}</span>
                 </label>
@@ -220,8 +253,11 @@ function ExtrasGroup({ area, done, toggle, noteProps, resourcesRead, onToggleRea
       <p>Alternativas, detalhes internos e especializações, para quando a base estiver firme.</p>
       <div className="topic-grid">
         {extras.map(topic => (
-          <div className={`topic-entry ${noteProps.openNoteId === topic.id ? 'note-open' : ''}`} key={topic.id}>
-            <label className={`topic ${done[topic.id] ? 'checked' : ''}`}>
+          <div
+            className={`topic-entry ${done[topic.id] ? 'checked' : ''} ${noteProps.openNoteId === topic.id ? 'note-open' : ''}`}
+            key={topic.id}
+          >
+            <label className="topic">
               <input type="checkbox" checked={Boolean(done[topic.id])} onChange={() => toggle(topic.id)} />
               <span>{topic.title}</span>
             </label>

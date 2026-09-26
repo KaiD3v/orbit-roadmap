@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { phases } from '../data/roadmap'
 import { levelFor, localDay, phaseState } from '../domain/progress'
 import { levelCard, type ShareCardData } from '../domain/shareCard'
+import { BookIcon } from './ResourceCard'
 import { useMetrics, useProgress } from '../store/progress'
 
 // Só "concluída" usa glifo; atual e a seguir são desenhados no CSS (.nav-state)
@@ -70,8 +71,9 @@ export function Sidebar({ resetView, openShare }: { resetView: () => void, openS
             )
           })}
         </nav>
+        <div className="nav-divider" aria-hidden="true" />
         <a className="nav-link nav-library" href="#biblioteca" onClick={() => setOpen(false)}>
-          <span className="nav-number" aria-hidden="true">▤</span>
+          <span className="nav-number"><BookIcon /></span>
           Biblioteca de materiais
         </a>
         <div className="sidebar-bottom">
