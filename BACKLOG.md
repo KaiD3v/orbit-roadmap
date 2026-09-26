@@ -16,12 +16,6 @@ Funciona offline e ganha ícone na tela inicial do celular. Combina com o fato d
 - Cuidado com o cache: a página precisa atualizar quando sair uma versão nova (estratégia "network first" para o HTML).
 - Custo baixo a médio.
 
-### Cards compartilháveis de conquistas — parte 2 (nível, conquista, "Minha trilha até aqui")
-A parte 1 (card de desafio concluído e de fase concluída) está implementada: `domain/shareCard.ts`, `components/share/drawCard.ts`, `components/ShareCard.tsx`, ver AGENTS.md ("Cards compartilháveis (B05)").
-- **Falta:** `levelCard` (subir de nível), `badgeCard` (desbloquear uma conquista) e "Minha trilha até aqui" (a constelação inteira do roadmap, sob demanda — não amarrada a uma transição).
-- **Pontos de entrada que faltam:** toast de nível (já existe o toast, falta o botão); sidebar/Conquistas (um botão "Compartilhar" por conquista desbloqueada e um "Minha trilha até aqui" geral).
-- Reaproveita o `drawCard` e o diálogo `ShareCard` que já existem; o trabalho é novo `kind` nos dados (`domain/shareCard.ts`) e o desenho de uma medalha/constelação completa.
-
 ### Recomendação de materiais mais completa
 Hoje cada área tem 4 materiais fixos (Material, Curso, Vídeo e Livro), com um em destaque. A ideia é transformar isso num guia de estudo de verdade.
 - **Materiais por tópico, não só por área:** quem trava em "idempotência" encontra o que ler sobre idempotência, sem garimpar a área inteira.

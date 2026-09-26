@@ -53,7 +53,7 @@ src/
     progress.ts            Zustand + persist (localStorage) e hooks (useMetrics, useWeek, useToggleTopic, useToggleChallenge);
                            a ação `answerReview` é lida direto via `useProgress(state => state.answerReview)`.
                            Exporta `Notification` (`Feedback` + `share?` opcional), anexado nas transições
-                           de desafio e fase concluídos para o botão "Compartilhar" do toast grande.
+                           de desafio, fase e nível concluídos para o botão "Compartilhar" do toast grande.
   components/              só exibição: leem o store e chamam o domínio
     NextStep.tsx           card "Seu próximo passo" (o elemento principal da tela), com o bloco de revisão espaçada
                            e a meta semanal no rodapé
@@ -66,10 +66,12 @@ src/
                            quando aberto pelo "Rever" da revisão espaçada; desafio concluído ganha "Compartilhar"
     ShareCard.tsx          diálogo de compartilhamento (B05): pré-visualização do card em <canvas>,
                            formato (feed/stories), nome/@ opcional, compartilhar/baixar e copiar legenda
-    share/drawCard.ts      desenha o ShareCardData num <canvas> 2D (fundo, título, constelação ou
-                           checklist, rodapé); sem dependência
-    Sidebar.tsx            navegação por fase (vira menu hambúrguer ≤820px) e nível
-    Achievements.tsx, BackupControls.tsx, Toast.tsx, SectionHeading.tsx
+    share/drawCard.ts      desenha o ShareCardData num <canvas> 2D (fundo, título, constelação, anel de
+                           nível, medalha de conquista ou checklist do desafio, rodapé); sem dependência
+    Sidebar.tsx            navegação por fase (vira menu hambúrguer ≤820px), nível (com "Compartilhar")
+    Achievements.tsx       conquistas (cada uma desbloqueada ganha "Compartilhar") e "Compartilhar minha
+                           trilha até aqui"
+    BackupControls.tsx, Toast.tsx, SectionHeading.tsx
   styles/                  CSS puro: base (tokens, fundo), dashboard, map, dialog, share; index.css importa todos
 tests/
   domain.mjs               regras puras
@@ -197,16 +199,18 @@ Leitner de 3 degraus (sem lib de repetição espaçada: é resposta binária, al
 
 ### Cards compartilháveis (B05)
 
-Uma imagem 100% gerada no aparelho (`<canvas>` 2D, sem dependência) para postar a conclusão de um desafio ou de uma fase. Por enquanto (parte 1): só desafio e fase concluídos. Nível, conquista e "Minha trilha até aqui" ficam para depois (ver BACKLOG.md).
+Uma imagem 100% gerada no aparelho (`<canvas>` 2D, sem dependência) para postar um momento de progresso: desafio concluído, fase concluída, nível novo, conquista desbloqueada ou "Minha trilha até aqui" (a constelação do roadmap inteiro, sob demanda).
 
-- **Dados vs. desenho:** `domain/shareCard.ts` monta os dados (`challengeCard(area, day)`, `phaseCard(phase, done, challenges, day)` — `day` é sempre explícito, nunca `new Date()` interno, para a função continuar pura e testável, como `weekProgress`). `components/share/drawCard.ts` desenha esses dados num `<canvas>`; nenhum dos dois conhece o outro além do tipo `ShareCardData`.
+- **Dados vs. desenho:** `domain/shareCard.ts` monta os dados — `challengeCard(area, day)`, `phaseCard(phase, done, challenges, day)`, `levelCard(level, metrics, day)`, `badgeCard(badge, metrics, day)`, `journeyCard(done, challenges, day)`. `day` é sempre explícito, nunca `new Date()` interno, para as funções continuarem puras e testáveis, como `weekProgress`. `components/share/drawCard.ts` desenha esses dados num `<canvas>`; nenhum dos dois conhece o outro além do tipo `ShareCardData` (o campo `icon`, só usado por `badge`, carrega o mesmo glifo de `Achievements.tsx`/`BADGES`).
 - **Formatos:** feed (1080×1350) e stories (1080×1920), escolhidos no diálogo (`ShareCard.tsx`).
+- **Desenho por `kind`:** desafio = título + critérios de pronto como lista com marcas; fase e trilha = constelação (uma estrela por área, acesa em ciano); nível = anel de progresso com o percentual no centro; conquista = medalha com o glifo da conquista e a descrição embaixo. `journeyCard` usa a mesma regra visual do mapa para "acesa" (`areaState` === `'done'`, essenciais completos — não `isAreaDone`, que exigiria também os extras).
 - **Fundo com semente fixa:** `drawCard` usa um PRNG determinístico (`mulberry32`) com semente constante para o céu de estrelas — gerar o mesmo card duas vezes produz a mesma imagem, byte a byte.
+- **Conteúdo centralizado verticalmente:** `drawCard` mede o bloco (subtítulo + título + constelação/anel/medalha) antes de desenhar e o centraliza no espaço entre o cabeçalho e o rodapé — sem isso, um card com pouco conteúdo (ex.: nível com poucas áreas, ou uma fase pequena) sobra vazio embaixo, mais visível ainda no stories (bem mais alto que largo).
 - **Fontes:** `drawCard` espera `document.fonts.load(...)` (Space Grotesk e DM Sans, nos pesos usados) e `document.fonts.ready` antes de desenhar qualquer texto, senão a primeira passada usa uma fonte genérica e as métricas de quebra de linha saem erradas.
 - **Cores:** os hex de `styles/base.css`/`map.css` são duplicados numa constante `COLORS` em `drawCard.ts` (comentário aponta a origem) — um `<canvas>` não lê custom properties do CSS.
 - **Nome ou @:** opcional, digitado no diálogo e salvo só em `localStorage['orbit-share-name']`, **fora** de `ProgressData`, do backup e do link de progresso — é preferência de exibição, não progresso.
 - **Compartilhar:** `navigator.share({ files, text })` quando `navigator.canShare({ files })` é verdadeiro (celular); senão, baixa o PNG e copia a legenda para a área de transferência (desktop, e também o fluxo do LinkedIn, que não aceita imagem por link).
-- **Pontos de entrada (parte 1):** o "Compartilhar" ao lado do desafio concluído em `AreaDialog`; o botão no toast grande de desafio e de fase (`Toast.tsx`, via `Notification.share` — ver `store/progress.ts`); o "Compartilhar" no cabeçalho da fase concluída em `RoadmapMap.tsx`. O toast grande com botão pausa o auto-close no hover/foco (`Toast` não fecha sozinho enquanto o ponteiro ou o foco estão nele).
+- **Pontos de entrada:** desafio concluído → "Compartilhar" em `AreaDialog`; fase e nível → botão no toast grande (`Toast.tsx`, via `Notification.share` anexado em `store/progress.ts`); fase concluída → também no cabeçalho da fase em `RoadmapMap.tsx`; conquista desbloqueada e "Minha trilha até aqui" → em `Achievements.tsx`; nível atual, a qualquer momento → em `Sidebar.tsx`. O toast grande com botão pausa o auto-close no hover/foco (`Toast` não fecha sozinho enquanto o ponteiro ou o foco estão nele).
 - **Testes em `tests/domain.mjs`:** legenda exata (singular/plural de "área"/"áreas" via `pluralize`), contagens de `stats`/`stars`, formatação de data (`formatCardDate`) e o erro esperado ao pedir `challengeCard` de uma área sem desafio.
 
 ## Interface e texto

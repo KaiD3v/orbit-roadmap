@@ -138,6 +138,9 @@
 .level-label strong {
   color: var(--text);
 }
+.level-share {
+  padding: 0;
+}
 .mini-progress,
 .phase-bar {
   height: 6px;
@@ -868,6 +871,13 @@ h1 .no-break {
 }
 .badge.locked strong {
   color: #b7bfdc;
+}
+.badge-share {
+  margin-top: 4px;
+  padding: 0;
+}
+.journey-share {
+  margin-top: 22px;
 }
 footer {
   display: flex;

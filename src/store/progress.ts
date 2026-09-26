@@ -4,11 +4,12 @@ import { persist } from 'zustand/middleware'
 import { areas, areasWithChallenge, validTopicKeys } from '../data/roadmap'
 import { cleanProgress, parseBackup, safeProgress } from '../domain/backup'
 import {
-  finishedPhase, localDay, metrics, toggleChallengeFeedback, toggleFeedback, weekProgress, type Feedback,
+  finishedPhase, levelFor, localDay, metrics, toggleChallengeFeedback, toggleFeedback, weekProgress,
+  type Feedback,
 } from '../domain/progress'
 import { answerReview as answerReviewData } from '../domain/review'
 import { combineProgress, newTopicsCount } from '../domain/share'
-import { challengeCard, phaseCard, type ShareCardData } from '../domain/shareCard'
+import { challengeCard, levelCard, phaseCard, type ShareCardData } from '../domain/shareCard'
 import type { ProgressData } from '../types/progress'
 
 // Toast com um card pronto para compartilhar (B05): só existe nas transições de desafio e fase
@@ -120,10 +121,15 @@ export function useToggleTopic(notify: (feedback: Notification) => void) {
     const feedback: Notification = toggleFeedback(
       done, key, { before: before.done, after: after.done, goal: before.goal },
     )
-    // Toast de fase concluída (B05): card pronto para compartilhar já no toast, sem estado extra.
+    // Toast de fase e de nível concluídos (B05): card pronto para compartilhar já no toast, sem
+    // estado extra armazenado à parte.
+    const afterDone = { ...done, [key]: true as const }
     if (feedback.kind === 'phase') {
-      const phase = finishedPhase(done, { ...done, [key]: true })
-      if (phase) feedback.share = phaseCard(phase, { ...done, [key]: true }, challenges, today)
+      const phase = finishedPhase(done, afterDone)
+      if (phase) feedback.share = phaseCard(phase, afterDone, challenges, today)
+    } else if (feedback.kind === 'level') {
+      const afterMetrics = metrics(afterDone, [])
+      feedback.share = levelCard(levelFor(afterMetrics.percent), afterMetrics, today)
     }
     notify(feedback)
     toggleTopic(key)

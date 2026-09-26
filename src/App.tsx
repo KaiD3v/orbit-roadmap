@@ -69,7 +69,7 @@ function App() {
   return (
     <>
       <div className="app-shell">
-        <Sidebar resetView={resetView} />
+        <Sidebar resetView={resetView} openShare={setShareData} />
         <main id="inicio">
           <header className="topbar">
             <div className="breadcrumb">Roadmap <span>/</span> Engenharia de Software com IA</div>
@@ -85,7 +85,7 @@ function App() {
             open={openArea}
             openShare={setShareData}
           />
-          <Achievements />
+          <Achievements openShare={setShareData} />
           <footer>Feito para aprender construindo. Seu progresso é salvo neste navegador. <span>Orbit</span></footer>
         </main>
       </div>

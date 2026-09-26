@@ -14,7 +14,9 @@ const {
   combineProgress, decodeProgress, encodeProgress, newTopicsCount,
 } = await server.ssrLoadModule('/src/domain/share.ts')
 const { answerReview, pickReview, REVIEW_INTERVALS, timeAgo } = await server.ssrLoadModule('/src/domain/review.ts')
-const { challengeCard, formatCardDate, phaseCard, pluralize } = await server.ssrLoadModule('/src/domain/shareCard.ts')
+const {
+  badgeCard, challengeCard, formatCardDate, journeyCard, levelCard, phaseCard, pluralize,
+} = await server.ssrLoadModule('/src/domain/shareCard.ts')
 const { phases: allPhases } = await server.ssrLoadModule('/src/data/roadmap.ts')
 
 // dias atrás, no formato do progresso ('YYYY-MM-DD', fuso local) — usado nos testes de revisão espaçada.
@@ -426,6 +428,40 @@ assert(pCard.caption.startsWith('Completei a Fase 1:'))
 // Sem desafios concluídos: o XP cai só pelo bônus de fase e pelos tópicos
 const pCardNoChallenges = phaseCard(phase1, phase1AllDone, {}, '2026-01-05')
 assert.equal(pCardNoChallenges.stats.xp, phase1Topics.length * TOPIC_XP + PHASE_XP)
+
+// B05 parte 2: nível, conquista e "Minha trilha até aqui"
+const belowMetrics = metrics(justBelow, [])
+const lCard = levelCard(levelFor(belowMetrics.percent), belowMetrics, '2026-02-01')
+assert.equal(lCard.kind, 'level')
+assert.equal(lCard.title, 'Explorador')
+assert.equal(lCard.stats.xp, belowMetrics.xp)
+assert.equal(lCard.stats.percent, belowMetrics.percent)
+assert.deepEqual(lCard.stars, { lit: belowMetrics.requiredDone, total: belowMetrics.requiredTotal })
+assert.equal(lCard.date, formatCardDate('2026-02-01'))
+assert.equal(lCard.caption, 'Subi para o nível Explorador na trilha de Engenharia de Software com IA.')
+
+const bCard = badgeCard(handsOn, metricsWithChallenge, '2026-01-05')
+assert.equal(bCard.kind, 'badge')
+assert.equal(bCard.title, 'Mão na massa')
+assert.deepEqual(bCard.lines, [handsOn.description])
+assert.equal(bCard.stats.xp, metricsWithChallenge.xp)
+assert.equal(bCard.caption, 'Desbloqueei a conquista "Mão na massa" na trilha de Engenharia de Software com IA.')
+
+const jCardEmpty = journeyCard({}, {}, '2026-01-05')
+assert.deepEqual(jCardEmpty.stars, { lit: 0, total: areas.length })
+assert.equal(jCardEmpty.stats.areas, 0)
+assert.equal(jCardEmpty.caption, `${pluralize(0, 'área concluída', 'áreas concluídas')} de ${areas.length} na trilha de Engenharia de Software com IA.`)
+
+const jCardOne = journeyCard(area1EssentialsDone, {}, '2026-01-05')
+assert.equal(jCardOne.stars.lit, 1) // só a área 1 tem os essenciais completos
+assert.equal(jCardOne.stats.areas, 1)
+assert(jCardOne.caption.startsWith('1 área concluída de'))
+
+const jCardFull = journeyCard(allDone, allChallengesDone, '2026-01-05')
+assert.deepEqual(jCardFull.stars, { lit: areas.length, total: areas.length })
+assert.equal(jCardFull.stats.topics, areas.reduce((sum, area) => sum + area.topics.length, 0))
+assert.equal(jCardFull.stats.xp, metrics(allDone, [], allChallengesDone).xp)
+assert(jCardFull.caption.startsWith(`${areas.length} áreas concluídas de ${areas.length}`))
 
 await server.close()
 console.log(

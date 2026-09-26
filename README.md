@@ -24,7 +24,7 @@ Para a jornada não virar obrigação, o progresso é visual e recompensado: o m
 - **Revisão espaçada:** de vez em quando, um tópico essencial concluído há semanas volta no card "Seu próximo passo" para relembrar ("Ainda lembra de…?"), num ciclo de 14/30/90 dias.
 - **Backup:** baixe e restaure o seu progresso em JSON.
 - **Progresso por link:** copie um link com o seu progresso e abra no outro aparelho para juntar (sem apagar o que já estava lá).
-- **Cards compartilháveis:** ao concluir um desafio ou uma fase, gere uma imagem (formato feed ou stories) pronta para postar no LinkedIn, Instagram ou X, com um nome ou @ opcional.
+- **Cards compartilháveis:** gere uma imagem (formato feed ou stories) pronta para postar no LinkedIn, Instagram ou X ao concluir um desafio, fechar uma fase, subir de nível, desbloquear uma conquista ou, a qualquer momento, "Minha trilha até aqui" — com um nome ou @ opcional.
 - **Responsivo**, com menu hambúrguer no celular. As animações respeitam a preferência do sistema por menos movimento.
 
 ## Privacidade

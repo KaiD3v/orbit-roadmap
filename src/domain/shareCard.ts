@@ -1,6 +1,9 @@
-import { areasByPhase } from '../data/roadmap'
+import { areasByPhase, orderedAreas } from '../data/roadmap'
 import type { Phase } from '../data/roadmap'
-import { CHALLENGE_XP, phaseProgress, PHASE_XP, TOPIC_XP } from './progress'
+import {
+  areaState, CHALLENGE_XP, countDone, metrics as buildMetrics, nextArea, phaseProgress, PHASE_XP, TOPIC_XP,
+  type BadgeInfo, type Metrics,
+} from './progress'
 import type { Area } from '../types/content'
 import type { Challenges, Done } from '../types/progress'
 
@@ -8,16 +11,19 @@ const TAGLINE = 'trilha de Engenharia de Software com IA'
 const MONTHS = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez']
 
 // Só os dados do card (o desenho fica em components/share/drawCard.ts). `lines` é a lista de marcas do
-// desafio; no card de fase fica vazia (a constelação em `stars` já mostra o que foi feito).
+// desafio (ou a descrição da conquista); no card de fase, nível e trilha fica vazia (a constelação ou
+// o anel de `stars`/`stats.percent` já mostram o que foi feito).
 export type ShareCardData = {
-  kind: 'challenge' | 'phase'
+  kind: 'challenge' | 'phase' | 'level' | 'badge' | 'journey'
   title: string
   subtitle: string
   lines: string[]
-  stats: { xp: number, areas?: number, topics?: number }
+  stats: { xp: number, areas?: number, topics?: number, percent?: number }
   stars: { lit: number, total: number }
   date: string
   caption: string
+  // Glifo da conquista (só no card `badge`; o mesmo usado em `Achievements.tsx`/BADGES).
+  icon?: string
 }
 
 // Formata 'YYYY-MM-DD' (mesmo formato de `localDay`) em algo como "25 set 2026", sem depender do locale
@@ -63,5 +69,54 @@ export function phaseCard(phase: Phase, done: Done, challenges: Challenges, day:
     stars: { lit: areaCount, total: areaCount },
     date: formatCardDate(day),
     caption: `Completei a Fase ${phase.number}: "${phase.name}" (${pluralize(areaCount, 'área', 'áreas')}) na ${TAGLINE}.`,
+  }
+}
+
+// `metrics` já traz `percent` (essenciais concluídos), `requiredDone`/`requiredTotal` e `xp` prontos —
+// evita recalcular o que `useMetrics()`/`metrics()` já sabe.
+export function levelCard(level: string, metrics: Metrics, day: string): ShareCardData {
+  return {
+    kind: 'level',
+    title: level,
+    subtitle: TAGLINE,
+    lines: [],
+    stats: { xp: metrics.xp, percent: metrics.percent },
+    stars: { lit: metrics.requiredDone, total: metrics.requiredTotal },
+    date: formatCardDate(day),
+    caption: `Subi para o nível ${level} na ${TAGLINE}.`,
+  }
+}
+
+export function badgeCard(badge: BadgeInfo, metrics: Metrics, day: string): ShareCardData {
+  return {
+    kind: 'badge',
+    title: badge.title,
+    subtitle: TAGLINE,
+    lines: [badge.description],
+    stats: { xp: metrics.xp },
+    stars: { lit: 1, total: 1 },
+    date: formatCardDate(day),
+    caption: `Desbloqueei a conquista "${badge.title}" na ${TAGLINE}.`,
+    icon: badge.icon,
+  }
+}
+
+// "Minha trilha até aqui" (sob demanda, não amarrada a uma transição): a constelação do roadmap
+// inteiro, uma estrela por área. Acesa usa a mesma regra visual do mapa (`areaState` === 'done',
+// essenciais completos), não `isAreaDone` (que exigiria também os extras).
+export function journeyCard(done: Done, challenges: Challenges, day: string): ShareCardData {
+  const nextId = nextArea(done).id
+  const doneAreas = orderedAreas.filter(area => areaState(area, done, nextId) === 'done').length
+  const totalAreas = orderedAreas.length
+  const completedTopics = orderedAreas.reduce((sum, area) => sum + countDone(area, done), 0)
+  return {
+    kind: 'journey',
+    title: 'Minha trilha até aqui',
+    subtitle: TAGLINE,
+    lines: [],
+    stats: { xp: buildMetrics(done, [], challenges).xp, areas: doneAreas, topics: completedTopics },
+    stars: { lit: doneAreas, total: totalAreas },
+    date: formatCardDate(day),
+    caption: `${pluralize(doneAreas, 'área concluída', 'áreas concluídas')} de ${totalAreas} na ${TAGLINE}.`,
   }
 }

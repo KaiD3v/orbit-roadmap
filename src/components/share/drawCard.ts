@@ -97,6 +97,48 @@ function drawPlanet(ctx: CanvasRenderingContext2D, x: number, y: number, r: numb
   ctx.fill()
 }
 
+// Anel de progresso do card de nível (mesma ideia do `.node-ring`/`conic-gradient` do mapa, em canvas).
+function drawRing(ctx: CanvasRenderingContext2D, cx: number, cy: number, r: number, pct: number, color: string) {
+  const lineWidth = r * 0.22
+  ctx.lineWidth = lineWidth
+  ctx.lineCap = 'round'
+  ctx.strokeStyle = COLORS.starDim
+  ctx.beginPath()
+  ctx.arc(cx, cy, r, 0, Math.PI * 2)
+  ctx.stroke()
+  ctx.strokeStyle = color
+  ctx.beginPath()
+  ctx.arc(cx, cy, r, -Math.PI / 2, -Math.PI / 2 + (Math.PI * 2 * pct) / 100)
+  ctx.stroke()
+  ctx.lineCap = 'butt'
+
+  ctx.textAlign = 'center'
+  ctx.fillStyle = COLORS.text
+  ctx.font = `700 ${Math.round(r * 0.5)}px "Space Grotesk"`
+  ctx.fillText(`${pct}%`, cx, cy + r * 0.16)
+  ctx.textAlign = 'left'
+}
+
+// Medalha da conquista: o mesmo glifo do `.badge-icon` em Achievements.tsx, ampliado.
+function drawMedallion(ctx: CanvasRenderingContext2D, cx: number, cy: number, r: number, glyph: string, color: string) {
+  const body = ctx.createRadialGradient(cx, cy, r * 0.2, cx, cy, r)
+  body.addColorStop(0, `${color}33`)
+  body.addColorStop(1, `${color}0d`)
+  ctx.fillStyle = body
+  ctx.beginPath()
+  ctx.arc(cx, cy, r, 0, Math.PI * 2)
+  ctx.fill()
+  ctx.strokeStyle = color
+  ctx.lineWidth = 2
+  ctx.stroke()
+
+  ctx.textAlign = 'center'
+  ctx.fillStyle = color
+  ctx.font = `${Math.round(r * 0.9)}px "Space Grotesk"`
+  ctx.fillText(glyph, cx, cy + r * 0.32)
+  ctx.textAlign = 'left'
+}
+
 // Constelação da fase: uma estrela por área, acesa em ciano quando concluída (mesma linguagem visual
 // do `.phase-stars` no mapa).
 function constellationLayout(total: number, cellH: number) {
@@ -139,7 +181,8 @@ export async function drawCard(
 ): Promise<void> {
   const { width, height } = CARD_SIZES[format]
   const contentWidth = width - MARGIN * 2
-  const accent = data.kind === 'phase' ? COLORS.cyan : COLORS.violet
+  // Ciano = concluído (fase, nível, conquista, trilha); violeta = ação, só o desafio ainda por vir.
+  const accent = data.kind === 'challenge' ? COLORS.violet : COLORS.cyan
 
   await Promise.all([
     document.fonts.load('700 62px "Space Grotesk"'),
@@ -160,6 +203,8 @@ export async function drawCard(
   // Estrelas maiores no stories (mais alto, mesma largura): sem isso, a constelação de uma fase com
   // poucas áreas fica pequena demais perdida no meio do card.
   const constellationCellH = format === 'stories' ? 74 : 54
+  const emblemR = format === 'stories' ? 150 : 120
+  const emblemCx = MARGIN + contentWidth / 2
 
   ctx.textAlign = 'left'
   ctx.textBaseline = 'alphabetic'
@@ -170,11 +215,18 @@ export async function drawCard(
   // entre o cabeçalho e o rodapé (sem isso, um card com pouco conteúdo — ex.: fase com poucas áreas —
   // sobra vazio embaixo, mais visível ainda no formato stories, bem mais alto que largo).
   let contentHeight = SUBTITLE_H + titleLines.length * TITLE_LINE_H + GAP_AFTER_TITLE
+  let badgeDescLines: string[] = []
   if (data.kind === 'challenge') {
     ctx.font = '400 30px "DM Sans"'
     for (const item of data.lines) {
       contentHeight += wrapText(ctx, item, contentWidth - 50).length * ITEM_LINE_H + ITEM_GAP
     }
+  } else if (data.kind === 'level') {
+    contentHeight += emblemR * 2 + 20
+  } else if (data.kind === 'badge') {
+    ctx.font = '400 28px "DM Sans"'
+    badgeDescLines = data.lines[0] ? wrapText(ctx, data.lines[0], contentWidth) : []
+    contentHeight += emblemR * 2 + 30 + badgeDescLines.length * 34
   } else {
     contentHeight += STAT_LINE_H + constellationLayout(data.stars.total, constellationCellH).height
   }
@@ -208,6 +260,16 @@ export async function drawCard(
       itemLines.forEach((line, i) => ctx.fillText(line, MARGIN + 50, cursorY + i * ITEM_LINE_H))
       cursorY += itemLines.length * ITEM_LINE_H + ITEM_GAP
     }
+  } else if (data.kind === 'level') {
+    drawRing(ctx, emblemCx, cursorY + emblemR, emblemR, data.stats.percent ?? 0, accent)
+  } else if (data.kind === 'badge') {
+    drawMedallion(ctx, emblemCx, cursorY + emblemR, emblemR, data.icon ?? '✦', accent)
+    cursorY += emblemR * 2 + 30
+    ctx.font = '400 28px "DM Sans"'
+    ctx.fillStyle = COLORS.muted
+    ctx.textAlign = 'center'
+    badgeDescLines.forEach((line, i) => ctx.fillText(line, emblemCx, cursorY + i * 34))
+    ctx.textAlign = 'left'
   } else {
     const areas = data.stats.areas ?? data.stars.total
     const topics = data.stats.topics ?? 0

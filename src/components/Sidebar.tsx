@@ -1,13 +1,14 @@
 import { useEffect, useRef, useState } from 'react'
 import { phases } from '../data/roadmap'
-import { levelFor, phaseState } from '../domain/progress'
+import { levelFor, localDay, phaseState } from '../domain/progress'
+import { levelCard, type ShareCardData } from '../domain/shareCard'
 import { useMetrics, useProgress } from '../store/progress'
 
 // Só "concluída" usa glifo; atual e a seguir são desenhados no CSS (.nav-state)
 const PHASE_ICON = { done: '✓', current: '', future: '' } as const
 const PHASE_LABEL = { done: 'concluída', current: 'fase atual', future: 'a seguir' } as const
 
-export function Sidebar({ resetView }: { resetView: () => void }) {
+export function Sidebar({ resetView, openShare }: { resetView: () => void, openShare: (data: ShareCardData) => void }) {
   const done = useProgress(state => state.done)
   const challenges = useProgress(state => state.challenges)
   const progress = useMetrics()
@@ -70,7 +71,12 @@ export function Sidebar({ resetView }: { resetView: () => void }) {
           })}
         </nav>
         <div className="sidebar-bottom">
-          <div className="level-label">Seu nível <strong>{level}</strong></div>
+          <div className="level-label">
+            <span>Seu nível <strong>{level}</strong></span>
+            <button className="text-button level-share" type="button" onClick={() => openShare(levelCard(level, progress, localDay()))}>
+              Compartilhar
+            </button>
+          </div>
           <div className="mini-progress" role="progressbar" aria-label="Progresso da trilha essencial" aria-valuenow={progress.percent} aria-valuemin={0} aria-valuemax={100}><span style={{ width: `${progress.percent}%` }} /></div>
           <p>{progress.requiredDone} de {progress.requiredTotal} tópicos essenciais</p>
         </div>

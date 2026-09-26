@@ -240,7 +240,9 @@ const BADGES: Badge[] = [
   { icon: '✳', title: 'Órbita completa', description: 'Conclua todo o roadmap', earned: progress => progress.completed === progress.total },
 ]
 
-export function badges(progress: Metrics) {
+export type BadgeInfo = { icon: string, title: string, description: string, target?: number, unlocked: boolean }
+
+export function badges(progress: Metrics): BadgeInfo[] {
   return BADGES.map(({ earned, ...badge }) => ({ ...badge, unlocked: earned(progress) }))
 }
 
