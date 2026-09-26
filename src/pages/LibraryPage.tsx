@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
 import { useState, type CSSProperties } from 'react'
-import { LibrarySky } from '../components/LibrarySky'
+import { LibraryHeaderFigures, LibrarySky } from '../components/LibrarySky'
 import { ResourceBody } from '../components/ResourceBody'
 import { ResourceCard } from '../components/ResourceCard'
 import { areasByPhase, phases, resourceEntries } from '../data/roadmap'
@@ -90,6 +90,7 @@ export function LibraryPage({ openArea }: PageProps) {
     <section className="library-page" aria-labelledby="library-title">
       <LibrarySky />
       <div className="library-top">
+        <LibraryHeaderFigures />
         <div className="library-top-head">
           <div>
             <h1 id="library-title">Biblioteca</h1>
