@@ -262,3 +262,51 @@
     grid-template-columns: 1fr;
   }
 }
+/* B03: nota curta por tópico. O botão fica fora do <label> do checkbox, para não competir com ele. */
+.topic-entry {
+  display: flex;
+  flex-direction: column;
+}
+.topic-grid .topic-entry.note-open {
+  grid-column: 1 / -1;
+}
+.topic-note-toggle {
+  align-self: flex-start;
+  margin: 4px 0 0 3px;
+  font-size: 11px;
+}
+.note-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin-right: 6px;
+  border-radius: 50%;
+  background: var(--muted);
+  vertical-align: middle;
+}
+.topic-note-open {
+  margin-top: 6px;
+}
+.topic-note-textarea {
+  width: 100%;
+  min-height: 70px;
+  resize: vertical;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #0b1130;
+  color: var(--text);
+  font: 13px/1.5 "DM Sans", sans-serif;
+  padding: 10px 12px;
+}
+.topic-note-textarea:focus-visible {
+  outline: 2px solid var(--cyan);
+  outline-offset: 2px;
+}
+.topic-note-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 4px;
+  font-size: 11px;
+  color: var(--muted);
+}

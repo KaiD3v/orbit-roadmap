@@ -2,7 +2,7 @@ import { useMemo } from 'react'
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { areasWithChallenge, validTopicKeys } from '../data/roadmap'
-import { cleanProgress, parseBackup, safeProgress } from '../domain/backup'
+import { cleanProgress, NOTE_MAX, parseBackup, safeProgress } from '../domain/backup'
 import { localDay, metrics, toggleChallengeFeedback, toggleFeedback, weekProgress, type Feedback } from '../domain/progress'
 import { answerReview as answerReviewData } from '../domain/review'
 import { combineProgress, newTopicsCount } from '../domain/share'
@@ -14,9 +14,10 @@ type ProgressStore = ProgressData & {
   importBackup: (input: unknown) => void
   mergeProgress: (incoming: ProgressData) => number
   answerReview: (topicId: string, remembered: boolean) => void
+  setNote: (topicId: string, text: string) => void
 }
 
-const emptyProgress = (): ProgressData => ({ done: {}, days: [], challenges: {}, doneAt: {}, reviews: {} })
+const emptyProgress = (): ProgressData => ({ done: {}, days: [], challenges: {}, doneAt: {}, reviews: {}, notes: {} })
 
 function legacyProgress(): ProgressData {
   try {
@@ -72,15 +73,26 @@ export const useProgress = create<ProgressStore>()(
         return added
       },
       answerReview: (topicId, remembered) => set(state => answerReviewData(state, topicId, remembered, localDay())),
+      // B03: nota curta por tópico. Não registra dia de estudo — anotar não é estudar.
+      setNote: (topicId, text) => {
+        if (!validTopicKeys.has(topicId)) return
+        set((state) => {
+          const notes = { ...state.notes }
+          const trimmed = text.trim().slice(0, NOTE_MAX)
+          if (trimmed) notes[topicId] = trimmed
+          else delete notes[topicId]
+          return { notes }
+        })
+      },
     }),
     {
       name: 'orbit-roadmap-react-v1',
-      version: 4,
+      version: 5,
       migrate: persisted => safeProgress(persisted),
       merge: (persisted, current) => ({ ...current, ...(safeProgress(persisted) ?? {}) }),
       partialize: (state) => {
-        const { done, days, challenges, doneAt, reviews } = state
-        return { done, days, challenges, doneAt, reviews }
+        const { done, days, challenges, doneAt, reviews, notes } = state
+        return { done, days, challenges, doneAt, reviews, notes }
       },
     },
   ),

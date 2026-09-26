@@ -35,7 +35,7 @@ globalThis.localStorage = {
   removeItem: key => saved.delete(key),
 }
 globalThis.window = { localStorage: globalThis.localStorage }
-const { cleanProgress, createBackup, safeProgress } = await server.ssrLoadModule('/src/domain/backup.ts')
+const { cleanProgress, createBackup, NOTE_MAX, parseBackup, safeProgress } = await server.ssrLoadModule('/src/domain/backup.ts')
 const { localDay } = await server.ssrLoadModule('/src/domain/progress.ts')
 const { pickReview } = await server.ssrLoadModule('/src/domain/review.ts')
 const { useProgress } = await server.ssrLoadModule('/src/store/progress.ts')
@@ -43,7 +43,7 @@ const cleaned = cleanProgress({ done: legacyDone, days: ['2026-09-25', '2026-02-
 const firstTopicId = areas.find(area => area.id === 1).topics[0].id
 assert.equal(useProgress.getState().done[firstTopicId], true)
 useProgress.getState().importBackup({ version: 1, done: legacyDone, days: [] })
-assert.equal(createBackup(useProgress.getState()).version, 4)
+assert.equal(createBackup(useProgress.getState()).version, 5)
 
 // Migração v2 -> v3: progresso salvo sem `challenges` (v1/v2) ganha objeto vazio, sem perder done/days
 const migratedV2 = safeProgress({ done: legacyDone, days: ['2026-09-25'] })
@@ -103,8 +103,51 @@ useProgress.getState().answerReview(firstTopicId, true)
 assert.deepEqual(useProgress.getState().reviews[firstTopicId], { at: localDay(), step: 1 })
 assert.equal(useProgress.getState().done[firstTopicId], true)
 
+// Migração v4 -> v5 (B03): progresso sem `notes` ganha objeto vazio, sem perder o resto
+const migratedV4 = safeProgress({
+  done: legacyDone, days: ['2026-09-25'], challenges: { 1: '2026-09-25' }, doneAt: {}, reviews: {},
+})
+assert.deepEqual(migratedV4.notes, {})
+assert.equal(migratedV4.done[firstTopicId], true)
+assert.deepEqual(migratedV4.days, ['2026-09-25'])
+
+// setNote (B03): trim + corta em NOTE_MAX, remove a chave quando fica vazia, ignora tópico inválido.
+// Anotar não registra dia de estudo (dias não devem crescer).
+useProgress.setState({ done: {}, days: [], challenges: {}, doneAt: {}, reviews: {}, notes: {} })
+useProgress.getState().setNote(firstTopicId, '  minha nota  ')
+assert.equal(useProgress.getState().notes[firstTopicId], 'minha nota')
+assert.deepEqual(useProgress.getState().days, [])
+useProgress.getState().setNote(firstTopicId, 'x'.repeat(NOTE_MAX + 50))
+assert.equal(useProgress.getState().notes[firstTopicId].length, NOTE_MAX)
+useProgress.getState().setNote(firstTopicId, '   ')
+assert.equal(useProgress.getState().notes[firstTopicId], undefined)
+useProgress.getState().setNote('id-inexistente', 'nota')
+assert.equal(useProgress.getState().notes['id-inexistente'], undefined)
+
+// Nota não depende de o tópico estar concluído, e desmarcar não a apaga
+useProgress.setState({ done: {}, days: [], challenges: {}, doneAt: {}, reviews: {}, notes: {} })
+useProgress.getState().setNote(firstTopicId, 'anotado antes de terminar')
+useProgress.getState().toggleTopic(firstTopicId) // marca
+assert.equal(useProgress.getState().notes[firstTopicId], 'anotado antes de terminar')
+useProgress.getState().toggleTopic(firstTopicId) // desmarca
+assert.equal(useProgress.getState().done[firstTopicId], undefined)
+assert.equal(useProgress.getState().notes[firstTopicId], 'anotado antes de terminar')
+
+// Backup v5 (B03): ida e volta preserva notas
+useProgress.setState({
+  done: { [firstTopicId]: true },
+  days: [],
+  challenges: {},
+  doneAt: {},
+  reviews: {},
+  notes: { [firstTopicId]: 'nota de backup' },
+})
+const notesBackup = createBackup(useProgress.getState())
+assert.equal(notesBackup.version, 5)
+assert.deepEqual(parseBackup(notesBackup).notes, { [firstTopicId]: 'nota de backup' })
+
 await server.close()
 
 assert.deepEqual(cleaned.done, { [firstTopicId]: true })
 assert.deepEqual(cleaned.days, ['2026-09-25'])
-console.log(`store: ${topics.length} IDs únicos, 14 desafios da fase 1 e migração v1/v2/v3 -> v4 íntegra`)
+console.log(`store: ${topics.length} IDs únicos, 14 desafios da fase 1, migração v1..v4 -> v5 íntegra e notas por tópico (B03) OK`)

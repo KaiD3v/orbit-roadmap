@@ -1,17 +1,85 @@
 import { useEffect, useRef, useState } from 'react'
 import { stepLabel } from '../data/roadmap'
+import { NOTE_MAX } from '../domain/backup'
 import {
   CHALLENGE_XP, countDone, isChallengeUnlocked, percent, PHASE_XP, priorityProgress, TOPIC_XP, type Feedback,
 } from '../domain/progress'
 import { useProgress, useToggleChallenge, useToggleTopic } from '../store/progress'
 import type { Area, Resource } from '../types/content'
-import type { Challenges, Done } from '../types/progress'
+import type { Challenges, Done, Notes } from '../types/progress'
 
-function EssentialSteps({ area, done, toggle, highlightTopicId }: {
+// B03: nota curta por tópico. Um tópico com nota aberta por vez (controlado pelo pai, `AreaDialog`),
+// fora do `<label>` do checkbox para não competir com ele. Esc fecha a nota, não o `<dialog>`.
+type NoteProps = {
+  topicId: string
+  notes: Notes
+  setNote: (topicId: string, text: string) => void
+  openNoteId: string | null
+  onOpenNote: (topicId: string) => void
+  onCloseNote: () => void
+}
+
+// Editor separado: montado só quando a nota abre, então o rascunho sempre nasce do texto salvo mais
+// recente, sem precisar sincronizar via efeito (o próprio mount/unmount faz esse trabalho).
+function TopicNoteEditor({ topicId, note, setNote, onClose }: {
+  topicId: string
+  note: string | undefined
+  setNote: (topicId: string, text: string) => void
+  onClose: () => void
+}) {
+  const [draft, setDraft] = useState(note ?? '')
+  const save = () => setNote(topicId, draft)
+  const finish = () => {
+    save()
+    onClose()
+  }
+  return (
+    <div className="topic-note-open">
+      <textarea
+        className="topic-note-textarea"
+        value={draft}
+        maxLength={NOTE_MAX}
+        placeholder="O que você aprendeu ou um link que ajudou"
+        autoFocus
+        onChange={event => setDraft(event.target.value)}
+        onBlur={save}
+        onKeyDown={(event) => {
+          if (event.key === 'Escape') {
+            event.preventDefault()
+            event.stopPropagation()
+            finish()
+          } else if (event.key === 'Enter' && event.ctrlKey) {
+            event.preventDefault()
+            finish()
+          }
+        }}
+      />
+      <div className="topic-note-footer">
+        <span>{draft.length}/{NOTE_MAX}</span>
+        <button className="text-button" type="button" onClick={finish}>Pronto</button>
+      </div>
+    </div>
+  )
+}
+
+function TopicNote({ topicId, notes, setNote, openNoteId, onOpenNote, onCloseNote }: NoteProps) {
+  const note = notes[topicId]
+  if (openNoteId !== topicId) {
+    return (
+      <button className="text-button topic-note-toggle" type="button" onClick={() => onOpenNote(topicId)}>
+        {note ? <><span className="note-dot" aria-hidden="true" />Ver nota</> : 'Anotar'}
+      </button>
+    )
+  }
+  return <TopicNoteEditor topicId={topicId} note={note} setNote={setNote} onClose={onCloseNote} />
+}
+
+function EssentialSteps({ area, done, toggle, highlightTopicId, noteProps }: {
   area: Area
   done: Done
   toggle: (key: string) => void
   highlightTopicId?: string | null
+  noteProps: Omit<NoteProps, 'topicId'>
 }) {
   const [expanded, setExpanded] = useState(false)
   const essentials = area.topics.filter(topic => topic.required)
@@ -47,6 +115,7 @@ function EssentialSteps({ area, done, toggle, highlightTopicId }: {
                       <span className="step-title">{topic.title}</span>
                     </span>
                   </label>
+                  <TopicNote topicId={topic.id} {...noteProps} />
                 </li>
               ))}
             </ol>
@@ -61,10 +130,13 @@ function EssentialSteps({ area, done, toggle, highlightTopicId }: {
           <summary>✓ {completed.length} feitos</summary>
           <div className="topic-grid">
             {completed.map(topic => (
-              <label className="topic checked" id={`topic-${topic.id}`} key={topic.id}>
-                <input type="checkbox" checked onChange={() => toggle(topic.id)} />
-                <span>{topic.title}</span>
-              </label>
+              <div className={`topic-entry ${noteProps.openNoteId === topic.id ? 'note-open' : ''}`} key={topic.id}>
+                <label className="topic checked" id={`topic-${topic.id}`}>
+                  <input type="checkbox" checked onChange={() => toggle(topic.id)} />
+                  <span>{topic.title}</span>
+                </label>
+                <TopicNote topicId={topic.id} {...noteProps} />
+              </div>
             ))}
           </div>
         </details>
@@ -106,7 +178,12 @@ function ChallengeSection({ area, done, challenges, toggleChallenge }: {
   )
 }
 
-function ExtrasGroup({ area, done, toggle }: { area: Area, done: Done, toggle: (key: string) => void }) {
+function ExtrasGroup({ area, done, toggle, noteProps }: {
+  area: Area
+  done: Done
+  toggle: (key: string) => void
+  noteProps: Omit<NoteProps, 'topicId'>
+}) {
   const extras = area.topics.filter(topic => !topic.required)
   if (!extras.length) return null
   const completed = extras.filter(topic => done[topic.id]).length
@@ -116,10 +193,13 @@ function ExtrasGroup({ area, done, toggle }: { area: Area, done: Done, toggle: (
       <p>Alternativas, detalhes internos e especializações, para quando a base estiver firme.</p>
       <div className="topic-grid">
         {extras.map(topic => (
-          <label className={`topic ${done[topic.id] ? 'checked' : ''}`} key={topic.id}>
-            <input type="checkbox" checked={Boolean(done[topic.id])} onChange={() => toggle(topic.id)} />
-            <span>{topic.title}</span>
-          </label>
+          <div className={`topic-entry ${noteProps.openNoteId === topic.id ? 'note-open' : ''}`} key={topic.id}>
+            <label className={`topic ${done[topic.id] ? 'checked' : ''}`}>
+              <input type="checkbox" checked={Boolean(done[topic.id])} onChange={() => toggle(topic.id)} />
+              <span>{topic.title}</span>
+            </label>
+            <TopicNote topicId={topic.id} {...noteProps} />
+          </div>
         ))}
       </div>
     </details>
@@ -158,6 +238,8 @@ export function AreaDialog({ area, notify, close, highlightTopicId }: {
 }) {
   const done = useProgress(state => state.done)
   const challenges = useProgress(state => state.challenges)
+  const notes = useProgress(state => state.notes)
+  const setNote = useProgress(state => state.setNote)
   const toggle = useToggleTopic(notify)
   const toggleChallenge = useToggleChallenge(notify)
   const ref = useRef<HTMLDialogElement>(null)
@@ -166,6 +248,18 @@ export function AreaDialog({ area, notify, close, highlightTopicId }: {
     if (area && dialog && !dialog.open) dialog.showModal()
     if (!area && dialog?.open) dialog.close()
   }, [area])
+
+  // B03: só uma nota aberta por vez. Guarda a área junto para que trocar de área feche a nota sem precisar
+  // de um efeito: se a área mudou, o `topicId` guardado não é mais "desta área" e some sozinho no próximo render.
+  const [openNote, setOpenNote] = useState<{ areaId: number, topicId: string } | null>(null)
+  const openNoteId = openNote && openNote.areaId === area?.id ? openNote.topicId : null
+  const noteProps: Omit<NoteProps, 'topicId'> = {
+    notes,
+    setNote,
+    openNoteId,
+    onOpenNote: topicId => area && setOpenNote({ areaId: area.id, topicId }),
+    onCloseNote: () => setOpenNote(null),
+  }
 
   // Revisão espaçada (F03): "Rever" abre o painel já rolado até o tópico, com um destaque breve (2s).
   useEffect(() => {
@@ -205,9 +299,16 @@ export function AreaDialog({ area, notify, close, highlightTopicId }: {
           </div>
           <div className="detail-main">
             {/* key={area.id}: recolhe o "+N depois" ao trocar de área, sem efeito extra */}
-            <EssentialSteps area={area} done={done} toggle={toggle} highlightTopicId={highlightTopicId} key={area.id} />
+            <EssentialSteps
+              area={area}
+              done={done}
+              toggle={toggle}
+              highlightTopicId={highlightTopicId}
+              noteProps={noteProps}
+              key={area.id}
+            />
             <ChallengeSection area={area} done={done} challenges={challenges} toggleChallenge={toggleChallenge} />
-            <ExtrasGroup area={area} done={done} toggle={toggle} />
+            <ExtrasGroup area={area} done={done} toggle={toggle} noteProps={noteProps} />
             <h3 className="area-subtitle">Para estudar</h3>
             <ResourceHighlight resources={area.resources} />
             <p className="detail-note">

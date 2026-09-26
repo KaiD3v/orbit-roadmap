@@ -29,6 +29,7 @@ export function NextStep({ notify, open }: {
   const challenges = useProgress(state => state.challenges)
   const doneAt = useProgress(state => state.doneAt)
   const reviews = useProgress(state => state.reviews)
+  const notes = useProgress(state => state.notes)
   const answerReview = useProgress(state => state.answerReview)
   const progress = useMetrics()
   const week = useWeek()
@@ -38,9 +39,14 @@ export function NextStep({ notify, open }: {
 
   // Revisão espaçada (F03): "de vez em quando, um tópico concluído há semanas volta para relembrar".
   const today = localDay()
-  const progressData = { done, days, challenges, doneAt, reviews }
+  const progressData = { done, days, challenges, doneAt, reviews, notes }
   const reviewTopic = pickReview(progressData, today)
   const reviewArea = reviewTopic && areas.find(area => area.topics.some(topic => topic.id === reviewTopic.id))
+  const reviewNote = reviewTopic && notes[reviewTopic.id]
+  // Guarda o id junto: se o tópico em revisão mudar (respondeu e o próximo apareceu), a comparação
+  // deixa de bater e a nota fecha sozinha, sem precisar de um efeito para resetar o estado.
+  const [openReviewNoteId, setOpenReviewNoteId] = useState<string | null>(null)
+  const reviewNoteOpen = reviewTopic != null && openReviewNoteId === reviewTopic.id
   const reviewBlock = reviewTopic && reviewArea && (
     <div className="next-step-review">
       <span className="review-comet" aria-hidden="true" />
@@ -50,6 +56,18 @@ export function NextStep({ notify, open }: {
           (concluído {timeAgo(reviewElapsedDays(progressData, reviewTopic.id, today))})
         </span>
       </p>
+      {reviewNote && (
+        <div className="next-step-review-note">
+          <button
+            className="text-button"
+            type="button"
+            onClick={() => setOpenReviewNoteId(reviewNoteOpen ? null : reviewTopic.id)}
+          >
+            {reviewNoteOpen ? 'Ocultar sua nota' : 'Ver sua nota'}
+          </button>
+          {reviewNoteOpen && <p className="review-note-text">{reviewNote}</p>}
+        </div>
+      )}
       <div className="next-step-review-actions">
         <button className="ghost-button" type="button" onClick={() => answerReview(reviewTopic.id, true)}>
           Lembro

@@ -1,6 +1,9 @@
 import { areasWithChallenge, legacyTopicKeys, validTopicKeys } from '../data/roadmap'
 import { localDay } from './progress'
-import type { Challenges, Done, DoneAt, ProgressBackup, ProgressData, ReviewStep, Reviews } from '../types/progress'
+import type { Challenges, Done, DoneAt, Notes, ProgressBackup, ProgressData, ReviewStep, Reviews } from '../types/progress'
+
+// B03: nota curta por tópico. Não depende de o tópico estar concluído nem viaja no link (F02, `domain/share.ts`).
+export const NOTE_MAX = 500
 
 export const isDay = (day: unknown): day is string => {
   if (typeof day !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(day)) return false
@@ -23,6 +26,9 @@ export function cleanProgress(input: unknown, today: string = localDay()): Progr
   const reviewsInput = value.reviews && typeof value.reviews === 'object' && !Array.isArray(value.reviews)
     ? value.reviews as Record<string, unknown>
     : {}
+  const notesInput = value.notes && typeof value.notes === 'object' && !Array.isArray(value.notes)
+    ? value.notes as Record<string, unknown>
+    : {}
 
   const done = Object.fromEntries(Object.entries(value.done).flatMap(([key, checked]) => {
     const stableKey = validTopicKeys.has(key) ? key : legacyTopicKeys.get(key)
@@ -40,6 +46,13 @@ export function cleanProgress(input: unknown, today: string = localDay()): Progr
     return isDay(at) && isReviewStep(step) ? [[id, { at, step }]] : []
   })) as Reviews
 
+  // Nota não depende de o tópico estar concluído (dá para anotar antes de terminar); desmarcar não a apaga.
+  const notes = Object.fromEntries(Object.entries(notesInput).flatMap(([id, text]) => {
+    if (!validTopicKeys.has(id) || typeof text !== 'string') return []
+    const trimmed = text.trim().slice(0, NOTE_MAX)
+    return trimmed ? [[id, trimmed]] : []
+  })) as Notes
+
   return {
     done,
     days: [...new Set(value.days.filter(isDay))],
@@ -47,6 +60,7 @@ export function cleanProgress(input: unknown, today: string = localDay()): Progr
       areasWithChallenge.has(id) && isDay(day) ? [[id, day]] : [])) as Challenges,
     doneAt,
     reviews,
+    notes,
   }
 }
 
@@ -58,10 +72,10 @@ export const safeProgress = (input: unknown, today: string = localDay()): Progre
   }
 }
 
-export const createBackup = (data: ProgressData): ProgressBackup => ({ version: 4, ...cleanProgress(data) })
+export const createBackup = (data: ProgressData): ProgressBackup => ({ version: 5, ...cleanProgress(data) })
 
 export function parseBackup(input: unknown, today: string = localDay()): ProgressData {
-  if (!input || typeof input !== 'object' || ![1, 2, 3, 4].includes((input as Record<string, unknown>).version as number)) {
+  if (!input || typeof input !== 'object' || ![1, 2, 3, 4, 5].includes((input as Record<string, unknown>).version as number)) {
     throw new Error('Arquivo inválido')
   }
   return cleanProgress(input, today)

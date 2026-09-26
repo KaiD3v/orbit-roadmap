@@ -448,6 +448,21 @@ h1 .no-break {
   padding: 9px 16px;
   font-size: 13px;
 }
+/* B03: a nota do tópico em revisão, escondida atrás de "Ver sua nota" para não competir com a pergunta */
+.next-step-review-note {
+  flex-basis: 100%;
+}
+.review-note-text {
+  margin: 8px 0 0;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #10182f;
+  color: var(--text);
+  font-size: 13px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+}
 /* Ponto com cauda: um "cometa" que passou de novo, discreto e sem animação contínua (nem emoji ☄) */
 .review-comet {
   flex: none;

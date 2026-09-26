@@ -9,7 +9,7 @@ const {
   weekProgress, weekStart, WEEKLY_GOAL,
 } = await server.ssrLoadModule('/src/domain/progress.ts')
 const { matchesArea, normalizeQuery, queryMatcher } = await server.ssrLoadModule('/src/domain/filter.ts')
-const { cleanProgress, parseBackup } = await server.ssrLoadModule('/src/domain/backup.ts')
+const { cleanProgress, NOTE_MAX, parseBackup } = await server.ssrLoadModule('/src/domain/backup.ts')
 const {
   combineProgress, decodeProgress, encodeProgress, newTopicsCount,
 } = await server.ssrLoadModule('/src/domain/share.ts')
@@ -89,7 +89,7 @@ const phaseFeedback = toggleFeedback(almostDone, lastTopic.id)
 assert.equal(phaseFeedback.kind, 'phase')
 assert.equal(phaseFeedback.message, `Fase concluída! +${PHASE_XP} XP ✦`)
 
-assert.throws(() => parseBackup({ version: 5, done: {}, days: [] }))
+assert.throws(() => parseBackup({ version: 6, done: {}, days: [] }))
 assert.deepEqual(parseBackup({ version: 3, done: {}, days: [], challenges: { 1: '2026-09-25' } }).challenges, { 1: '2026-09-25' })
 
 const area1 = areas.find(area => area.id === 1)
@@ -228,7 +228,7 @@ assert.deepEqual(roundTrip.challenges, allChallengesDoneLink)
 
 // Ida e volta com progresso vazio
 const emptyRoundTrip = decodeProgress(encodeProgress({ done: {}, days: [], challenges: {} }))
-assert.deepEqual(emptyRoundTrip, { done: {}, days: [], challenges: {}, doneAt: {}, reviews: {} })
+assert.deepEqual(emptyRoundTrip, { done: {}, days: [], challenges: {}, doneAt: {}, reviews: {}, notes: {} })
 
 // Link com segmento de área inexistente: ignora o segmento ruim, mantém o resto
 const area1FirstEssential = area1.topics.find(topic => topic.required)
@@ -271,6 +271,12 @@ const incomingLink = { done: { [area2FirstEssential.id]: true }, days: [], chall
 const combinedWithDates = combineProgress(localWithDates, incomingLink)
 assert.equal(combinedWithDates.doneAt[area1FirstEssential.id], '2026-01-01')
 assert.equal(combinedWithDates.doneAt[area2FirstEssential.id], localDay())
+
+// B03: notas não viajam no link — combineProgress preserva as notas locais, mesmo que `incoming` tenha outras
+const localWithNotes = { ...localWithDates, notes: { [area1FirstEssential.id]: 'minha nota local' } }
+const incomingWithNotes = { ...incomingLink, notes: { [area2FirstEssential.id]: 'nota que não deveria entrar' } }
+const combinedNotes = combineProgress(localWithNotes, incomingWithNotes)
+assert.deepEqual(combinedNotes.notes, { [area1FirstEssential.id]: 'minha nota local' })
 
 // F03: revisão espaçada — elegibilidade por degrau (14 / 30 / 90 dias), 1 por dia, desempate e as duas respostas
 const todayStr = localDay()
@@ -387,8 +393,37 @@ const dirtyReviews = cleanProgress({
 })
 assert.deepEqual(dirtyReviews.reviews, { [area1FirstEssential.id]: { at: '2026-01-15', step: 1 } })
 
+// Migração (esquema v4 -> v5, B03): progresso sem `notes` ganha objeto vazio, sem perder nada
+const migratedV4 = cleanProgress({ done: { [area1FirstEssential.id]: true }, days: [], challenges: {} })
+assert.deepEqual(migratedV4.notes, {})
+assert.equal(migratedV4.done[area1FirstEssential.id], true)
+
+// cleanProgress filtra notas: id de tópico inexistente, valor não-string, nota vazia (após trim) e corta no limite
+const longNote = 'x'.repeat(NOTE_MAX + 50)
+const dirtyNotes = cleanProgress({
+  done: {},
+  days: [],
+  challenges: {},
+  notes: {
+    [area1FirstEssential.id]: `  ${longNote}  `,
+    [area2FirstEssential.id]: '   ',
+    'id-fantasma': 'nota de tópico que não existe',
+    [area1FirstEssential.id + '-numero']: 42,
+  },
+})
+assert.equal(dirtyNotes.notes[area1FirstEssential.id].length, NOTE_MAX)
+assert.equal(dirtyNotes.notes[area1FirstEssential.id], longNote.slice(0, NOTE_MAX))
+assert.equal(dirtyNotes.notes[area2FirstEssential.id], undefined)
+assert.equal(Object.keys(dirtyNotes.notes).length, 1)
+
+// Nota não depende de o tópico estar concluído: cleanProgress mantém a nota mesmo com `done` vazio
+assert.deepEqual(
+  cleanProgress({ done: {}, days: [], challenges: {}, notes: { [area1FirstEssential.id]: 'ainda não terminei' } }).notes,
+  { [area1FirstEssential.id]: 'ainda não terminei' },
+)
+
 await server.close()
 console.log(
   'domain: percent, localDay, streak, matchesArea, toggleFeedback, nextTopic, phaseState, areaState, nextGoals, '
-  + 'link de progresso (F02), revisão espaçada (F03) e meta semanal (B02) OK',
+  + 'link de progresso (F02), revisão espaçada (F03), meta semanal (B02) e notas por tópico (B03) OK',
 )
