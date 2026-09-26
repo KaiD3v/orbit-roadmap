@@ -4,12 +4,6 @@ Ideias avaliadas e guardadas para depois. Não estão planejadas; entram quando 
 
 ## Vale depois
 
-### Instalar como app (PWA)
-Funciona offline e ganha ícone na tela inicial do celular. Combina com o fato de o app guardar tudo no aparelho.
-- `manifest.webmanifest` + service worker simples (cache dos arquivos do build), sem dependência.
-- Cuidado com o cache: a página precisa atualizar quando sair uma versão nova (estratégia "network first" para o HTML).
-- Custo baixo a médio.
-
 ### Cards compartilháveis de conquistas ("instagramáveis")
 Gera uma imagem bonita, pronta para postar no LinkedIn, Instagram ou X, nos momentos que valem comemorar. É divertido para quem usa e é a forma mais barata de divulgar o app.
 - **Quando oferecer:** um botão "Compartilhar" no toast grande e no painel, depois de:

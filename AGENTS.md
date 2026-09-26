@@ -62,6 +62,9 @@ src/
     Sidebar.tsx            navegação por fase (vira menu hambúrguer ≤820px) e nível
     Achievements.tsx, BackupControls.tsx, Toast.tsx, SectionHeading.tsx
   styles/                  CSS puro: base (tokens, fundo), dashboard, map, dialog; index.css importa todos
+public/                    servidos como estão, sem passar pelo build (ver "PWA" abaixo)
+  favicon.svg, icon-192.png, icon-512.png, icon-maskable-512.png
+  manifest.webmanifest, sw.js
 tests/
   domain.mjs               regras puras
   store.mjs                integridade do conteúdo + hidratação/migração do store
@@ -229,7 +232,21 @@ Um campo curto para anotar o que aprendeu ou um link que ajudou, por tópico. N�
 - **Mudança visual precisa ser vista, não só compilada.** Rode o app e confira em 1440px e 390px, com e sem progresso. Em automação: Chrome headless via DevTools Protocol (sem dependências). Ao capturar depois de rolar a página, use `Page.captureScreenshot` **sem** `clip`, porque o recorte usa coordenadas do documento e a imagem sai em branco.
 - A pasta `tasks/` (fora do git, pode não existir no seu clone) guarda planejamentos locais e um script de captura (`tasks/visual_planner/shots.mjs`).
 
+## PWA (instalar como app, offline)
+
+- **Sem dependência** (nada de `vite-plugin-pwa`): `public/manifest.webmanifest` e `public/sw.js` escritos à mão. Os ícones (`icon-192.png`, `icon-512.png`, `icon-maskable-512.png`) foram gerados uma vez a partir do `favicon.svg` via Chrome headless e ficam versionados; não há passo de build para eles.
+- **Registro** (`src/main.tsx`): só roda se `import.meta.env.PROD` e `'serviceWorker' in navigator`, no evento `load`. Em `pnpm dev` o service worker nunca é registrado (evita cache velho atrapalhando o Vite).
+- **Estratégia de cache no `sw.js`:**
+  - **Navegação (HTML): network first**, com o cache como reserva offline — assim uma versão nova do app aparece no primeiro acesso online, sem precisar limpar nada.
+  - **Arquivos do build (`/assets/*`, com hash no nome) e demais estáticos same-origin (ícones, manifest): cache first.** O hash muda a cada build, então nunca ficam velhos.
+  - **Fontes do Google** (`fonts.googleapis.com`/`fonts.gstatic.com`): stale-while-revalidate num cache à parte. Sem elas o app cai na fonte de reserva.
+  - Outras origens: o service worker não intercepta (deixa o navegador seguir o caminho normal).
+- **Sem pré-cache da lista de assets:** o cache enche na primeira visita online; o app funciona offline a partir da segunda. Se for preciso offline já na primeira visita, gerar a lista de assets no build fica como melhoria futura.
+- **Versionar o cache:** os nomes `orbit-v1` (app) e `orbit-fonts-v1` (fontes) estão no topo do `sw.js`. **Toda vez que o `sw.js` mudar de um jeito que precise invalidar o cache antigo, suba o número** (`orbit-v1` → `orbit-v2`); o `activate` apaga qualquer cache com nome antigo.
+- **Progresso por link (F02) funciona offline:** o `#p=…` não passa pelo service worker (é só parte da URL, lida em `App.tsx` depois que o JS carrega), então abrir o link com o app instalado e sem rede importa normalmente, desde que o app já tenha sido aberto ao menos uma vez online (para o `sw.js` cachear o HTML/JS).
+- Sem aviso de "nova versão disponível": o network first no HTML resolve o caso comum.
+
 ## Onde está o quê além do código
 
-- [BACKLOG.md](BACKLOG.md): ideias avaliadas (PWA, cards compartilháveis, recomendação de materiais mais completa) e o que foi descartado, com o motivo.
-- Implementadas: **progresso por link** (F02, `domain/share.ts`), **revisão espaçada** (F03, `domain/review.ts`), **meta semanal** (B02, `weekProgress`/`weekStart` em `domain/progress.ts`) e **notas por tópico** (B03, `domain/backup.ts` + `AreaDialog.tsx`), ver "Regras de negócio" acima.
+- [BACKLOG.md](BACKLOG.md): ideias avaliadas (cards compartilháveis, recomendação de materiais mais completa) e o que foi descartado, com o motivo.
+- Implementadas: **progresso por link** (F02, `domain/share.ts`), **revisão espaçada** (F03, `domain/review.ts`), **meta semanal** (B02, `weekProgress`/`weekStart` em `domain/progress.ts`), **notas por tópico** (B03, `domain/backup.ts` + `AreaDialog.tsx`) e **PWA/offline** (B04, ver "PWA" acima), ver "Regras de negócio" acima.

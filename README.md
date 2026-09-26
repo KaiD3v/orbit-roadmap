@@ -26,6 +26,17 @@ Para a jornada não virar obrigação, o progresso é visual e recompensado: o m
 - **Backup:** baixe e restaure o seu progresso em JSON.
 - **Progresso por link:** copie um link com o seu progresso e abra no outro aparelho para juntar (sem apagar o que já estava lá).
 - **Responsivo**, com menu hambúrguer no celular. As animações respeitam a preferência do sistema por menos movimento.
+- **Instalável e funciona offline:** dá para adicionar à tela inicial do celular ou instalar no computador, e usar sem internet depois da primeira visita.
+
+## Instalar como app (funciona offline)
+
+O Orbit é um PWA (Progressive Web App). Depois de abrir o site uma vez com internet:
+
+- **Celular (Android/Chrome):** menu do navegador → "Adicionar à tela inicial" (ou o próprio Chrome sugere instalar).
+- **Celular (iPhone/Safari):** botão de compartilhar → "Adicionar à Tela de Início".
+- **Computador (Chrome/Edge):** ícone de instalar na barra de endereço, ou menu → "Instalar Orbit".
+
+Uma vez aberto ao menos uma vez, o app carrega e funciona **sem internet** (o progresso já era só local; agora as telas também ficam disponíveis offline). Ao sair uma versão nova, ela aparece sozinha da próxima vez que você abrir o app com internet.
 
 ## Privacidade
 
