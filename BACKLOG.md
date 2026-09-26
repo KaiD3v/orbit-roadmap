@@ -51,7 +51,6 @@ Hoje cada área tem 4 materiais fixos (Material, Curso, Vídeo e Livro), com um 
 
 ## Pequenos ajustes anotados
 
-- **Busca por palavra inteira:** hoje "RAG" também encontra "sto*rag*e" e abre a fase 5. Avaliar busca por início de palavra.
 - **QR code para o link de progresso:** só se o compartilhamento nativo do celular não bastar. Exigiria biblioteca ou um codificador próprio.
 
 ## Descartado por enquanto

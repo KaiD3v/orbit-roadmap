@@ -182,7 +182,7 @@ Leitner de 3 degraus (sem lib de repetição espaçada: é resposta binária, al
 
 ### Busca
 
-`matchesArea` procura, sem diferenciar maiúsculas, no título da área e dos tópicos (`toLocaleLowerCase('pt-BR')`). É uma busca por trecho: "rag" também encontra "sto*rag*e" (anotado no backlog).
+`matchesArea` procura, sem diferenciar maiúsculas nem acento (`normalizeQuery`: `toLocaleLowerCase('pt-BR')` + remoção de marcas diacríticas via NFD), no título da área e dos tópicos. É uma busca por início de palavra: o trecho precisa aparecer no começo do texto ou logo depois de um caractere que não é letra nem número, então "rag" encontra "RAG" mas não "sto*rag*e", e "memoria" encontra "memória". Consulta com espaço continua sendo um trecho único ("event sour" encontra "event sourcing"), não busca por palavras soltas. `queryMatcher(query)` compila a regex uma vez por consulta (não uma vez por área) e retorna a função de teste usada pelos componentes que filtram.
 
 ## Interface e texto
 
