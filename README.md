@@ -19,7 +19,7 @@ Para a jornada não virar obrigação, o progresso é visual e recompensado: o m
 - **Card "Seu próximo passo":** mostra o próximo tópico essencial (ou o desafio pendente da área) e permite marcar como feito sem abrir nada.
 - **Mapa por fases:** só a fase atual fica aberta, como uma trilha. As outras mostram uma estrela por área.
 - **Painel da área:** mostra os essenciais como uma sequência de passos, os extras recolhidos, o desafio prático e os materiais de estudo, com um deles em destaque.
-- **Materiais com contexto:** nível, idioma, gratuito ou pago, duração e uma frase de "por que este" (quando a curadoria tiver esse dado). Um tópico com material ligado a ele ganha um link "Onde estudar" (ou "Onde estudar isto" no card de próximo passo); marcar como lido rende XP, até um teto por área.
+- **Materiais com contexto:** nível, idioma, gratuito ou pago, duração e uma frase de "por que este" (quando a curadoria tiver esse dado). Um tópico com material ligado a ele ganha um link "Onde estudar"; marcar como lido rende XP, até um teto por área.
 - **Biblioteca de materiais:** todos os materiais do roadmap numa só tela, com busca e filtros por tipo, nível, idioma, gratuito e lido/não lido, entrando pela sidebar.
 - **Notas por tópico:** anote o que aprendeu ou um link que ajudou, direto no painel da área. A nota reaparece no bloco de revisão espaçada, para lembrar sem precisar reabrir o painel.
 - **Busca e filtros** por área ou tópico.

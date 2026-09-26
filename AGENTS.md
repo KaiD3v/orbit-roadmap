@@ -61,8 +61,8 @@ src/
                            Exporta `Notification` (`Feedback` + `share?` opcional), anexado nas transições
                            de desafio, fase e nível concluídos para o botão "Compartilhar" do toast grande.
   components/              só exibição: leem o store e chamam o domínio
-    NextStep.tsx           card "Seu próximo passo" (o elemento principal da tela), com o bloco de revisão espaçada,
-                           a meta semanal no rodapé e "Onde estudar isto" quando o tópico atual tem material ligado
+    NextStep.tsx           card "Seu próximo passo" (o elemento principal da tela), com o bloco de revisão espaçada e
+                           a meta semanal no rodapé
     Hero.tsx               boas-vindas, só na primeira visita (depois vira um <h1> sr-only)
     Journey.tsx            seção do mapa: título, MapToolbar, RoadmapMap, lista vazia
     MapToolbar.tsx         busca, filtros e contagem de resultados
@@ -194,7 +194,7 @@ Um campo curto para anotar o que aprendeu ou um link que ajudou, por tópico. N�
 Cada área tem os 4 materiais de sempre (Material, Curso, Vídeo, Livro), mas agora podem ganhar contexto e se ligar a tópicos específicos; a curadoria de metadados e a ligação a tópicos, por ora, só cobre a **fase 1** (14 áreas) — o resto do roadmap continua com os 4 materiais "crus", que funcionam igual.
 
 - **Metadados discretos:** `resourceMeta` (`domain/resources.ts`) monta uma linha só com os campos preenchidos — "Vídeo · Intermediário · EN · grátis · 40 min". Sem nenhum campo, sobra só o tipo (visual idêntico ao anterior à B06).
-- **Onde estudar:** um tópico com pelo menos um material cujo `topics` o inclui ganha um botão discreto "Onde estudar" (`TopicResources`, em `AreaDialog.tsx`) que expande a lista desses materiais. O card "Seu próximo passo" mostra o mesmo componente como "Onde estudar isto", abaixo das ações (nunca competindo com "Já estudei").
+- **Onde estudar:** um tópico com pelo menos um material cujo `topics` o inclui ganha um botão discreto "Onde estudar" (`TopicResources`, em `AreaDialog.tsx`) que expande a lista desses materiais. Não aparece no card "Seu próximo passo", que fica só com "Já estudei" e "Ver área" (os materiais estão a um clique, no painel).
 - **Marcar como lido:** cada material tem um botão "Marcar como lido"/"Lido" (`ResourceCard`). A chave é a **URL normalizada** (`normalizeResourceUrl`): sem barra final, sem parâmetros `utm_*`. Materiais não têm id próprio; **se a URL mudar na curadoria, o registro de "lido" se perde** (aceito). Um material citado em várias áreas (ex.: o mesmo livro) é uma chave só — marcar como lido em uma área marca em todas.
 - **XP de material:** `+5` por material lido (`MATERIAL_XP`), com teto de `4` por área (`MATERIAL_XP_CAP_PER_AREA`, `materialXp` em `domain/progress.ts`) para não virar farm marcando os 4 tipos genéricos. Um material citado em várias áreas conta o teto **em cada uma** (é crédito por área, não por material). O **nível** continua baseado só nos essenciais — ler material não pula nível.
 - **Marcar como lido não registra dia de estudo** — mesma lógica das notas (B03): ler não é a mesma coisa que estudar/concluir um tópico, e a ação já rende XP à parte.

@@ -3,7 +3,6 @@ import { areas, stepLabel } from '../data/roadmap'
 import { goalsLine, levelFor, localDay, nextTopic, priorityProgress, type Feedback } from '../domain/progress'
 import { pickReview, reviewElapsedDays, timeAgo } from '../domain/review'
 import { useMetrics, useProgress, useToggleTopic, useWeek } from '../store/progress'
-import { TopicResources } from './ResourceCard'
 import type { Area } from '../types/content'
 
 function useXpPulse(xp: number) {
@@ -32,7 +31,6 @@ export function NextStep({ notify, open }: {
   const reviews = useProgress(state => state.reviews)
   const notes = useProgress(state => state.notes)
   const resourcesRead = useProgress(state => state.resourcesRead)
-  const toggleResourceRead = useProgress(state => state.toggleResourceRead)
   const answerReview = useProgress(state => state.answerReview)
   const progress = useMetrics()
   const week = useWeek()
@@ -162,13 +160,6 @@ export function NextStep({ notify, open }: {
                     Ver área
                   </button>
                 </div>
-                <TopicResources
-                  area={area}
-                  topicId={next.topic.id}
-                  resourcesRead={resourcesRead}
-                  onToggleRead={toggleResourceRead}
-                  label="Onde estudar isto"
-                />
               </>
             )}
         <p className="next-step-footer">{footer}</p>

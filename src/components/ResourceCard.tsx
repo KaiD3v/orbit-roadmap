@@ -57,14 +57,11 @@ export function ResourceCard({ resource, resourcesRead, onToggleRead, featured }
 }
 
 // Materiais ligados a um tópico específico (campo `topics` do Resource), atrás de um link discreto.
-// `label` muda a palavra do botão fechado ("Onde estudar" no painel da área, "Onde estudar isto" no
-// card de próximo passo); aberto, o botão sempre mostra "Ocultar".
-export function TopicResources({ area, topicId, resourcesRead, onToggleRead, label = 'Onde estudar' }: {
+export function TopicResources({ area, topicId, resourcesRead, onToggleRead }: {
   area: Area
   topicId: string
   resourcesRead: ResourcesRead
   onToggleRead: (url: string) => void
-  label?: string
 }) {
   const resources = resourcesForTopic(area, topicId)
   const [open, setOpen] = useState(false)
@@ -72,7 +69,7 @@ export function TopicResources({ area, topicId, resourcesRead, onToggleRead, lab
   return (
     <div className={`topic-resources ${open ? 'is-open' : ''}`}>
       <button className="topic-resources-toggle" type="button" onClick={() => setOpen(!open)}>
-        <BookIcon />{open ? 'Ocultar' : label}
+        <BookIcon />{open ? 'Ocultar' : 'Onde estudar'}
       </button>
       {open && (
         <div className="resource-list">
