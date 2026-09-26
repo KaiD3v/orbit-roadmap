@@ -7,6 +7,7 @@ import { BackupControls } from './components/BackupControls'
 import { Hero } from './components/Hero'
 import { Journey } from './components/Journey'
 import { Achievements } from './components/Achievements'
+import { Library } from './components/Library'
 import { NextStep } from './components/NextStep'
 import { Sidebar } from './components/Sidebar'
 import { Toast } from './components/Toast'
@@ -14,6 +15,7 @@ import { useProgress } from './store/progress'
 import type { Area } from './types/content'
 
 const LINK_HASH_PREFIX = '#p='
+const LIBRARY_HASH = '#biblioteca'
 
 function App() {
   const [selected, setSelected] = useState<Area | null>(null)
@@ -21,6 +23,7 @@ function App() {
   const [search, setSearch] = useState('')
   const [filter, setFilter] = useState<Filter>('all')
   const [toast, setToast] = useState<Feedback | null>(null)
+  const [libraryOpen, setLibraryOpen] = useState(false)
 
   // Abre o painel da área; usado tanto pelos cliques normais (mapa, próximo passo) quanto pelo "Rever"
   // da revisão espaçada, que também destaca o tópico revisado dentro do painel.
@@ -32,6 +35,27 @@ function App() {
   function closeArea() {
     setSelected(null)
     setHighlightTopicId(null)
+  }
+
+  // Biblioteca (B06): visão por hash, sem roteador. Não pode conflitar com `#fase-N` (RoadmapMap) nem
+  // com `#p=` (progresso por link, acima): só reage ao hash exato `#biblioteca`.
+  useEffect(() => {
+    function checkHash() {
+      setLibraryOpen(location.hash === LIBRARY_HASH)
+    }
+    checkHash()
+    window.addEventListener('hashchange', checkHash)
+    return () => window.removeEventListener('hashchange', checkHash)
+  }, [])
+
+  function closeLibrary() {
+    if (location.hash === LIBRARY_HASH) history.replaceState(null, '', location.pathname + location.search)
+    setLibraryOpen(false)
+  }
+
+  function openAreaFromLibrary(area: Area) {
+    closeLibrary()
+    openArea(area)
   }
 
   // Progresso por link (F02): se o endereço trouxer `#p=…`, junta com o progresso local uma única vez.
@@ -77,6 +101,7 @@ function App() {
         </main>
       </div>
       <AreaDialog area={selected} notify={setToast} close={closeArea} highlightTopicId={highlightTopicId} />
+      <Library open={libraryOpen} close={closeLibrary} openArea={openAreaFromLibrary} />
       <Toast message={toast} onHide={setToast} />
     </>
   )

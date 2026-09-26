@@ -69,6 +69,10 @@ export function Sidebar({ resetView }: { resetView: () => void }) {
             )
           })}
         </nav>
+        <a className="nav-link nav-library" href="#biblioteca" onClick={() => setOpen(false)}>
+          <span className="nav-number" aria-hidden="true">▤</span>
+          Biblioteca de materiais
+        </a>
         <div className="sidebar-bottom">
           <div className="level-label">Seu nível <strong>{level}</strong></div>
           <div className="mini-progress" role="progressbar" aria-label="Progresso da trilha essencial" aria-valuenow={progress.percent} aria-valuemin={0} aria-valuemax={100}><span style={{ width: `${progress.percent}%` }} /></div>
