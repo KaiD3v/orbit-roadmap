@@ -1,4 +1,60 @@
-/* B06: Biblioteca de materiais, rota #/biblioteca (página dentro da shell, ao lado da sidebar) */
+/* B06/L02: Biblioteca de materiais ("observatório"), rota #/biblioteca (página dentro da shell) */
+
+/* L02: astro por tipo (ResourceBody.tsx). Não lido = cor da fase; lido = ciano aceso. Nenhuma cor
+   fixa vem do SVG: só currentColor, resolvido aqui. */
+.resource-body {
+  display: inline-flex;
+  position: relative;
+  color: var(--phase-color, var(--muted));
+  transition: filter 0.15s, color 0.2s;
+}
+.resource-body.is-read {
+  color: var(--cyan);
+  filter: drop-shadow(0 0 5px color-mix(in srgb, var(--cyan) 65%, transparent));
+}
+.resource-body .body-ring,
+.resource-body .body-orbit {
+  fill: none;
+  stroke: currentColor;
+}
+.resource-body .body-ring {
+  stroke-width: 1.6;
+}
+.resource-body .body-ring-back {
+  opacity: 0.45;
+}
+.resource-body .body-orbit {
+  stroke-width: 1.4;
+  stroke-dasharray: 2 4;
+  opacity: 0.55;
+}
+.resource-body .body-core,
+.resource-body .body-orbit-point,
+.resource-body .body-tail {
+  fill: currentColor;
+}
+.resource-body.is-unread .body-core {
+  fill-opacity: 0.85;
+}
+.resource-body .body-tail-far {
+  opacity: 0.25;
+}
+.resource-body .body-tail-near {
+  opacity: 0.6;
+}
+.resource-body .body-spark {
+  fill: #ffffffcc;
+}
+/* Halo do primeiro material da constelação ("Comece por este") */
+.resource-body.is-featured::before {
+  content: "";
+  position: absolute;
+  inset: -6px;
+  border-radius: 50%;
+  background: radial-gradient(circle, color-mix(in srgb, currentColor 35%, transparent), transparent 70%);
+  z-index: -1;
+}
+
 .library-top {
   padding: 36px 0 18px;
   border-bottom: 1px solid var(--line);
