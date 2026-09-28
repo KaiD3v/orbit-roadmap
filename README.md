@@ -43,7 +43,7 @@ Uma vez aberto ao menos uma vez, o app carrega e funciona **sem internet** (o pr
 
 ## Privacidade
 
-Não há conta, servidor nem rastreamento. O progresso fica **só no seu navegador** (`localStorage`). Para levar o progresso para outro navegador ou aparelho, use **Baixar backup**/**Restaurar backup** ou **Copiar link de progresso**: o link carrega o progresso depois do `#`, uma parte do endereço que o navegador nunca envia a nenhum servidor. Os cards compartilháveis também são gerados inteiramente no seu aparelho (nada é enviado a um servidor); o nome ou @ opcional que você digitar para aparecer no card fica só no seu navegador, fora do backup e do link de progresso.
+Não há conta nem servidor. A única medição é o [Vercel Web Analytics](https://vercel.com/docs/analytics/privacy-policy), que conta visitas por página sem cookies e sem guardar dados pessoais (o progresso e o link de progresso nunca são enviados). O progresso fica **só no seu navegador** (`localStorage`). Para levar o progresso para outro navegador ou aparelho, use **Baixar backup**/**Restaurar backup** ou **Copiar link de progresso**: o link carrega o progresso depois do `#`, uma parte do endereço que o navegador nunca envia a nenhum servidor. Os cards compartilháveis também são gerados inteiramente no seu aparelho (nada é enviado a um servidor); o nome ou @ opcional que você digitar para aparecer no card fica só no seu navegador, fora do backup e do link de progresso.
 
 Suas **notas por tópico** e os **materiais marcados como lidos** ficam só no aparelho e no backup em arquivo: eles nunca entram no link de progresso, que precisa continuar curto e pode ser compartilhado por aí.
 

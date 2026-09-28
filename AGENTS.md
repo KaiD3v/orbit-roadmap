@@ -35,7 +35,8 @@ Para instalar dependências, use a mesma versão do lockfile: `npx pnpm@11.19.0 
 src/
   main.tsx                 monta <App/> e importa styles/index.css
   App.tsx                  shell: tabela de rotas, sidebar, topbar, e as camadas globais (painel da área, toast,
-                           card compartilhável, progresso por link) que ficam por cima de qualquer página
+                           card compartilhável, progresso por link) que ficam por cima de qualquer página,
+                           e o <Analytics> da Vercel (recebe o caminho da rota, nunca o hash)
   router.ts                roteamento por hash (`#/caminho`): usePath, href, pathFromHash
   pages/                   uma página por rota; todas recebem PageProps (types.ts)
     HomePage.tsx           `/`: Hero, próximo passo, mapa (com o estado de busca e filtro) e conquistas
@@ -330,9 +331,9 @@ Uma imagem 100% gerada no aparelho (`<canvas>` 2D, sem dependência) para postar
   - **Navegação (HTML): network first**, com o cache como reserva offline — assim uma versão nova do app aparece no primeiro acesso online, sem precisar limpar nada.
   - **Arquivos do build (`/assets/*`, com hash no nome) e demais estáticos same-origin (ícones, manifest): cache first.** O hash muda a cada build, então nunca ficam velhos.
   - **Fontes do Google** (`fonts.googleapis.com`/`fonts.gstatic.com`): stale-while-revalidate num cache à parte. Sem elas o app cai na fonte de reserva.
-  - Outras origens: o service worker não intercepta (deixa o navegador seguir o caminho normal).
+  - Outras origens e `/_vercel/*` (script do Vercel Web Analytics, sem hash no nome): o service worker não intercepta (deixa o navegador seguir o caminho normal).
 - **Sem pré-cache da lista de assets:** o cache enche na primeira visita online; o app funciona offline a partir da segunda. Se for preciso offline já na primeira visita, gerar a lista de assets no build fica como melhoria futura.
-- **Versionar o cache:** os nomes `orbit-v1` (app) e `orbit-fonts-v1` (fontes) estão no topo do `sw.js`. **Toda vez que o `sw.js` mudar de um jeito que precise invalidar o cache antigo, suba o número** (`orbit-v1` → `orbit-v2`); o `activate` apaga qualquer cache com nome antigo.
+- **Versionar o cache:** os nomes `orbit-v2` (app) e `orbit-fonts-v1` (fontes) estão no topo do `sw.js`. **Toda vez que o `sw.js` mudar de um jeito que precise invalidar o cache antigo, suba o número** (`orbit-v2` → `orbit-v3`); o `activate` apaga qualquer cache com nome antigo.
 - **Progresso por link (F02) funciona offline:** o `#p=…` não passa pelo service worker (é só parte da URL, lida em `App.tsx` depois que o JS carrega), então abrir o link com o app instalado e sem rede importa normalmente, desde que o app já tenha sido aberto ao menos uma vez online (para o `sw.js` cachear o HTML/JS).
 - Sem aviso de "nova versão disponível": o network first no HTML resolve o caso comum.
 

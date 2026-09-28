@@ -3,7 +3,7 @@
 // Ao mudar este arquivo, suba o número da versão abaixo (orbit-v1 -> orbit-v2, etc.):
 // o nome do cache muda, o `activate` apaga o cache antigo e todo mundo recebe os arquivos novos.
 // Esquecer de subir a versão faz o service worker continuar servindo arquivos velhos do cache.
-const CACHE_NAME = 'orbit-v1'
+const CACHE_NAME = 'orbit-v2'
 const FONT_CACHE = 'orbit-fonts-v1'
 const FONT_ORIGINS = ['https://fonts.googleapis.com', 'https://fonts.gstatic.com']
 
@@ -34,6 +34,9 @@ self.addEventListener('fetch', (event) => {
 
   // Outras origens (CDN, etc.): deixa o navegador cuidar, sem interceptar.
   if (url.origin !== self.location.origin) return
+
+  // Vercel Web Analytics (/_vercel/insights/script.js): nome sem hash, o cache first o deixaria velho para sempre
+  if (url.pathname.startsWith('/_vercel/')) return
 
   // Navegação (HTML): network first, cache como reserva offline. Assim a versão nova aparece
   // no primeiro acesso online, e só cai pro cache quando não há rede.

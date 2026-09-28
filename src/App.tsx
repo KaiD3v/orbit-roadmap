@@ -1,3 +1,4 @@
+import { Analytics } from '@vercel/analytics/react'
 import { useEffect, useRef, useState, type ComponentType } from 'react'
 import { decodeProgress } from './domain/share'
 import type { ShareCardData } from './domain/shareCard'
@@ -113,6 +114,9 @@ function App() {
       />
       <Toast message={toast} onHide={setToast} onShare={setShareData} />
       <ShareCard data={shareData} close={() => setShareData(null)} notify={setToast} />
+      {/* A rota vive no hash, que a Vercel não vê: informa o caminho à mão. Isso também mantém o `#p=`
+          (o progresso por link) fora do que é enviado. */}
+      <Analytics route={path} path={path} />
     </>
   )
 }
