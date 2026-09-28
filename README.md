@@ -74,6 +74,12 @@ O Vite mostra o endereço local no terminal (por padrão, http://localhost:5173)
 
 O resultado de `pnpm build` é um site estático (HTML, CSS e JS). Pode ser publicado em qualquer hospedagem estática (GitHub Pages, Netlify, Vercel, Cloudflare Pages).
 
+Antes do build de produção, defina `VITE_SITE_URL` com o endereço público do site, sem barra no fim (no `.env` ou nas variáveis de ambiente da hospedagem). Ele entra nas tags de prévia do `index.html`: sem um endereço absoluto, LinkedIn, X e WhatsApp mostram o link sem a imagem (`public/og-image.png`).
+
+## Contato
+
+Achou um erro ou tem uma sugestão? [Abra uma issue](https://github.com/KaiD3v/orbit-roadmap/issues) ou escreva para kaikricardo99@gmail.com.
+
 ## Tecnologias
 
 React 19, TypeScript, Vite e Zustand (estado com persistência em `localStorage`). O CSS é escrito à mão, sem framework de UI.

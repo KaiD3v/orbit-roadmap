@@ -103,6 +103,7 @@ src/
   styles/                  CSS puro: base (tokens, fundo), dashboard, map, dialog, share, library; index.css importa todos
 public/                    servidos como estão, sem passar pelo build (ver "PWA" abaixo)
   favicon.svg, icon-192.png, icon-512.png, icon-maskable-512.png
+  og-image.png             prévia do link (1200×630), referenciada no index.html com `%VITE_SITE_URL%` (.env)
   manifest.webmanifest, sw.js
 scripts/
   check-links.mjs          confere as URLs dos materiais (HEAD, GET de reserva); `pnpm check-links`, fora do teste

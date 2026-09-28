@@ -92,7 +92,16 @@ function App() {
             <BackupControls notify={setToast} />
           </header>
           <Page notify={setToast} openArea={openArea} openShare={setShareData} />
-          <footer>Feito para aprender construindo. Seu progresso é salvo neste navegador. <span>Orbit</span></footer>
+          <footer>
+            <p>Feito para aprender construindo. Seu progresso é salvo neste navegador.</p>
+            <p className="footer-contact">
+              Achou um erro ou tem uma sugestão?{' '}
+              <a href="https://github.com/KaiD3v/orbit-roadmap/issues" target="_blank" rel="noreferrer">Abra uma issue</a>
+              {' ou '}
+              <a href="mailto:kaikricardo99@gmail.com?subject=Orbit">mande um e-mail</a>
+            </p>
+            <span>Orbit</span>
+          </footer>
         </main>
       </div>
       <AreaDialog

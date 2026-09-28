@@ -992,6 +992,17 @@ footer {
   color: var(--muted);
   font-size: 11px;
 }
+footer p {
+  margin: 0;
+}
+.footer-contact a {
+  color: var(--text);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.footer-contact a:hover {
+  color: var(--violet);
+}
 .toast {
   position: fixed;
   bottom: 26px;
@@ -1306,6 +1317,7 @@ footer {
   footer {
     display: block;
   }
+  footer p + p,
   footer span {
     display: block;
     margin-top: 6px;
