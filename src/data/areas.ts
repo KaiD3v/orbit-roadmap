@@ -1802,7 +1802,7 @@ export const areas: Area[] = [
       { id: 'a56-t04', title: 'testabilidade', required: true },
     ],
     resources: [
-      { type: 'Material', title: 'Documentação e referência', url: 'https://www.intercom.com/blog/ai-product-design/' },
+      { type: 'Material', title: 'Eugene Yan · Patterns for LLM-based systems & products', url: 'https://eugeneyan.com/writing/llm-patterns/' },
       { type: 'Curso', title: 'Full Stack Deep Learning · produto de IA', url: 'https://fullstackdeeplearning.com/course/2022/' },
       { type: 'Vídeo', title: 'Full Stack Deep Learning · times e produto', url: 'https://fullstackdeeplearning.com/course/2022/lecture-8-teams-and-pm/' },
       { type: 'Livro', title: 'Building AI-Powered Products', url: 'https://www.oreilly.com/library/view/building-ai-powered-products/9781098152697/' },
@@ -1824,7 +1824,7 @@ export const areas: Area[] = [
       { id: 'a57-t08', title: 'error recovery', required: true },
     ],
     resources: [
-      { type: 'Material', title: 'Documentação e referência', url: 'https://www.nngroup.com/articles/ai-ux/' },
+      { type: 'Material', title: 'Google PAIR · People + AI Guidebook', url: 'https://pair.withgoogle.com/guidebook/' },
       { type: 'Curso', title: 'NN/g · Understanding LLMs for UX', url: 'https://www.nngroup.com/contents/self-paced-courses/understanding-llms-a-guide-for-ux-practitioners/' },
       { type: 'Vídeo', title: 'NN/g · vídeos de UX para IA', url: 'https://www.nngroup.com/topic/ai/' },
       { type: 'Livro', title: 'UX for AI', url: 'https://www.oreilly.com/library/view/ux-for-ai/9781394345922/' },

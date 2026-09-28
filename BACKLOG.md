@@ -5,7 +5,7 @@ Ideias avaliadas e guardadas para depois. Não estão planejadas; entram quando 
 ## Vale depois
 
 ### Curadoria de materiais das fases 2 a 6
-A B06 enriqueceu só a fase 1 (metadados, materiais por tópico, até 1 material novo por área). Repetir o mesmo trabalho nas fases 2 a 6, uma fase por vez. Antes, trocar os 2 links que respondem 404 (áreas 56 e 57: `intercom.com/blog/ai-product-design` e `nngroup.com/articles/ai-ux`); os 403 da O'Reilly são bloqueio de robô, não link morto. Rodar `pnpm check-links`.
+A B06 enriqueceu só a fase 1 (metadados, materiais por tópico, até 1 material novo por área). Repetir o mesmo trabalho nas fases 2 a 6, uma fase por vez. Os 403 da O'Reilly são bloqueio de robô, não link morto. Rodar `pnpm check-links`.
 
 ## Pequenos ajustes anotados
 
